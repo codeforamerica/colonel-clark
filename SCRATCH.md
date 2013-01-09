@@ -1,4 +1,5 @@
 # Project Scratch Pad
+For internal use by project members.
 
 ## General
 
