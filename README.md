@@ -1,6 +1,6 @@
-# colonel-clark
-
-January test project for 2013 Code for America Fellowship Louisville team
+# Colonel Clark
+### January test application for 2013 Code for America Fellowship Louisville team
+This application will TBD.
 
 ## Development Setup
 
