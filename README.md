@@ -4,16 +4,18 @@ January test project for 2013 Code for America Fellowship Louisville team
 
 ## Development Setup
 
-1. Clone this repository. 
+1. Clone this repository.
 
-    $ git clone ...
-    $ cd colonel-clark
+    `$ git clone ...`
+    `$ cd colonel-clark`
 
-1. Install dependendies. 
-    $ npm install
+1. Install dependencies.
 
-1. Start the server. This will serve up the API as well as the web app. 
-    $ node app.js
+    `$ npm install`
+
+1. Start the server. This will serve up the API as well as the web app.
+
+    `$ node app.js`
 
 ## Directory Layout
 
