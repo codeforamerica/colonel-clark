@@ -4,9 +4,13 @@ January test project for 2013 Code for America Fellowship Louisville team
 
 ## Development Setup
 
+1) Do a git clone:
+
+    git clone git://github.com/codeforamerica/geodata-checkout.git
+    
 1. Clone this repository:
 
-    $ git clone ...
+    git clone ...
     $ cd colonel-clark
 
 1. Install dependencies.
