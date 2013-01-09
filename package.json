@@ -1,0 +1,29 @@
+{
+    "name": "colonel-clark",
+    "version": "0.0.1",
+    "private": false,
+    "contributors": [
+	{
+	    "name": "Laura Meixell",
+	    "email": "laura@codeforamerica.org"
+	},
+	{
+	    "name": "Marcin Wichary",
+	    "email": "marcin@codeforamerica.org"
+	},
+	{
+	    "name": "Shaunak Kashyap",
+	    "email": "shaunak@codeforamerica.org"
+	}
+    ],
+    "dependencies": {
+	"express": "3.0.6"
+    },
+    "devDependencies": {
+	"mocha": "1.8.0"
+    },
+    "engines": {
+	"node": "0.8.x"
+    },
+    "license": "MIT"
+}
