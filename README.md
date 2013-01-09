@@ -4,22 +4,18 @@ January test project for 2013 Code for America Fellowship Louisville team
 
 ## Development Setup
 
-1) Do a git clone:
+1) Clone this repository:
 
-    git clone git://github.com/codeforamerica/geodata-checkout.git
-    
-1. Clone this repository:
-
-    git clone ...
+    $ git clone ...
     $ cd colonel-clark
 
-1. Install dependencies.
+2) Install dependencies.
 
-    `$ npm install`
+    $ npm install
 
-1. Start the server. This will serve up the API as well as the web app.
+3) Start the server. This will serve up the API as well as the web app.
 
-    `$ node app.js`
+    $ node app.js
 
 ## Directory Layout
 
