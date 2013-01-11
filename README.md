@@ -21,15 +21,21 @@ This web application allows citizens of Louisville to view aggregate crime stati
 
     $ npm install
 
-5) Start the server. This will serve up the API as well as the web app.
+5) Setup database schema.
+
+    $ node db/migrator.js
+
+6) Start the server. This will serve up the API as well as the web app.
 
     $ node app.js
 
 ## Directory Layout
 
 This is the layout of directories relative to the current one (i.e. the one housing this README.md file).
-* `public`: Contains publicly-accessible, static code. E.g.: images, css, (browser-side) javascript, html, etc.
+* `api`: Contains code for the REST API.
 * `bin`: Contains executable scripts to run by a human user. E.g.: command-line interfaces, etc.
 * `cron`: Contains executable scripts to be run periodically and automatically by a scheduler like cron.
+* `db`: Contains database schema migration scripts.
+* `lib`: Contains code that could be re-used by multiple application components. 
+* `public`: Contains publicly-accessible, static code. E.g.: images, css, (browser-side) javascript, html, etc.
 * `test`: Contains unit tests.
-* `api`: Contains code for the REST API.
