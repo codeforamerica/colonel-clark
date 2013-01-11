@@ -1,7 +1,7 @@
 # Colonel Clark
 ### January test application for 2013 Code for America Fellowship Louisville team
 
-Building a simple web site that allows citizens of Louisville to view aggregate crime statitics for their neighborhoods. It also allows them to sign up for periodic email alerts for new crimes in their neighborhoods.
+This web application allows citizens of Louisville to view aggregate crime statitics for their neighborhoods. It also allows them to sign up for periodic email alerts for new crimes in their neighborhoods.
 
 ## Development Setup
 
