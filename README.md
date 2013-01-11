@@ -14,7 +14,7 @@ This web application allows citizens of Louisville to view aggregate crime stati
 
 3) Clone this repository onto your local development machine:
 
-    $ git clone ...
+    $ git clone <REPLACE THIS WITH REPO CLONE LOCATION>
     $ cd colonel-clark
 
 4) Install dependencies.
