@@ -8,6 +8,7 @@ This web application allows citizens of Louisville to view aggregate crime stati
 1) Download the PostgreSQL database server from http://postgresapp.com/ and install it.
 
 2) Create the PostgreSQL database and role (aka user).
+
     $ createuser -h localhost -DPSR bp
     $ createdb -h localhost -O bp louisville_crime
 
