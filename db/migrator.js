@@ -9,9 +9,11 @@ var applyMigrations = function(migrationId) {
     
     postgrator.setMigrationDirectory(__dirname + '/migrations');
     postgrator.setConnectionString("tcp://bp:bp@localhost/louisville_crime");
-    postgrator.migrate(process.argv[1], function(err, migrationsRun) {
-	console.error("Error: " + err);
-	process.exit(err);
+    postgrator.migrate(migrationId, function(err, migrationsRun) {
+	if (err) {
+	    console.error("Error: " + err);
+	    process.exit(2);
+	}
     });
 
 }
