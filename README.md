@@ -7,16 +7,20 @@ This web application allows citizens of Louisville to view aggregate crime stati
 
 1) Download the PostgreSQL database server from http://postgresapp.com/ and install it.
 
-2) Clone this repository onto your local development machine:
+2) Create the PostgreSQL database and role (aka user).
+    $ createuser -h localhost -DPSR bp
+    $ createdb -h localhost -O bp louisville_crime
+
+3) Clone this repository onto your local development machine:
 
     $ git clone ...
     $ cd colonel-clark
 
-3) Install dependencies.
+4) Install dependencies.
 
     $ npm install
 
-4) Start the server. This will serve up the API as well as the web app.
+5) Start the server. This will serve up the API as well as the web app.
 
     $ node app.js
 
