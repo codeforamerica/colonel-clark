@@ -3,18 +3,20 @@
 
 This web application allows citizens of Louisville to view aggregate crime statitics for their neighborhoods. It also allows them to sign up for periodic email alerts for new crimes in their neighborhoods.
 
-## Development Setup
+## Development Setup (for Mac OS X 10.8)
 
-1) Clone this repository:
+1) Download the PostgreSQL database server from http://postgresapp.com/ and install it.
+
+2) Clone this repository onto your local development machine:
 
     $ git clone ...
     $ cd colonel-clark
 
-2) Install dependencies.
+3) Install dependencies.
 
     $ npm install
 
-3) Start the server. This will serve up the API as well as the web app.
+4) Start the server. This will serve up the API as well as the web app.
 
     $ node app.js
 
