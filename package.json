@@ -17,8 +17,10 @@
 	}
     ],
     "dependencies": {
-	"express": "3.0.6",
-	"node.io": "0.4.12"
+	"restify": "2.0.4",
+	"node.io": "0.4.12",
+	"postgrator": "0.0.13",
+	"pg": "0.10.2"
     },
     "devDependencies": {
 	"mocha": "1.8.0"
