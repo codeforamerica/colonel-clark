@@ -6,10 +6,11 @@ CREATE TABLE crimes (
        street_address		varchar(255)			not null,
        city			varchar(80)			not null,
        zipcode			varchar(10)			not null,
-       beat			integer				not null,
+       beat			integer,
        crime			varchar(40)			not null,
        category			integer				not null,
        division			varchar(40)			not null,
-       sector			integer				not null,
-       incident_beat		integer				not null
+       sector			integer,
+       incident_beat		integer,
+       neighborhood		varchar(80)
 );
