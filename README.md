@@ -1,6 +1,5 @@
-# Colonel Clark
-## Louisville Neighborhood Crime Watch
-### (January test application for 2013 Code for America Fellowship Louisville team)
+# Louisville Neighborhood Crime Watch
+## January test application for 2013 Code for America Fellowship Louisville team
 
 This application builds on data available from the City of Louisville's website by presenting information about crime at the neighborhood level. This public facing portal is designed to connect citizens with information about crime in their communities in simple, relevant ways using langage and geographies they use everyday.
 
