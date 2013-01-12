@@ -24,7 +24,7 @@ crimeDataUpdater.updateRecord = function(cr) {
 	+ "category = $9, "
 	+ "division = $10, "
 	+ "sector = $11, "
-	+ "incident_beat = $12"
+	+ "incident_beat = $12 "
 	+ "WHERE case_number = $3 AND crime = $8";
     
     var query = this.client.query({
@@ -128,7 +128,7 @@ crimeDataUpdater.upsertRecord = function(cr) {
 };
 
 crimeDataUpdater.job = crime_data_scraper.job;
-crimeDataUpdater.job.output_callback = function(err, crimes) {
+crimeDataUpdater.outputCallback = function(err, crimes) {
 
     pg.connect(crimeDataUpdater.connectionString, function(err, client) {
 
@@ -138,7 +138,6 @@ crimeDataUpdater.job.output_callback = function(err, crimes) {
 	}
 
 	crimeDataUpdater.client = client;
-	client.on('drain', function() { console.log("Client query queue drained") });
 
 	for (index in crimes) {
 	    var cr = crimes[index];
@@ -152,5 +151,4 @@ crimeDataUpdater.job.output_callback = function(err, crimes) {
 
 };
 
-// Start scraping job
-nodeio.start(crimeDataUpdater.job, null, crimeDataUpdater.job.output_callback, true);
+nodeio.start(crimeDataUpdater.job, crimeDataUpdater.jobOptions, crimeDataUpdater.outputCallback, true);
