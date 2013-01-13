@@ -3,13 +3,17 @@
 
 ## APIs
 
-### /v1/neighborhoods
+### `/v1/neighborhoods`
 #### Retrieve a list of geo-coded neighborhoods
 HTTP Method: `GET`
+
 Query parameters: None
+
 Request body: None
+
 Response headers:
 * `Content-Type: application/json` ([GeoJSON](http://www.geojson.org/geojson-spec.html))
+
 Response body example:
     {
       "type":"FeatureCollection",
