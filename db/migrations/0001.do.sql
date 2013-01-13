@@ -12,5 +12,7 @@ CREATE TABLE crimes (
        division			varchar(40)			not null,
        sector			integer,
        incident_beat		integer,
+       lat			real				not null,
+       lon			real				not null,
        neighborhood		varchar(80)
 );
