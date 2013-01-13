@@ -1,5 +1,5 @@
 var restify = require('restify'),
-    resources = require(__dirname + '/resources');
+    resources = require(__dirname + '/restapi/resources');
 
 server = restify.createServer();
 server.use(restify.queryParser()); // Parse query strings
