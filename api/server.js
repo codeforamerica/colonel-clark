@@ -2,6 +2,7 @@ var restify = require('restify'),
     resources = require(__dirname + '/resources');
 
 server = restify.createServer();
+server.use(restify.queryParser()); // Parse query strings
 
 // Server and routes
 server.get('/v1/crimes', resources.v1.crimes.get);
