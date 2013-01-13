@@ -4,7 +4,7 @@
 ## APIs
 
 ### Retrieve a list of geo-coded neighborhoods
-    GET /v1/neighborhoods
+`GET /v1/neighborhoods`
 
 Response headers:
 * `Content-Type: application/json` ([GeoJSON](http://www.geojson.org/geojson-spec.html))
