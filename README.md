@@ -25,7 +25,7 @@ Please follow the instructions below to setup your development environment. In c
     $ createuser -h localhost -DPSR bp
     $ createdb -h localhost -O bp louisville_crime
 
-3) Enable PostGIS extension for the database.
+3) Enable PostGIS extension for the database. (Scroll below if you are getting a libjpeg-related error.)
 
     $ psql -h localhost louisville_crime
 
@@ -36,17 +36,27 @@ Please follow the instructions below to setup your development environment. In c
     $ git clone <REPLACE THIS WITH REPO CLONE LOCATION>
     $ cd colonel-clark
 
-5) Install dependencies.
+5) Install [Node](http://nodejs.org/#download).
+
+6) Install dependencies. This will take a while.
 
     $ npm install
 
-6) Setup database schema.
+7) Setup database schema. Give it a bit of time even after it says “done.”
 
     $ node db/migrator.js
 
-7) Start the REST API server.
+8) Start the REST API server (default on port 8080).
 
     $ node api/server.js
+
+9) Open a new Terminal window. Again go to the directory of your cloned repository. Start a Web server (on port 8000).
+
+    $ cd colonel-clark
+    $ cd public
+    $ python -m SimpleHTTPServer
+
+10) Open your website at http://localhost:8000
 
 ## Directory Layout
 
