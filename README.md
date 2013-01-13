@@ -44,9 +44,9 @@ Please follow the instructions below to setup your development environment. In c
 
     $ node db/migrator.js
 
-7) Start the server. This will serve up the API as well as the web app.
+7) Start the REST API server.
 
-    $ node app.js
+    $ node api/server.js
 
 ## Directory Layout
 
