@@ -12,7 +12,11 @@ Features:
 * The **subscription** feature connects users with what's going on in their neighborhood on a weekly basis, providing an easily accessible summary of events and linking them back to the site for additional information. 
 
 
-## Development Setup (for Mac OS X 10.8)
+## Development Setup
+
+Please follow the instructions below to setup your development environment. In case you run into issues, please consult the [FAQ](#FAQ).
+
+### For Mac OS X 10.8
 
 1) Download the PostgreSQL database server from http://postgresapp.com/ and install it.
 
@@ -21,20 +25,26 @@ Features:
     $ createuser -h localhost -DPSR bp
     $ createdb -h localhost -O bp louisville_crime
 
-3) Clone this repository onto your local development machine:
+3) Enable PostGIS extension for the database.
+
+    $ psql -h localhost louisville_crime
+
+    louisville_crime=# CREATE EXTENSION postgis;
+
+4) Clone this repository onto your local development machine:
 
     $ git clone <REPLACE THIS WITH REPO CLONE LOCATION>
     $ cd colonel-clark
 
-4) Install dependencies.
+5) Install dependencies.
 
     $ npm install
 
-5) Setup database schema.
+6) Setup database schema.
 
     $ node db/migrator.js
 
-6) Start the server. This will serve up the API as well as the web app.
+7) Start the server. This will serve up the API as well as the web app.
 
     $ node app.js
 
@@ -49,3 +59,11 @@ This is the layout of directories relative to the current one (i.e. the one hous
 * `lib`: Contains code that could be re-used by multiple application components. 
 * `public`: Contains publicly-accessible, static code. E.g.: images, css, (browser-side) javascript, html, etc.
 * `test`: Contains unit tests.
+
+## FAQ
+
+Q: When trying to enable the PostGIS extension in the database, I get this error: `ERROR:  could not load library ... Library not loaded: /usr/local/lib/libjpeg.8.dylib ...`
+A: This error occurs when `libjpeg` is not installed on your computer. Here are a few ways to install `libjpeg` on your computer:
+* Using [Homebrew](http://mxcl.github.com/homebrew/): `brew install libjpeg`
+* From source (i.e. manually): follow the instructions [here](http://arcoleo.org/dsawiki/Wiki.jsp?page=How%20to%20Install%20Libjpeg%20on%20Mac#section-How+to+Install+Libjpeg+on+Mac-Manual).
+
