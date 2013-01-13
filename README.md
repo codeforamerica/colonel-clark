@@ -62,8 +62,8 @@ This is the layout of directories relative to the current one (i.e. the one hous
 
 ## FAQ
 
-Q: When trying to enable the PostGIS extension in the database, I get this error: `ERROR:  could not load library ... Library not loaded: /usr/local/lib/libjpeg.8.dylib ...`
-A: This error occurs when `libjpeg` is not installed on your computer. Here are a few ways to install `libjpeg` on your computer:
-* Using [Homebrew](http://mxcl.github.com/homebrew/): `brew install libjpeg`
-* From source (i.e. manually): follow the instructions [here](http://arcoleo.org/dsawiki/Wiki.jsp?page=How%20to%20Install%20Libjpeg%20on%20Mac#section-How+to+Install+Libjpeg+on+Mac-Manual).
+* **Q**: When trying to enable the PostGIS extension in the database, I get this error: `ERROR:  could not load library ... Library not loaded: /usr/local/lib/libjpeg.8.dylib ...`
+    * **A**: This error occurs when `libjpeg` is not installed on your computer. Here are a few ways to install `libjpeg` on your computer:
+        * Using [Homebrew](http://mxcl.github.com/homebrew/): `brew install libjpeg`
+        * From source (i.e. manually): follow the instructions [here](http://arcoleo.org/dsawiki/Wiki.jsp?page=How%20to%20Install%20Libjpeg%20on%20Mac#section-How+to+Install+Libjpeg+on+Mac-Manual).
 
