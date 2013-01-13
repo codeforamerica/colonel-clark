@@ -48,7 +48,7 @@ Please follow the instructions below to setup your development environment. In c
 
 8) Start the REST API server (default on port 8080).
 
-    $ node api/server.js
+    $ node restapi.js
 
 9) Open a new Terminal window. Again go to the directory of your cloned repository. Start a Web server (on port 8000).
 
