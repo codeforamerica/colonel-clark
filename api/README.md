@@ -3,7 +3,7 @@
 
 ## APIs
 
-### Retrieve a list of geo-coded neighborhoods
+### Retrieve a list of all possible geo-coded neighborhoods in Louisville, KY
 
 #### Request
     GET /v1/neighborhoods
@@ -73,6 +73,47 @@
       ]
     }
         
-### /crimes
+### Retrieve a list of all possible crimes
 
-### /incidents
+#### Request
+    GET /v1/crimes
+
+#### Response
+    {
+      "crimes":[
+        "AUTO THEFT",
+        "VANDALISM",
+        "AGGRAVATED ASSAULT",
+        "ROBBERY",
+        "THEFT",
+        "BURGLARY",
+        "SIMPLE ASSAULT",
+        "HOMICIDE"
+      ]
+    }
+    
+### Retrieve a list of crime incidents
+
+#### Requests
+    GET /v1/incidents
+    GET /v1/incidents?crime=AUTO+THEFT
+    GET /v1/incidents?neighborhood=Gardiner+Lane
+    GET /v1/incidents?crime=VANDALISM&neighborhood=University
+
+#### Response
+{
+  "by_crime":{
+    "AUTO THEFT":490,
+    "VANDALISM":1224,
+    ...,
+    "HOMICIDE":14
+  },
+  "by_neighborhood":{
+    "null":4559,
+    "Jacobs":134,
+    "Brownsboro Zorn":13,
+    ...,
+    "Prestonia":34
+  }
+}
+
