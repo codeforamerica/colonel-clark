@@ -46,17 +46,11 @@ Please follow the instructions below to setup your development environment. In c
 
     $ node db/migrator.js
 
-8) Start the REST API server (default on port 8080).
+8) Start the Web Application and REST API server (default on port 8000).
 
-    $ node restapi.js
+    $ node app.js
 
-9) Open a new Terminal window. Again go to the directory of your cloned repository. Start a Web server (on port 8000).
-
-    $ cd colonel-clark
-    $ cd public
-    $ python -m SimpleHTTPServer
-
-10) Open your website at http://localhost:8000
+9) Open your website at http://localhost:8000
 
 ## Directory Layout
 
