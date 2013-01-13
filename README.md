@@ -14,7 +14,7 @@ Features:
 
 ## Development Setup
 
-Please follow the instructions below to setup your development environment. In case you run into issues, please consult the [FAQ](#FAQ).
+Please follow the instructions below to setup your development environment. In case you run into issues, please consult the [FAQ](#faq).
 
 ### For Mac OS X 10.8
 
