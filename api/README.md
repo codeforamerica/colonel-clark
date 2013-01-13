@@ -101,19 +101,18 @@
     GET /v1/incidents?crime=VANDALISM&neighborhood=University
 
 #### Response
-{
-  "by_crime":{
-    "AUTO THEFT":490,
-    "VANDALISM":1224,
-    ...,
-    "HOMICIDE":14
-  },
-  "by_neighborhood":{
-    "null":4559,
-    "Jacobs":134,
-    "Brownsboro Zorn":13,
-    ...,
-    "Prestonia":34
-  }
-}
-
+    {
+      "by_crime":{
+        "AUTO THEFT":490,
+        "VANDALISM":1224,
+        ...,
+        "HOMICIDE":14
+      },
+      "by_neighborhood":{
+        "null":4559,
+        "Jacobs":134,
+        "Brownsboro Zorn":13,
+        ...,
+        "Prestonia":34
+      }
+    }
