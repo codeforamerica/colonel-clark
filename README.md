@@ -55,6 +55,7 @@ This is the layout of directories relative to the current one (i.e. the one hous
 * `bin`: Contains executable scripts to run by a human user. E.g.: command-line interfaces, etc.
 * `config`: Contains application configuration files.
 * `cron`: Contains executable scripts to be run periodically and automatically by a scheduler like cron.
+* `data`: Contains any raw data. E.g.: SHP files, etc.
 * `db`: Contains database schema migration scripts.
 * `lib`: Contains code that could be re-used by multiple application components. 
 * `public`: Contains publicly-accessible, static code. E.g.: images, css, (browser-side) javascript, html, etc.
