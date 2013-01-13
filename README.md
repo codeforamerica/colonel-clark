@@ -43,6 +43,7 @@ Features:
 This is the layout of directories relative to the current one (i.e. the one housing this README.md file).
 * `api`: Contains code for the REST API.
 * `bin`: Contains executable scripts to run by a human user. E.g.: command-line interfaces, etc.
+* `config`: Contains application configuration files.
 * `cron`: Contains executable scripts to be run periodically and automatically by a scheduler like cron.
 * `db`: Contains database schema migration scripts.
 * `lib`: Contains code that could be re-used by multiple application components. 
