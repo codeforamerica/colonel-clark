@@ -1,5 +1,6 @@
 var postgrator = require('postgrator'),
-    fs = require('fs');;
+    fs = require('fs'),
+    config = require('config');
 
 var migrationsDir = __dirname + '/migrations';
 
@@ -8,7 +9,7 @@ var applyMigrations = function(migrationId) {
     console.log("Target migration = " + migrationId);
     
     postgrator.setMigrationDirectory(__dirname + '/migrations');
-    postgrator.setConnectionString("tcp://bp:bp@localhost/louisville_crime");
+    postgrator.setConnectionString(process.env.DATABASE_URL || config.db_connection_string);
     postgrator.migrate(migrationId, function(err, migrationsRun) {
 	if (err) {
 	    console.error("Error: " + err);
