@@ -24,13 +24,15 @@
 	"postgrator": "0.0.13",
 	"pg": "0.10.2",
 	"config": "0.4.18",
-	"requireindex": "1.0.0"
+	"requireindex": "1.0.0",
+	"nodemailer": "0.3.37"
     },
     "devDependencies": {
 	"mocha": "1.8.0"
     },
     "engines": {
-	"node": "0.8.x"
+	"node": "0.8.x",
+	"npm": "1.2.x"
     },
     "license": "MIT"
 }
