@@ -11,5 +11,5 @@ app.get('/api/v1/incidents', api.v1.incidents.get);
 // Serve all other URIs as static files from the "public" directory.
 app.use(express.static(__dirname + '/public'));
 
-app.listen(8000);
+app.listen(process.env.PORT || 8000);
 
