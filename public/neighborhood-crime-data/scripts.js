@@ -379,40 +379,14 @@ function prepareFilters() {
 
     }
   }  
-
-  /*console.log('FILTERS');
-  for (var i in filters[0].choices) {
-    console.log(filters[0].choices[i].filterList);
-  }*/
 }
 
 function prepareMap() {
-  //mapPath = d3.geo.path().projection(d3.geo.albers().scale(36050).translate([-5500, 650]));
-
-  // default scale: 1000
-  // 647 237 current
-  
-  // 900 540 size
-  // 450 270 center
-
-
-  //mapPath = d3.geo.path().projection(d3.geo.albers());
-  //mapPath = d3.geo.path().projection(d3.geo.albers().translate([480 - 197, 250 + 33]).scale(1000));
   mapPath = d3.geo.path().projection(d3.geo.albers().scale(180000).center([12.28, 38.226314]));
-
-  //mapPath = d3.geo.path().projection(d3.geo.albers());
-  /*
-        .projection(d3.geo.mercator()
-        .scale(20000)
-        .translate([0, 3800]));*/
 
   mapSvg = d3.select('#map').append('svg')
       .attr('width', 900)
       .attr('height', 540);    
-
-  queue()
-      .defer(d3.json, 'louisville.json')
-      .await(mapIsReady);
 }
 
 function switchToState(stateName) {
@@ -436,8 +410,6 @@ function switchToState(stateName) {
 
 function mapIsReady(error, us) {
   mapReady = true;
-
-  mapUsData = us;
 
   mapSvg.append('g')
     .attr('class', 'state-bound')
@@ -504,18 +476,31 @@ function updateMap() {
         return (filters[1].choices[filters[1].selected].title == d.properties.name) ? 1 : .25
     });
   }
-
-
-
 }
 
-function main() {
-  prepareMap();
+function initialDataLoaded(error, us) {
+  // TODO don’t do global
+  mapUsData = us;
 
   prepareFilters();
 
   createFakeData();
+
   createNav();
 
   updateData();
+
+  // TODO consolidate
+  prepareMap();
+  mapIsReady();
+}
+
+function loadInitialData() {
+  queue()
+      .defer(d3.json, '/api/v1/neighborhoods')
+      .await(initialDataLoaded);
+}
+
+function main() {
+  loadInitialData();
 }
