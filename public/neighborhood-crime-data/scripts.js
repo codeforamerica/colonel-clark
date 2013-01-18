@@ -148,7 +148,7 @@ function updateNav() {
       if (el.parentNode.classList.contains('active')) {
         var val = currentData[i][j];
       } else {
-        var val = unfilteredData[i][j];        
+        var val = unfilteredData[i][i][j];        
       }
 
       el.parentNode.value = parseFloat(val);
@@ -392,27 +392,33 @@ function incidentsLoaded(error) {
   for (var i = 1; i < arguments.length; i++) {
     var data = arguments[i];
 
-    var crime = data.query.crime || '';
-    var neighborhood = data.query.neighborhood || '';
+    var crime = data.query.filters.crime || '';
+    var neighborhood = data.query.filters.neighborhood || '';
 
+    // TODO cachedRawData necessary?
     if (!cachedRawData[crime]) {
       cachedRawData[crime] = [];
     }
     cachedRawData[crime][neighborhood] = data;
+
+    processData(crime, neighborhood, data);
   }
 
-  //return;
+  updateNav();
+  window.setTimeout(updateMap, 0);
+}
 
-  // temp
-  loadedData = arguments[1];
+function processData(crime, neighborhood, loadedData) {
+  console.log('Processing', 'c:' + crime, 'n:' + neighborhood);
+  //loadedData = data;
 
-  currentData = [];
+  data = [];
 
-  currentData[0] = [];
-  currentData[1] = [];  
+  data[0] = [];
+  data[1] = [];  
 
   for (var i in filters[0].choices) {
-    currentData[0][filters[0].choices[parseInt(i)].choiceNumber] = 0;
+    data[0][filters[0].choices[parseInt(i)].choiceNumber] = 0;
 
     var choice = filters[0].choices[i];
 
@@ -420,30 +426,47 @@ function incidentsLoaded(error) {
       var title = filters[0].choices[choice.filterList[ii]].title;
       title = title.toUpperCase();
 
-      currentData[0][filters[0].choices[parseInt(i)].choiceNumber] += 
+      data[0][filters[0].choices[parseInt(i)].choiceNumber] += 
           loadedData.byCrime[title] || 0;
     }
   }
 
   for (var j in filters[1].choices) {
-    currentData[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
+    data[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
 
     var choice = filters[1].choices[j];
 
     for (var jj in choice.filterList) {
       var title = filters[1].choices[choice.filterList[jj]].title;
       
-      currentData[1][filters[1].choices[parseInt(j)].choiceNumber] += 
+      data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
           loadedData.byNeighborhood[title] || 0;
     }
   }
 
-  if ((filters[0].selected == 0) && (filters[1].selected == 0)) {
+  /*if ((filters[0].selected == 0) && (filters[1].selected == 0)) {
     unfilteredData = currentData;
+  }*/
+
+
+
+  // TODO actually compare crime and neighborhood strings to numbers
+  // and allocate properly
+  if (crime == '') {
+    //console.log('allocated unfiltered data 0 (crime)');
+    unfilteredData[0] = data;
   }
 
-  updateNav();
-  window.setTimeout(updateMap, 0);
+  if (neighborhood == '') {
+    //console.log('allocated unfiltered data 1 (n)');
+    unfilteredData[1] = data;
+  }
+
+  if ( ((crime != '') || (filters[0].selected == 0)) &&
+       ((neighborhood != '') || (filters[1].selected == 0)) ) {
+    //console.log('allocated proper data');
+    currentData = data;
+  }
 }
 
 function getIncidentDataUrl(crimeId, neighborhoodId) {
