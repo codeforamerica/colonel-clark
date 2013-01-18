@@ -10,7 +10,7 @@ exports.get = function(req, res, next) {
       res.send(500, { message: String(err) });
     }
 
-    appendCrimeTotals(client, req, res, next);
+    createResponse(client, req, res, next);
 
   });
 
@@ -23,7 +23,19 @@ var convertArrayToInList = function(arr) {
     return arr.join(",");
 }
 
-var appendCrimeTotals = function(client, req, res, next) {
+var createResponse = function(client, req, res, next) {
+
+    data = {}
+    data.query = {}
+    data.query.filters = {}
+
+    data.query.filters.crime = req.query.crime;
+    data.query.filters.neighborhood = req.query.neighborhood;
+
+    appendCrimeTotals(client, data, req, res, next);
+}
+
+var appendCrimeTotals = function(client, data, req, res, next) {
 
   // Get crime totals by crime
   var queryText = "SELECT crime, COUNT(*) AS num_crimes FROM crimes WHERE neighborhood IS NOT NULL";
@@ -47,7 +59,6 @@ var appendCrimeTotals = function(client, req, res, next) {
     res.send(500, { message: "query error = " + String(err) });
   });
 
-  data = {}
   data.byCrime = {};
   query.on('row', function(row) {
     data.byCrime[row.crime] = row.num_crimes;
