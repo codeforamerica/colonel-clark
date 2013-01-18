@@ -48,7 +48,7 @@ var appendCrimeTotals = function(client, data, req, res, next) {
     queryText += " AND crime IN ( " + crimes + " )";
   } else if (req.query.neighborhood) {
     var neighborhoods = convertArrayToInList(req.query.neighborhood.split(','));
-    queryText += " AND neighborhood IN ( + " + neighborhoods + " )";
+    queryText += " AND neighborhood IN ( " + neighborhoods + " )";
   }
   queryText += " GROUP BY crime";
 
@@ -83,7 +83,7 @@ var appendCrimeTotalsByNeighborhood = function(client, data, req, res, next) {
     queryText += " AND crime IN ( " + crimes + " )";
   } else if (req.query.neighborhood) {
     var neighborhoods = convertArrayToInList(req.query.neighborhood.split(','));
-    queryText += " AND neighborhood IN ( + " + neighborhoods + " )";
+    queryText += " AND neighborhood IN ( " + neighborhoods + " )";
   }
   queryText += " GROUP BY neighborhood";
 
