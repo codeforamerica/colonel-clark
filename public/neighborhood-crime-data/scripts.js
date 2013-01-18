@@ -41,10 +41,10 @@ var FILTERS = [
 ];
 
 // data without any filters
-//var unfilteredData = [];
+var unfilteredData = [];
 var cachedRawData = [];
 
-var data = [];
+var currentData = [];
 
 var filters = [];
 
@@ -146,7 +146,7 @@ function updateNav() {
           (filters[i].choices[j].choiceNumber) + '"] > .value');
 
       if (el.parentNode.classList.contains('active')) {
-        var val = data[i][j];
+        var val = currentData[i][j];
       } else {
         var val = unfilteredData[i][j];        
       }
@@ -342,8 +342,8 @@ function updateMap() {
   var max = 0;
   var map = {};
   for (var i = 1; i < filters[1].choices.length; i++) {
-    if (max < data[1][i]) {
-      max = data[1][i];
+    if (max < currentData[1][i]) {
+      max = currentData[1][i];
     }
 
     map[filters[1].choices[i].title] = i;
@@ -354,7 +354,7 @@ function updateMap() {
     .range(d3.range(9).map(function(i) { return 'q' + i; }));
 
   mapSvg.selectAll('path')
-    .attr('class', function(d) { return 'state ' + quantize(data[1][map[d.properties.name]]); })
+    .attr('class', function(d) { return 'state ' + quantize(currentData[1][map[d.properties.name]]); })
 
   // TODO change to a class
   if (filters[1].selected == 0) {
@@ -389,10 +389,16 @@ function addNeighborhoodsToFilters(mapData) {
 function incidentsLoaded(error) {
   console.log('Incidents loaded…');
 
-  console.log(arguments.length);
-
   for (var i = 1; i < arguments.length; i++) {
-    console.log(arguments[i]);
+    var data = arguments[i];
+
+    var crime = data.query.crime || '';
+    var neighborhood = data.query.neighborhood || '';
+
+    if (!cachedRawData[crime]) {
+      cachedRawData[crime] = [];
+    }
+    cachedRawData[crime][neighborhood] = data;
   }
 
   //return;
@@ -400,13 +406,13 @@ function incidentsLoaded(error) {
   // temp
   loadedData = arguments[1];
 
-  data = [];
+  currentData = [];
 
-  data[0] = [];
-  data[1] = [];  
+  currentData[0] = [];
+  currentData[1] = [];  
 
   for (var i in filters[0].choices) {
-    data[0][filters[0].choices[parseInt(i)].choiceNumber] = 0;
+    currentData[0][filters[0].choices[parseInt(i)].choiceNumber] = 0;
 
     var choice = filters[0].choices[i];
 
@@ -414,26 +420,26 @@ function incidentsLoaded(error) {
       var title = filters[0].choices[choice.filterList[ii]].title;
       title = title.toUpperCase();
 
-      data[0][filters[0].choices[parseInt(i)].choiceNumber] += 
+      currentData[0][filters[0].choices[parseInt(i)].choiceNumber] += 
           loadedData.byCrime[title] || 0;
     }
   }
 
   for (var j in filters[1].choices) {
-    data[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
+    currentData[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
 
     var choice = filters[1].choices[j];
 
     for (var jj in choice.filterList) {
       var title = filters[1].choices[choice.filterList[jj]].title;
       
-      data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
+      currentData[1][filters[1].choices[parseInt(j)].choiceNumber] += 
           loadedData.byNeighborhood[title] || 0;
     }
   }
 
   if ((filters[0].selected == 0) && (filters[1].selected == 0)) {
-    unfilteredData = data;
+    unfilteredData = currentData;
   }
 
   updateNav();
