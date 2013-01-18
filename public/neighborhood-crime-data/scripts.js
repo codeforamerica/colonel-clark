@@ -409,7 +409,7 @@ function incidentsLoaded(error) {
 }
 
 function processData(crime, neighborhood, loadedData) {
-  console.log('Processing', 'c:' + crime, 'n:' + neighborhood);
+  //console.log('Processing', 'c:' + crime, 'n:' + neighborhood);
   //loadedData = data;
 
   data = [];
@@ -473,7 +473,20 @@ function getIncidentDataUrl(crimeId, neighborhoodId) {
   if (crimeId == 0) {
     var crime = '';
   } else {
-    var crime = filters[0].choices[crimeId].title.toUpperCase();
+    console.log(crimeId);
+
+    //console.log(filters[0].choices[crimeId].filterList);
+
+    var crimeList = [];
+    for (var i in filters[0].choices[crimeId].filterList) {
+      crimeList.push(filters[0].choices[filters[0].choices[crimeId].filterList[i]].title);
+    }
+    var crime = crimeList.join(',').toUpperCase();
+
+    //filters[1].choices[filters[1].selected]
+
+    //var crime = filters[0].choices[crimeId].title.toUpperCase();
+    console.log(crime);
   }
 
   if (neighborhoodId == 0) {
