@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<title>Click that ’hood! · Louisville, KY</title>
+<meta charset='utf-8'>
+
+<link href='styles.less' rel='stylesheet/less' type='text/css'>
+<script src='less-1.3.0.min.js'></script>
+
+<script src='http://d3js.org/d3.v3.min.js'></script>
+<script src='http://d3js.org/queue.v1.min.js'></script>
+<script src='http://d3js.org/topojson.v0.min.js'></script>
+
+<script src='scripts.js'></script>
+
+
+<body>
+
+  <header>
+    <img id='logo' src='images/logo-retina.png'>
+    <h2 id='count'></h3>
+    <h2 id='time'></h3>
+  </header>
+
+  <footer>
+    <img id='cfa' src='images/cfa-flagtag.svg'>
+    <a href='http://www.codeforamerica.org'>Code for America</a>, 2013.
+    TODO Link to source.
+  </footer>
+
+  <div id='map'>
+    <div id='svg-container'></div>
+
+    <div id='google-maps-overlay'></div>
+  
+    <div id='neighborhood-hover'>
+      <span></span>
+    </div>    
+
+    <div id='cover'>
+      <div id='intro'>
+        <p>
+          Welcome to Click That Hood!
+        </p>
+        <p>
+          Your objective is to click on the proper Louisville neighborhood
+          as soon as its name comes up. The faster, the better!
+        </p>
+        <p>
+          <button onclick='startGame()'>Start the game</button>
+        </p>
+      </div>
+      <div id='congrats'>
+        <p>
+          Congratulations! 
+        </p>
+        <p>
+          You correctly identified all Louisville
+          neighborhoods!
+        </p>
+      </div>
+    </div>
+    <div id='neighborhood-guess-wrapper'>
+      <div id='neighborhood-guess'>
+        Click on
+        <span></span>
+      </div>    
+    </div>
+  </div>
+
+  <script>
+    main();
+  </script>
+</body>
