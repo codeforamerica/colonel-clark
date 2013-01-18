@@ -33,85 +33,7 @@ var FILTERS = [
     choices: [
       { title: 'All neighborhoods',
         choices: [
-          { title: 'Algonquin' },
-          { title: 'Audubon' },
-          { title: 'Avondale Melbourne Heights' },
-          { title: 'Bashford Manor' },
-          { title: 'Beechmont' },
-          { title: 'Belknap' },
-          { title: 'Bon Air' },
-          { title: 'Bonnycastle' },
-          { title: 'Bowman' },
-          { title: 'Brownsboro Zorn' },
-          { title: 'Butchertown' },
-          { title: 'California' },
-          { title: 'Camp Taylor' },
-          { title: 'Central Business District' },
-          { title: 'Cherokee Gardens' },
-          { title: 'Cherokee Seneca' },
-          { title: 'Cherokee Triangle' },
-          { title: 'Chickasaw' },
-          { title: 'Clifton' },
-          { title: 'Clifton Heights' },
-          { title: 'Cloverleaf' },
-          { title: 'Crescent Hill' },
-          { title: 'Deer Park' },
-          { title: 'Edgewood' },
-          { title: 'Fairgrounds' },
-          { title: 'Gardiner Lane' },
-          { title: 'Germantown' },
-          { title: 'Hallmark' },
-          { title: 'Hawthorne' },
-          { title: 'Hayfield Dundee' },
-          { title: 'Hazelwood' },
-          { title: 'Highland Park' },
-          { title: 'Highlands' },
-          { title: 'Highlands Douglas' },
-          { title: 'Hikes Point' },
-          { title: 'Irish Hill' },
-          { title: 'Iroquios Park' },
-          { title: 'Iroquois' },
-          { title: 'Jacobs' },
-          { title: 'Kenwood Hill' },
-          { title: 'Klondike' },
-          { title: 'Limerick' },
-          { title: 'Merriwether' },
-          { title: 'Old Louisville' },
-          { title: 'Paristowne Point' },
-          { title: 'Park Duvalle' },
-          { title: 'Park Hill' },
-          { title: 'Parkland' },
-          { title: 'Phoenix Hill' },
-          { title: 'Poplar Level' },
-          { title: 'Portland' },
-          { title: 'Prestonia' },
-          { title: 'Rock Creek Lexington Road' },
-          { title: 'Russell' },
-          { title: 'Saint Joseph' },
-          { title: 'Schnitzelburg' },
-          { title: 'Shawnee' },
-          { title: 'Shelby Park' },
-          { title: 'Smoketown Jackson' },
-          { title: 'South Louisville' },
-          { title: 'Southside' },
-          { title: 'Soutland Park' },
-          { title: 'Taylor Berry' },
-          { title: 'Tyler Park' },
-          { title: 'University' },
-          { title: 'Wilder Park' },
-          { title: 'Wyandotte' },
-          
-/*          
-          { title: 'Bashford Manor' },
-          { title: 'Beechmont' },
-          { title: 'Crescent Hill' },
-          { title: 'Klondike' },
-          { title: 'Old Louisville' },
-          { title: 'Saint Joseph' },
-          { title: 'Shelby Park' },
-          { title: 'Smoketown Jackson' },
-          { title: 'Southside' },
-*/
+          // Neighborhoods will go in here
         ]
       }
     ]
@@ -415,8 +337,7 @@ function mapIsReady(error, us) {
     .attr('class', 'state-bound')
 
     .selectAll('path')
-    //.data(topojson.object(mapUsData, mapUsData.objects.states).geometries)
-    .data(mapUsData.features)
+    .data(mapData.features)
     .enter()
     .append('path')
     .attr('d', mapPath)
@@ -478,10 +399,27 @@ function updateMap() {
   }
 }
 
-function initialDataLoaded(error, us) {
-  // TODO don’t do global
-  mapUsData = us;
+function addNeighborhoodsToFilters(mapData) {
+  var neighborhoods = [];
 
+  for (var i in mapData.features) {
+    neighborhoods.push(mapData.features[i].properties.name);
+  }
+
+  neighborhoods.sort();
+
+  // TODO modifying const
+  // TODO hardcoded
+  for (var i in neighborhoods) {
+    FILTERS[1].choices[0].choices.push({ title: neighborhoods[i] });
+  }
+}
+
+function initialDataLoaded(error, mapDataLoaded) {
+  // TODO don’t do global
+  mapData = mapDataLoaded;
+
+  addNeighborhoodsToFilters(mapDataLoaded);
   prepareFilters();
 
   createFakeData();
