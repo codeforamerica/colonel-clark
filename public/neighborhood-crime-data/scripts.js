@@ -342,8 +342,8 @@ function updateMap() {
   var max = 0;
   var map = {};
   for (var i = 1; i < filters[1].choices.length; i++) {
-    if (max < currentData[1][i]) {
-      max = currentData[1][i];
+    if (max < unfilteredData[1][1][i]) {
+      max = unfilteredData[1][1][i];
     }
 
     map[filters[1].choices[i].title] = i;
@@ -354,7 +354,7 @@ function updateMap() {
     .range(d3.range(9).map(function(i) { return 'q' + i; }));
 
   mapSvg.selectAll('path')
-    .attr('class', function(d) { return 'state ' + quantize(currentData[1][map[d.properties.name]]); })
+    .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
 
   // TODO change to a class
   if (filters[1].selected == 0) {
