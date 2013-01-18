@@ -418,39 +418,22 @@ function incidentsLoaded(error, loadedData) {
     for (var ii in choice.filterList) {
       var title = filters[0].choices[choice.filterList[ii]].title;
       title = title.toUpperCase();
-      //console.log(title, loadedData.byCrime[title]);
 
       data[0][filters[0].choices[parseInt(i)].choiceNumber] += 
-          loadedData.byCrime[title];
+          loadedData.byCrime[title] || 0;
     }
   }
 
-  //console.log('//');
-
   for (var j in filters[1].choices) {
-    //console.log('A');
     data[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
 
     var choice = filters[1].choices[j];
 
     for (var jj in choice.filterList) {
-      //console.log(choice.filterList[jj]);
-
       var title = filters[1].choices[choice.filterList[jj]].title;
       
-      //console.log(title);
-
       data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
-          loadedData.byNeighborhood[title];
-          //fakeData[ii][choice.filterList[jj]];
-
-      //for (var i in filters[0].choices[filters[0].selected].filterList) {
-        //var ii = filters[0].choices[filters[0].selected].filterList[i];
-
-
-        //data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
-        //    fakeData[ii][choice.filterList[jj]];
-      //}
+          loadedData.byNeighborhood[title] || 0;
     }
   }
 
