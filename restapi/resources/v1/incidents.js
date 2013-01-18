@@ -44,9 +44,9 @@ var appendCrimeTotals = function(client, req, res, next) {
   });
 
   data = {}
-  data.by_crime = {};
+  data.byCrime = {};
   query.on('row', function(row) {
-    data.by_crime[row.crime] = row.num_crimes;
+    data.byCrime[row.crime] = row.num_crimes;
   });
 
   query.on('end', function(result) {
@@ -90,7 +90,7 @@ var appendCrimeTotalsByNeighborhood = function(client, data, req, res, next) {
   query.on('end', function(result) {
 
     // Get crime totals by neighborhood
-    data.by_neighborhood = dataByNeighborhood;
+    data.byNeighborhood = dataByNeighborhood;
     res.send(data);
   
   });
