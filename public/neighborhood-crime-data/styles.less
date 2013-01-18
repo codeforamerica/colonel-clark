@@ -24,9 +24,6 @@
 //@mainBackgroundColour: lighten(@highlightColour, 42);
 @mainBackgroundColour: rgb(245, 250, 220);
 
-@heatMapColour1: @highlightColour;
-@heatMapColour2: rgb(0, 100, 0);
-
 @dataTransitionDelay: 150ms;
 
 body {
@@ -186,6 +183,10 @@ body > nav > ul > li.active > .chart {
   opacity: 1;
 }
 
+.zero {
+  color: rgb(128, 128, 128);
+}
+
 #map {
   position: absolute;
   left: @bodyMargin;
@@ -218,12 +219,56 @@ body > nav > ul > li.active > .chart {
   /*fill: green;*/
 }
 
-#map .q0-9 { fill: mix(@heatMapColour1, @heatMapColour2, 0%); }
-#map .q1-9 { fill: mix(@heatMapColour1, @heatMapColour2, 12.5%); }
-#map .q2-9 { fill: mix(@heatMapColour1, @heatMapColour2, 25%); }
-#map .q3-9 { fill: mix(@heatMapColour1, @heatMapColour2, 37.5%); }
-#map .q4-9 { fill: mix(@heatMapColour1, @heatMapColour2, 50%); }
-#map .q5-9 { fill: mix(@heatMapColour1, @heatMapColour2, 62.5%); }
-#map .q6-9 { fill: mix(@heatMapColour1, @heatMapColour2, 75%); }
-#map .q7-9 { fill: mix(@heatMapColour1, @heatMapColour2, 87.5%); }
-#map .q8-9 { fill: mix(@heatMapColour1, @heatMapColour2, 100%); }
+@heatMapColour1: rgb(0, 70, 0);
+@heatMapColour2: rgb(180, 180, 0);
+@heatMapColour3: rgb(180, 40, 40);
+
+@heatMapRealColour0: mix(@heatMapColour1, @heatMapColour2, 100%);
+@heatMapRealColour1: mix(@heatMapColour1, @heatMapColour2, 75%);
+@heatMapRealColour2: mix(@heatMapColour1, @heatMapColour2, 50%);
+@heatMapRealColour3: mix(@heatMapColour1, @heatMapColour2, 25%);
+@heatMapRealColour4: mix(@heatMapColour2, @heatMapColour3, 100%);
+@heatMapRealColour5: mix(@heatMapColour2, @heatMapColour3, 75%);
+@heatMapRealColour6: mix(@heatMapColour2, @heatMapColour3, 50%);
+@heatMapRealColour7: mix(@heatMapColour2, @heatMapColour3, 25%);
+@heatMapRealColour8: mix(@heatMapColour2, @heatMapColour3, 0%);
+
+#map .q0 { fill: @heatMapRealColour0; }
+#map .q1 { fill: @heatMapRealColour1; }
+#map .q2 { fill: @heatMapRealColour2; }
+#map .q3 { fill: @heatMapRealColour3; }
+#map .q4 { fill: @heatMapRealColour4; }
+#map .q5 { fill: @heatMapRealColour5; }
+#map .q6 { fill: @heatMapRealColour6; }
+#map .q7 { fill: @heatMapRealColour7; }
+#map .q8 { fill: @heatMapRealColour8; }
+
+#legend .q0 { background: @heatMapRealColour0; }
+#legend .q1 { background: @heatMapRealColour1; }
+#legend .q2 { background: @heatMapRealColour2; }
+#legend .q3 { background: @heatMapRealColour3; }
+#legend .q4 { background: @heatMapRealColour4; }
+#legend .q5 { background: @heatMapRealColour5; }
+#legend .q6 { background: @heatMapRealColour6; }
+#legend .q7 { background: @heatMapRealColour7; }
+#legend .q8 { background: @heatMapRealColour8; }
+
+#legend {
+  margin-top: 10px;
+  font-weight: 300;
+  line-height: 1.2;
+
+  font-size: 14px;
+} 
+#legend * {
+  vertical-align: middle;  
+}
+
+#legend div {
+  box-shadow: 0 0 1px white, 0 0 1px white, 0 0 1px white;
+  display: inline-block;
+
+  width: 30px;
+  height: 8px;
+  margin-top: -2px;
+}

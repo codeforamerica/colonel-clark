@@ -40,28 +40,15 @@ var FILTERS = [
   }
 ];
 
-//var fakeData = [];
-
+// data without any filters
 //var unfilteredData = [];
+var cachedRawData = [];
 
 var data = [];
+
 var filters = [];
 
 var mapReady = false;
-
-/*function createFakeData() {
-  fakeData = [];
-
-  for (var i in filters[0].choices) {
-    fakeData[i] = [];
-
-    for (var j in filters[1].choices) {
-      var randomVal = filters[1].choices[j].title.charCodeAt(0) + filters[1].choices[j].title.charCodeAt(1); 
-      fakeData[i][j] = Math.floor(Math.random() * (i * randomVal)) * 3;
-    }
-  } 
-}*/
-
 
 function createNav() {
   for (var i in filters) {
@@ -75,7 +62,7 @@ function createNav() {
       var liEl = document.createElement('li');
       liEl.innerHTML = 
           '<span class="name">' + filter.choices[j].title + '</span>' +
-          '<span class="value">' + '–' + '</span>' +
+          '<span class="value"></span>' +
           '<span class="chart"></span>';
 
       liEl.setAttribute('level', filter.choices[j].level);
@@ -115,45 +102,25 @@ function onFilterClick(event) {
 
 function formatNumber(number) {
   if (number == 0) {
-    return '–';
+    return '<span class="zero">0</span>';
   } else {
     return number.toString().replace(/\d(?=(?:\d{3})+(?!\d))/g, '$&,');
   }
 }
 
-function updateNav() {
+function cleanUpNav() {
   var els = document.querySelectorAll('body > nav li');
   for (var i = 0, el; el = els[i]; i++) {
     el.classList.remove('selected');
     el.classList.remove('active');
   }
+}
+
+function updateNav() {
+  cleanUpNav();
 
   for (var i in filters) {
-    var max = 0;
-
-    for (var j in filters[i].choices) {
-      var el = document.querySelector(
-          'body > nav > ul[filterNumber="' + 
-          (parseInt(i)) + '"] > li[choiceNumber="' + 
-          (filters[i].choices[j].choiceNumber) + '"] > .value');
-
-      var val = data[i][j];
-      el.innerHTML = formatNumber(val);
-
-      if (val > max) {
-        max = val;
-      }
-    }
-
-    for (var j in filters[i].choices) {
-      var el = document.querySelector(
-          'body > nav > ul[filterNumber="' + 
-          (parseInt(i)) + '"] > li[choiceNumber="' + 
-          (filters[i].choices[j].choiceNumber) + '"] > .chart');
-
-      var val = parseFloat(data[i][j]);
-      el.style.width = ((val / max) * CHART_WIDTH) + 'px';
-    }
+    // Gray out things
 
     var el = document.querySelector(
         'body > nav > ul[filterNumber="' + 
@@ -168,19 +135,75 @@ function updateNav() {
       nextEl = nextEl.nextSibling;
     }
 
+    // Show data and determine maximum value
+
+    var max = 0;
+
+    for (var j in filters[i].choices) {
+      var el = document.querySelector(
+          'body > nav > ul[filterNumber="' + 
+          (parseInt(i)) + '"] > li[choiceNumber="' + 
+          (filters[i].choices[j].choiceNumber) + '"] > .value');
+
+      if (el.parentNode.classList.contains('active')) {
+        var val = data[i][j];
+      } else {
+        var val = unfilteredData[i][j];        
+      }
+
+      el.parentNode.value = parseFloat(val);
+      el.innerHTML = formatNumber(val);
+
+      if (val > max) {
+        max = val;
+      }
+    }
+
+    // Display chart
+
+    for (var j in filters[i].choices) {
+      var el = document.querySelector(
+          'body > nav > ul[filterNumber="' + 
+          (parseInt(i)) + '"] > li[choiceNumber="' + 
+          (filters[i].choices[j].choiceNumber) + '"] > .chart');
+
+      el.style.width = ((el.parentNode.value / max) * CHART_WIDTH) + 'px';
+    }
+
+    // Re-sort neighborhoods based on values
+    // TODO: Could this be D3’s responsibility somehow?
+
+    if (i == 1) {
+      var els = [];
+
+      for (var j in filters[i].choices) {
+        var el = document.querySelector(
+            'body > nav > ul[filterNumber="' + 
+            (parseInt(i)) + '"] > li[choiceNumber="' + 
+            (filters[i].choices[j].choiceNumber) + '"]');
+
+        els.push(el);
+      }
+
+      els.sort(function(a, b) { return b.value - a.value });
+
+      for (var j in els) {
+        var el = els[j];
+        //console.log(el.innerHTML, el.value);
+
+        document.querySelector(
+            'body > nav > ul[filterNumber="' + 
+            (parseInt(i)) + '"]').appendChild(el);
+      }
+    }
+
+
   }
 }
 
 function updateData() {
-  loadIncidents();
-
   updateCaption();
-
-  //loadData();
-  
-  // predicated on the above
-  //updateNav();
-  //window.setTimeout(updateMap, 0);
+  loadIncidents();
 }
 
 function updateCaption() {
@@ -258,6 +281,7 @@ function prepareMap() {
       .attr('height', 540);    
 }
 
+// TODO stupid name
 function switchToState(stateName) {
   var state = 0;
 
@@ -327,7 +351,7 @@ function updateMap() {
 
   var quantize = d3.scale.quantize()
     .domain([0, max])
-    .range(d3.range(9).map(function(i) { return 'q' + i + '-9'; }));
+    .range(d3.range(9).map(function(i) { return 'q' + i; }));
 
   mapSvg.selectAll('path')
     .attr('class', function(d) { return 'state ' + quantize(data[1][map[d.properties.name]]); })
@@ -356,54 +380,25 @@ function addNeighborhoodsToFilters(mapData) {
   neighborhoods.sort();
 
   // TODO modifying const
-  // TODO hardcoded
+  // TODO hardcoded numbers
   for (var i in neighborhoods) {
     FILTERS[1].choices[0].choices.push({ title: neighborhoods[i] });
   }
 }
 
+function incidentsLoaded(error) {
+  console.log('Incidents loaded…');
 
-function loadDataOLD() {
-  data = [];
+  console.log(arguments.length);
 
-  data[0] = [];
-  data[1] = [];
-
-  // TODO(mwichary): Unify this
-
-  for (var i in filters[0].choices) {
-    data[0][filters[0].choices[parseInt(i)].choiceNumber] = 0;
-
-    var choice = filters[0].choices[i];
-
-    for (var ii in choice.filterList) {
-      for (var j in filters[1].choices[filters[1].selected].filterList) {
-        var jj = filters[1].choices[filters[1].selected].filterList[j];
-
-        data[0][filters[0].choices[parseInt(i)].choiceNumber] += 
-            fakeData[choice.filterList[ii]][jj];
-      }
-    }
+  for (var i = 1; i < arguments.length; i++) {
+    console.log(arguments[i]);
   }
 
-  for (var j in filters[1].choices) {
-    data[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
+  //return;
 
-    var choice = filters[1].choices[j];
-
-    for (var jj in choice.filterList) {
-      for (var i in filters[0].choices[filters[0].selected].filterList) {
-        var ii = filters[0].choices[filters[0].selected].filterList[i];
-
-        data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
-            fakeData[ii][choice.filterList[jj]];
-      }
-    }
-  }
-}
-
-function incidentsLoaded(error, loadedData) {
-  console.log('Incidents loaded…', loadedData);
+  // temp
+  loadedData = arguments[1];
 
   data = [];
 
@@ -437,31 +432,46 @@ function incidentsLoaded(error, loadedData) {
     }
   }
 
+  if ((filters[0].selected == 0) && (filters[1].selected == 0)) {
+    unfilteredData = data;
+  }
 
   updateNav();
   window.setTimeout(updateMap, 0);
 }
 
-function loadIncidents() {
-  if (filters[0].selected == 0) {
+function getIncidentDataUrl(crimeId, neighborhoodId) {
+  if (crimeId == 0) {
     var crime = '';
   } else {
-    var crime = filters[0].choices[filters[0].selected].title.toUpperCase();
+    var crime = filters[0].choices[crimeId].title.toUpperCase();
   }
 
-  if (filters[1].selected == 0) {
+  if (neighborhoodId == 0) {
     var neighborhood = '';
   } else {
-    var neighborhood = filters[1].choices[filters[1].selected].title;
+    var neighborhood = filters[1].choices[neighborhoodId].title;
   }
 
-  var url = '/api/v1/incidents?neighborhood=' + encodeURI(neighborhood) + '&crime=' + encodeURI(crime);
+  // TODO remove random when you do caching properly
+  var url = '/api/v1/incidents?neighborhood=' + encodeURI(neighborhood) + 
+      '&crime=' + encodeURI(crime) + '&rand=' + Math.random();
 
-  console.log('Loading incidents…', crime, neighborhood, url);
+  return url;
+}
 
-  queue()
-      .defer(d3.json, url)
-      .await(incidentsLoaded);  
+function loadIncidents() {
+  var urls = [];
+  urls.push(getIncidentDataUrl(filters[0].selected, filters[1].selected));
+  urls.push(getIncidentDataUrl(0, filters[1].selected));
+  urls.push(getIncidentDataUrl(filters[0].selected, 0));
+
+  var q = queue();
+  for (var i in urls) {
+    q.defer(d3.json, urls[i]);
+    console.log('Loading incidents…', urls[i]);
+  }
+  q.await(incidentsLoaded);
 }
 
 function initialDataLoaded(error, mapDataLoaded) {
@@ -470,8 +480,6 @@ function initialDataLoaded(error, mapDataLoaded) {
 
   addNeighborhoodsToFilters(mapDataLoaded);
   prepareFilters();
-
-  //createFakeData();
 
   createNav();
 
@@ -488,6 +496,16 @@ function loadInitialData() {
       .await(initialDataLoaded);
 }
 
+function prepareUI() {
+  for (var i = 0; i < 9; i++) {
+    var el = document.createElement('div');
+    el.classList.add('q' + i);
+    document.querySelector('#legend-graph').appendChild(el);
+  }
+}
+
 function main() {
+  prepareUI();
+
   loadInitialData();
 }
