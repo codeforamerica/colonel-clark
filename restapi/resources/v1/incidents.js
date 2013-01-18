@@ -16,27 +16,31 @@ exports.get = function(req, res, next) {
 
 }
 
+var convertArrayToInList = function(arr) {
+    for (index in arr) {
+        arr[index] = "'" + arr[index] + "'";
+    }
+    return arr.join(",");
+}
+
 var appendCrimeTotals = function(client, req, res, next) {
 
   // Get crime totals by crime
   var queryText = "SELECT crime, COUNT(*) AS num_crimes FROM crimes WHERE neighborhood IS NOT NULL";
-  var values = [];
   if (req.query.crime && req.query.neighborhood) {
-    queryText += " AND crime = $1 AND neighborhood = $2";
-    values = [ req.query.crime, req.query.neighborhood ];
+    var crimes = convertArrayToInList(req.query.crime.split(','));
+    var neighborhoods = convertArrayToInList(req.query.neighborhood.split(','));
+    queryText += " AND crime IN ( " + crimes + " ) AND neighborhood IN ( " + neighborhoods + " )";
   } else if (req.query.crime) {
-    queryText += " AND crime = $1";
-    values = [ req.query.crime ];
+    var crimes = convertArrayToInList(req.query.crime.split(','));
+    queryText += " AND crime IN ( " + crimes + " )";
   } else if (req.query.neighborhood) {
-    queryText += " AND neighborhood = $1";
-    values = [ req.query.neighborhood ];
+    var neighborhoods = convertArrayToInList(req.query.neighborhood.split(','));
+    queryText += " AND neighborhood IN ( + " + neighborhoods + " )";
   }
   queryText += " GROUP BY crime";
 
-  var query = client.query({
-    text: queryText,
-    values: values
-  });
+  var query = client.query(queryText);
 
   query.on('error', function(err) {
     console.error("query error = " + err);
@@ -59,23 +63,20 @@ var appendCrimeTotalsByNeighborhood = function(client, data, req, res, next) {
 
   // Get crime totals by neighborhood
   var queryText = "SELECT neighborhood, COUNT(*) AS num_crimes FROM crimes WHERE neighborhood IS NOT NULL";
-  var values = [];
   if (req.query.crime && req.query.neighborhood) {
-    queryText += " AND crime = $1 AND neighborhood = $2";
-    values = [ req.query.crime, req.query.neighborhood ];
+    var crimes = convertArrayToInList(req.query.crime.split(','));
+    var neighborhoods = convertArrayToInList(req.query.neighborhood.split(','));
+    queryText += " AND crime IN ( " + crimes + " ) AND neighborhood IN ( " + neighborhoods + " )";
   } else if (req.query.crime) {
-    queryText += " AND crime = $1";
-    values = [ req.query.crime ];
+    var crimes = convertArrayToInList(req.query.crime.split(','));
+    queryText += " AND crime IN ( " + crimes + " )";
   } else if (req.query.neighborhood) {
-    queryText += " AND neighborhood = $1";
-    values = [ req.query.neighborhood ];
+    var neighborhoods = convertArrayToInList(req.query.neighborhood.split(','));
+    queryText += " AND neighborhood IN ( + " + neighborhoods + " )";
   }
   queryText += " GROUP BY neighborhood";
 
-  var query = client.query({
-    text: queryText,
-    values: values
-  });
+  var query = client.query(queryText);
 
   query.on('error', function(err) {
     console.error("query error = " + err);
