@@ -18,7 +18,7 @@ var FILTERS = [
           { title: 'Violent crime',
             choices: [
               { title: 'Aggravated assault' },
-              { title: 'Assault' },
+              { title: 'Burglary' },
               { title: 'Homicide' },
               { title: 'Robbery' },
               { title: 'Simple assault' },
@@ -40,14 +40,16 @@ var FILTERS = [
   }
 ];
 
-var fakeData = [];
+//var fakeData = [];
+
+//var unfilteredData = [];
 
 var data = [];
 var filters = [];
 
 var mapReady = false;
 
-function createFakeData() {
+/*function createFakeData() {
   fakeData = [];
 
   for (var i in filters[0].choices) {
@@ -58,46 +60,8 @@ function createFakeData() {
       fakeData[i][j] = Math.floor(Math.random() * (i * randomVal)) * 3;
     }
   } 
-}
+}*/
 
-function loadData() {
-  data = [];
-
-  data[0] = [];
-  data[1] = [];
-
-  // TODO(mwichary): Unify this
-
-  for (var i in filters[0].choices) {
-    data[0][filters[0].choices[parseInt(i)].choiceNumber] = 0;
-
-    var choice = filters[0].choices[i];
-
-    for (var ii in choice.filterList) {
-      for (var j in filters[1].choices[filters[1].selected].filterList) {
-        var jj = filters[1].choices[filters[1].selected].filterList[j];
-
-        data[0][filters[0].choices[parseInt(i)].choiceNumber] += 
-            fakeData[choice.filterList[ii]][jj];
-      }
-    }
-  }
-
-  for (var j in filters[1].choices) {
-    data[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
-
-    var choice = filters[1].choices[j];
-
-    for (var jj in choice.filterList) {
-      for (var i in filters[0].choices[filters[0].selected].filterList) {
-        var ii = filters[0].choices[filters[0].selected].filterList[i];
-
-        data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
-            fakeData[ii][choice.filterList[jj]];
-      }
-    }
-  }
-}
 
 function createNav() {
   for (var i in filters) {
@@ -206,34 +170,17 @@ function updateNav() {
 
   }
 }
-/*
-function updateMap() {
-  var el = document.querySelector('#map');
-  el.innerHTML = '';
-
-  var max = 0;
-  for (var i = 1; i < filters[1].choices.length; i++) {
-    if (max < data[1][i]) {
-      max = data[1][i];
-    }
-  }
-
-  for (var i = 1; i < filters[1].choices.length; i++) {
-    var perc = (data[1][i] / max);
-
-    var neighborhoodEl = document.createElement('div');
-    neighborhoodEl.classList.add('neighborhood');
-    neighborhoodEl.style.opacity = perc;
-
-    el.appendChild(neighborhoodEl);
-  }
-}*/
 
 function updateData() {
-  loadData();
-  updateNav();
+  loadIncidents();
+
   updateCaption();
-  window.setTimeout(updateMap, 0);
+
+  //loadData();
+  
+  // predicated on the above
+  //updateNav();
+  //window.setTimeout(updateMap, 0);
 }
 
 function updateCaption() {
@@ -359,10 +306,10 @@ function mapIsReady(error, us) {
         .style('fill', '');
     });
 
-  updateMap();
+  // DEBUG
+  //updateMap();
 }
 
-//function ready(error, us, unemployment) {
 function updateMap() {
   if (!mapReady) {
     return;
@@ -415,6 +362,123 @@ function addNeighborhoodsToFilters(mapData) {
   }
 }
 
+
+function loadDataOLD() {
+  data = [];
+
+  data[0] = [];
+  data[1] = [];
+
+  // TODO(mwichary): Unify this
+
+  for (var i in filters[0].choices) {
+    data[0][filters[0].choices[parseInt(i)].choiceNumber] = 0;
+
+    var choice = filters[0].choices[i];
+
+    for (var ii in choice.filterList) {
+      for (var j in filters[1].choices[filters[1].selected].filterList) {
+        var jj = filters[1].choices[filters[1].selected].filterList[j];
+
+        data[0][filters[0].choices[parseInt(i)].choiceNumber] += 
+            fakeData[choice.filterList[ii]][jj];
+      }
+    }
+  }
+
+  for (var j in filters[1].choices) {
+    data[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
+
+    var choice = filters[1].choices[j];
+
+    for (var jj in choice.filterList) {
+      for (var i in filters[0].choices[filters[0].selected].filterList) {
+        var ii = filters[0].choices[filters[0].selected].filterList[i];
+
+        data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
+            fakeData[ii][choice.filterList[jj]];
+      }
+    }
+  }
+}
+
+function incidentsLoaded(error, loadedData) {
+  console.log('Incidents loaded…', loadedData);
+
+  data = [];
+
+  data[0] = [];
+  data[1] = [];  
+
+  for (var i in filters[0].choices) {
+    data[0][filters[0].choices[parseInt(i)].choiceNumber] = 0;
+
+    var choice = filters[0].choices[i];
+
+    for (var ii in choice.filterList) {
+      var title = filters[0].choices[choice.filterList[ii]].title;
+      title = title.toUpperCase();
+      //console.log(title, loadedData.byCrime[title]);
+
+      data[0][filters[0].choices[parseInt(i)].choiceNumber] += 
+          loadedData.byCrime[title];
+    }
+  }
+
+  //console.log('//');
+
+  for (var j in filters[1].choices) {
+    //console.log('A');
+    data[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
+
+    var choice = filters[1].choices[j];
+
+    for (var jj in choice.filterList) {
+      //console.log(choice.filterList[jj]);
+
+      var title = filters[1].choices[choice.filterList[jj]].title;
+      
+      //console.log(title);
+
+      data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
+          loadedData.byNeighborhood[title];
+          //fakeData[ii][choice.filterList[jj]];
+
+      //for (var i in filters[0].choices[filters[0].selected].filterList) {
+        //var ii = filters[0].choices[filters[0].selected].filterList[i];
+
+
+        //data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
+        //    fakeData[ii][choice.filterList[jj]];
+      //}
+    }
+  }
+
+
+  updateNav();
+  window.setTimeout(updateMap, 0);
+}
+
+function loadIncidents() {
+  if (filters[0].selected == 0) {
+    var crime = '';
+  } else {
+    var crime = filters[0].choices[filters[0].selected].title;
+  }
+
+  if (filters[1].selected == 0) {
+    var neighborhood = '';
+  } else {
+    var neighborhood = filters[1].choices[filters[1].selected].title;
+  }
+
+  console.log('Loading incidents…', crime, neighborhood);
+
+  queue()
+      .defer(d3.json, '/api/v1/incidents?neighborhood=' + neighborhood + '&crime=' + crime)
+      .await(incidentsLoaded);  
+}
+
 function initialDataLoaded(error, mapDataLoaded) {
   // TODO don’t do global
   mapData = mapDataLoaded;
@@ -422,7 +486,7 @@ function initialDataLoaded(error, mapDataLoaded) {
   addNeighborhoodsToFilters(mapDataLoaded);
   prepareFilters();
 
-  createFakeData();
+  //createFakeData();
 
   createNav();
 
