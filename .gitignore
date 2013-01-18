@@ -14,3 +14,11 @@ logs
 results
 
 npm-debug.log
+
+public/.DS_Store
+
+public/click-that-hood/.DS_Store
+
+public/click-that-hood/images/.DS_Store
+
+public/neighborhood-crime-data/images/.DS_Store
