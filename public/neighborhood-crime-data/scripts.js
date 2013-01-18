@@ -446,7 +446,7 @@ function loadIncidents() {
   if (filters[0].selected == 0) {
     var crime = '';
   } else {
-    var crime = filters[0].choices[filters[0].selected].title;
+    var crime = filters[0].choices[filters[0].selected].title.toUpperCase();
   }
 
   if (filters[1].selected == 0) {
@@ -455,10 +455,12 @@ function loadIncidents() {
     var neighborhood = filters[1].choices[filters[1].selected].title;
   }
 
-  console.log('Loading incidents…', crime, neighborhood);
+  var url = '/api/v1/incidents?neighborhood=' + encodeURI(neighborhood) + '&crime=' + encodeURI(crime);
+
+  console.log('Loading incidents…', crime, neighborhood, url);
 
   queue()
-      .defer(d3.json, '/api/v1/incidents?neighborhood=' + neighborhood + '&crime=' + crime)
+      .defer(d3.json, url)
       .await(incidentsLoaded);  
 }
 
