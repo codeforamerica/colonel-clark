@@ -155,7 +155,7 @@ function mapIsReady(error, us) {
     .on('mouseover', function(d) {
       // TODO make a function
 
-      var el = d3.event.target || d3.eent.toElement;
+      var el = d3.event.target || d3.event.toElement;
 
       var boundingBox = el.getBBox();
 
@@ -381,13 +381,9 @@ function onResize() {
   mapSvg.attr('width', canvasWidth);
   mapSvg.attr('height', canvasHeight);
 
-  //console.log(mapSvg.attr('width'));
-  //console.log(mapSvg.attr('height'));
-
   mapSvg
     .selectAll('path')
     .attr('d', mapPath);
-
 }
 
 function main() {

@@ -1,5 +1,7 @@
 var CHART_WIDTH = 50;
 
+var MAP_VERT_PADDING = 50;
+
 var DATA_TRANSITION_DELAY = 150;
 
 var FILTERS = [
@@ -200,13 +202,10 @@ function updateNav() {
             (parseInt(i)) + '"]').appendChild(el);
       }
     }
-
-
   }
 }
 
 function updateData() {
-  updateCaption();
   loadIncidents();
 }
 
@@ -277,12 +276,52 @@ function prepareFilters() {
   }  
 }
 
-function prepareMap() {
-  mapPath = d3.geo.path().projection(d3.geo.albers().scale(180000).center([12.28, 38.226314]));
+function calculateMapSize() {
+  // TODO get from the map itself
+  // At scale 250.000
+  var mapWidth = 1507 / 2500000;
+  var mapHeight = 1196 / 2500000;
 
-  mapSvg = d3.select('#map').append('svg')
+  // TODO better const
+  canvasWidth = document.querySelector('#svg-container').offsetWidth;
+  canvasHeight = document.querySelector('#svg-container').offsetHeight;
+
+  var desiredWidth = canvasWidth;
+  var desiredHeight = canvasWidth / mapWidth * mapHeight;
+
+  if (desiredHeight > canvasHeight) {
+    var desiredHeight = canvasHeight;
+    var desiredWidth = canvasHeight / mapHeight * mapWidth;
+  }
+
+  // TODO const
+  var scale = desiredWidth / mapWidth;// * .95;
+  // TODO not top-level variable
+  globalScale = scale;
+
+  // TODO get lat/long from the map itself
+  mapPath = d3.geo.path().projection(
+      d3.geo.mercator().center([-85.735719, 38.214]).
+      scale(globalScale).translate([canvasWidth / 2, canvasHeight / 2]));
+}
+
+function prepareMap() {
+  calculateMapSize();
+
+  mapSvg = d3.select('#svg-container').append('svg')
+      //.attr('width', '100%')
+      //.attr('height', '100%')
+      //.attr('viewBox', '0 0 ' + canvasWidth + ' ' + canvasHeight)
+      //.attr("preserveAspectRatio", "xMidYMid meet");
+
+      .attr('width', canvasWidth)
+      .attr('height', canvasHeight);    
+
+/*  mapPath = d3.geo.path().projection(d3.geo.albers().scale(180000).center([12.28, 38.226314]));
+
+  mapSvg = d3.select('#svg-container').append('svg')
       .attr('width', 900)
-      .attr('height', 540);    
+      .attr('height', 540);    */
 }
 
 // TODO stupid name
@@ -318,6 +357,28 @@ function mapIsReady(error, us) {
     .on('click', function() {
       switchToState(this.getAttribute('state'));
     })
+    .on('mouseover', function(d) {
+      // TODO make a function
+      var el = d3.event.target || d3.event.toElement;
+
+      var chartMax = document.querySelector('#legend-max').value;
+
+      //console.log(d);
+
+      var val = parseInt(el.getAttribute('value'));
+
+      document.querySelector('#legend-hover .name').innerHTML = d.properties.name;
+      document.querySelector('#legend-hover .value').innerHTML = val;
+
+      var offset = (val / chartMax) * document.querySelector('#legend-graph').offsetWidth;
+      document.querySelector('#legend-hover').style.left = offset + 'px';
+
+      document.querySelector('#legend-hover').classList.add('visible');  
+
+    })
+    .on('mouseout', function(d) {
+      document.querySelector('#legend-hover').classList.remove('visible');  
+    });
 }
 
 function updateMap() {
@@ -336,6 +397,7 @@ function updateMap() {
   }
 
   document.querySelector('#legend-max').innerHTML = formatNumber(max);
+  document.querySelector('#legend-max').value = max;
 
   var quantize = d3.scale.quantize()
     .domain([0, max])
@@ -344,14 +406,21 @@ function updateMap() {
   mapSvg.selectAll('path')
     .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
 
+  mapSvg.selectAll('path')
+    .attr('value', function(d) { return unfilteredData[1][1][map[d.properties.name]]; })
+
   for (var i = 1; i < filters[1].choices.length; i++) {
     var el = document.querySelector(
       'body > nav > .list[filterNumber="' + 
       1 + '"] > li[choiceNumber="' + 
       (filters[1].choices[i].choiceNumber) + '"] > .chart');
 
+    // TODO change to do attr
+    for (var j = 0; j < 9; j++) {
+      el.classList.remove('q' + j);
+    }
     el.classList.add(quantize(el.parentNode.value));
-  }  
+  } 
 
   // TODO change to a class
   if (filters[1].selected == 0) {
@@ -362,7 +431,7 @@ function updateMap() {
     mapSvg.selectAll('path')
       .transition().duration(DATA_TRANSITION_DELAY)
       .attr('opacity', function(d) { 
-        return (filters[1].choices[filters[1].selected].title == d.properties.name) ? 1 : .25
+        return (filters[1].choices[filters[1].selected].title == d.properties.name) ? 1 : .4
     });
   }
 }
@@ -402,7 +471,11 @@ function incidentsLoaded(error) {
   }
 
   updateNav();
-  window.setTimeout(updateMap, 0);
+
+  window.setTimeout(function() {
+    updateCaption();
+    updateMap();
+  }, 0);
 }
 
 function processData(crime, neighborhood, loadedData) {
@@ -470,7 +543,7 @@ function getIncidentDataUrl(crimeId, neighborhoodId) {
   if (crimeId == 0) {
     var crime = '';
   } else {
-    console.log(crimeId);
+    //console.log(crimeId);
 
     //console.log(filters[0].choices[crimeId].filterList);
 
@@ -483,7 +556,7 @@ function getIncidentDataUrl(crimeId, neighborhoodId) {
     //filters[1].choices[filters[1].selected]
 
     //var crime = filters[0].choices[crimeId].title.toUpperCase();
-    console.log(crime);
+    //console.log(crime);
   }
 
   if (neighborhoodId == 0) {
@@ -513,6 +586,84 @@ function loadIncidents() {
   q.await(incidentsLoaded);
 }
 
+function getGoogleMapsUrl(lat, lon, zoom, scale, type) {
+  var url = 'http://maps.googleapis.com/maps/api/staticmap' +
+      '?center=' + lat + ',' + lon +
+      '&zoom=' + zoom + '&size=640x640' +
+      '&sensor=false&scale=' + scale + '&maptype=' + type + '&format=jpg';
+
+  return url;
+}
+
+var MAP_OVERLAY_TILES_COUNT_X = 2;
+var MAP_OVERLAY_TILES_COUNT_Y = 2;
+var MAP_OVERLAY_OVERLAP_RATIO = .95;
+
+function prepareMapOverlay() {
+  var LAT_STEP = -.1725;
+  var LONG_STEP = .2195;
+
+  var lat = 38.214 - LAT_STEP / 2;
+  var lon = -85.735719 - LONG_STEP / 2;
+
+  var pixelRatio = window.devicePixelRatio || 1;
+
+  for (var x = 0; x < MAP_OVERLAY_TILES_COUNT_X; x++) {
+    for (var y = 0; y < MAP_OVERLAY_TILES_COUNT_Y; y++) {
+      var url = getGoogleMapsUrl(
+          lat + y * LAT_STEP * MAP_OVERLAY_OVERLAP_RATIO, 
+          lon + x * LONG_STEP * MAP_OVERLAY_OVERLAP_RATIO, 
+          12, 
+          pixelRatio, 
+          'satellite');
+
+      var imgEl = document.createElement('img');
+      imgEl.src = url;
+
+      document.querySelector('#google-maps-overlay').appendChild(imgEl);
+    }
+  }
+}
+
+function resizeMapOverlay() {
+  var canvasWidth = document.querySelector('#map').offsetWidth;
+  var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+
+  var size = globalScale * 0.0012238683395795992;
+  size = size * 0.995 / 2;
+
+  var offsetX = canvasWidth / 2 - size;
+  var offsetY = canvasHeight / 2 - size + 80;
+
+  var els = document.querySelectorAll('#google-maps-overlay img');
+
+  var elCount = 0;
+  for (var x = 0; x < MAP_OVERLAY_TILES_COUNT_X; x++) {
+    for (var y = 0; y < MAP_OVERLAY_TILES_COUNT_Y; y++) {
+      var el = els[elCount];
+      elCount++;
+
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+
+      el.style.left = (offsetX + size * x * MAP_OVERLAY_OVERLAP_RATIO) + 'px';
+      el.style.top = (offsetY + size * y * MAP_OVERLAY_OVERLAP_RATIO) + 'px';
+    }
+  }
+}
+
+function onResize() {
+  calculateMapSize();
+  resizeMapOverlay();
+
+  mapSvg.attr('width', canvasWidth);
+  mapSvg.attr('height', canvasHeight);
+
+  mapSvg
+    .selectAll('path')
+    .attr('d', mapPath);
+}
+
 function initialDataLoaded(error, mapDataLoaded) {
   // TODO don’t do global
   mapData = mapDataLoaded;
@@ -527,6 +678,9 @@ function initialDataLoaded(error, mapDataLoaded) {
   // TODO consolidate
   prepareMap();
   mapIsReady();
+
+  prepareMapOverlay();
+  resizeMapOverlay();  
 }
 
 function loadInitialData() {
@@ -545,6 +699,8 @@ function prepareUI() {
 
 function main() {
   prepareUI();
+
+  window.addEventListener('resize', onResize, false);
 
   loadInitialData();
 }

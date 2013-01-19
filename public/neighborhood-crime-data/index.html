@@ -17,12 +17,6 @@
     <img id='logo' src='images/logo-retina.png'>
     <h3>
       <span id='caption-crime'></span> · <span id='caption-neighborhood'></span> · October 4, 2012–January 4, 2013
-      <br>
-      <div id='legend'>
-        0
-        <span id='legend-graph'></span>
-        <span id='legend-max'></span>
-      </div>
     </h3>
   </header>
 
@@ -37,6 +31,18 @@
   </nav>
 
   <div id='map'>
+    <div id='legend'>
+      0
+      <span id='legend-graph'>
+        <span id='legend-hover'>
+          <span class='value'></span>
+          <span class='name'></span>
+        </span>
+      </span>
+      <span id='legend-max'></span>
+    </div>
+    <div id='svg-container'></div>
+    <div id='google-maps-overlay'></div>    
   </div>
 
   <script>

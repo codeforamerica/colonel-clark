@@ -1,7 +1,7 @@
 @import 'http://fonts.googleapis.com/css?family=Open+Sans:400,300,600';
 
 @headerHeight: 150px;
-@footerHeight: 30px;
+@footerHeight: 20px;
 
 @bodyMargin: 15px;
 
@@ -27,6 +27,8 @@
 
 @dataTransitionDelay: 150ms;
 
+@borderRadius: 7px;
+
 body {
   background: @mainBackgroundColour;
   padding: 0;
@@ -46,6 +48,8 @@ body > header {
   top: 0;
   height: @headerHeight;
 
+  z-index: 2000;
+
   text-align: center;
 }
 
@@ -59,10 +63,11 @@ body > footer {
   position: absolute;
 
   left: @bodyMargin;
-  right: @navWidth + @bodyMargin + @bodyMargin;
+  right: @bodyMargin;
 
   bottom: 0;
-  height: @footerHeight;
+  line-height: @footerHeight + @bodyMargin;
+  height: @footerHeight + @bodyMargin;
 
   text-align: center;
 }
@@ -86,6 +91,7 @@ body > header #logo {
   margin-top: 20px;
   width: 740px;
   max-width: 100%;
+  margin-bottom: -10px;
 }
 
 body > header > h3 {
@@ -98,11 +104,13 @@ body > nav {
 
   position: absolute;
   top: @bodyMargin;
-  bottom: @bodyMargin;
+  bottom: @bodyMargin + @footerHeight;
   right: @bodyMargin;
 
   overflow-x: hidden;
   overflow-y: visible;
+
+  border-radius: @borderRadius;
 }
 
 body > nav > .list {
@@ -177,13 +185,13 @@ body > nav > ol > li[level="1"]::before {
   counter-increment: neighborhood;
   content: counter(neighborhood) '.';
   text-align: right;
-  width: @navLevelPadding * 2 - 5px;
+  width: @navLevelPadding * 2 - 2px;
   display: inline-block;
-  color: rgb(160, 160, 160);
+  font-size: 80%;
 }
-body > nav > ol > li.selected::before {
+/*body > nav > ol > li.selected::before {
   color: black;
-}
+}*/
 
 
 body > nav > .list > li > .value {
@@ -217,22 +225,53 @@ body > nav > .list > li.active > .chart {
 }
 
 #map {
+  border-radius: @borderRadius;
+
   position: absolute;
   left: @bodyMargin;
   right: @navWidth + @bodyMargin + @bodyMargin;
-  top: @headerHeight;
-  bottom: @bodyMargin;
+  top: @headerHeight - 50;
+  bottom: @bodyMargin + @footerHeight;
+
+  overflow: hidden;  
 }
-#map > .neighborhood {
+/*#map > .neighborhood {
   width: 50px;
   height: 50px;
   background: red;
   float: left;
+}*/
+
+#svg-container {
+  z-index: 50;
+  position: absolute;
+  top: 80px;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+}
+#map svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+#google-maps-overlay {
+  pointer-events: none;
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  -webkit-filter: ~"sepia(100%) saturate(20%)";
+}
+#google-maps-overlay img {
+  position: absolute;
 }
 
-#map svg {
-//  outline: 1px solid blue;
-}
 
 /* Map */
 
@@ -282,8 +321,24 @@ body > nav > .list > li.active > .chart {
 #legend .q8, body > nav > .list > li > .chart.q8 { background: @heatMapRealColour8; }
 
 #legend {
-  margin-top: 15px;
-  font-weight: 300;
+  position: absolute;
+  left: 0;
+  top: 15px;
+  right: 0;
+  z-index: 1000;
+  text-align: center;
+
+  color: white;
+  text-shadow: 0 0 4px black,
+               0 0 4px black, 
+               0 0 4px black, 
+               0 0 4px black, 
+               0 0 2px black,
+               0 0 2px black,
+               0 0 1px black,
+               0 0 1px black;
+
+  font-weight: 400;
   line-height: 1.2;
 } 
 #legend * {
@@ -291,10 +346,48 @@ body > nav > .list > li.active > .chart {
 }
 
 #legend div {
-  box-shadow: 0 0 1px white, 0 0 1px white, 0 0 1px white;
+  box-shadow: 0 0 1px white, 
+              0 0 2px white, 
+              0 0 2px white;
   display: inline-block;
 
   width: 30px;
   height: 8px;
   margin-top: -3px;
+}
+
+#legend-graph {
+  position: relative;
+}
+
+#legend-hover {
+  position: absolute;
+  left: 0;
+  top: 30px;
+  text-align: center;
+  width: 200px;
+  margin-left: -100px;
+  display: none;
+}
+#legend-hover.visible {
+  display: block;
+}
+
+#legend-hover::before {
+  position: absolute;
+  left: 100px;
+  right: 0;
+  border-left: 1px solid white;
+  height: 20px;
+  top: -30px;
+  content: '';
+  display: block;
+  text-align: center;
+  width: 0;
+}
+#legend-hover .name {
+  display: block;
+}
+#legend-hover .value {
+  display: block;
 }
