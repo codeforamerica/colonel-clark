@@ -283,8 +283,8 @@ function calculateMapSize() {
   var mapHeight = 1196 / 2500000;
 
   // TODO better const
-  canvasWidth = document.querySelector('#map').offsetWidth - MAP_VERT_PADDING * 2;
-  canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+  canvasWidth = document.querySelector('#svg-container').offsetWidth;
+  canvasHeight = document.querySelector('#svg-container').offsetHeight;
 
   var desiredWidth = canvasWidth;
   var desiredHeight = canvasWidth / mapWidth * mapHeight;
@@ -357,6 +357,28 @@ function mapIsReady(error, us) {
     .on('click', function() {
       switchToState(this.getAttribute('state'));
     })
+    .on('mouseover', function(d) {
+      // TODO make a function
+      var el = d3.event.target || d3.event.toElement;
+
+      var chartMax = document.querySelector('#legend-max').value;
+
+      //console.log(d);
+
+      var val = parseInt(el.getAttribute('value'));
+
+      document.querySelector('#legend-hover .name').innerHTML = d.properties.name;
+      document.querySelector('#legend-hover .value').innerHTML = val;
+
+      var offset = (val / chartMax) * document.querySelector('#legend-graph').offsetWidth;
+      document.querySelector('#legend-hover').style.left = offset + 'px';
+
+      document.querySelector('#legend-hover').classList.add('visible');  
+
+    })
+    .on('mouseout', function(d) {
+      document.querySelector('#legend-hover').classList.remove('visible');  
+    });
 }
 
 function updateMap() {
@@ -375,6 +397,7 @@ function updateMap() {
   }
 
   document.querySelector('#legend-max').innerHTML = formatNumber(max);
+  document.querySelector('#legend-max').value = max;
 
   var quantize = d3.scale.quantize()
     .domain([0, max])
@@ -382,6 +405,9 @@ function updateMap() {
 
   mapSvg.selectAll('path')
     .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
+
+  mapSvg.selectAll('path')
+    .attr('value', function(d) { return unfilteredData[1][1][map[d.properties.name]]; })
 
   for (var i = 1; i < filters[1].choices.length; i++) {
     var el = document.querySelector(
@@ -607,7 +633,7 @@ function resizeMapOverlay() {
   size = size * 0.995 / 2;
 
   var offsetX = canvasWidth / 2 - size;
-  var offsetY = canvasHeight / 2 - size + 50;
+  var offsetY = canvasHeight / 2 - size + 80;
 
   var els = document.querySelectorAll('#google-maps-overlay img');
 
@@ -673,6 +699,8 @@ function prepareUI() {
 
 function main() {
   prepareUI();
+
+  window.addEventListener('resize', onResize, false);
 
   loadInitialData();
 }

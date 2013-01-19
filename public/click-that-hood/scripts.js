@@ -155,7 +155,7 @@ function mapIsReady(error, us) {
     .on('mouseover', function(d) {
       // TODO make a function
 
-      var el = d3.event.target || d3.eent.toElement;
+      var el = d3.event.target || d3.event.toElement;
 
       var boundingBox = el.getBBox();
 
