@@ -207,16 +207,15 @@ body > nav > ul > li.active > .chart {
 
 /* Map */
 
-#map .state-bound {
-  fill: none;
+#map .state {
   stroke: white;
   stroke-width: .5;
   stroke-linejoin: round;
-}
 
-#map .state {
   cursor: pointer;
-  /*fill: green;*/
+}
+#map .state:hover {
+  stroke-width: 3;
 }
 
 @heatMapColour1: rgb(0, 70, 0);

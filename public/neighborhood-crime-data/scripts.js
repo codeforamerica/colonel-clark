@@ -304,8 +304,8 @@ function switchToState(stateName) {
 function mapIsReady(error, us) {
   mapReady = true;
 
-  mapSvg.append('g')
-    .attr('class', 'state-bound')
+  mapSvg//.append('g')
+    //.attr('class', 'state-bound')
 
     .selectAll('path')
     .data(mapData.features)
@@ -316,7 +316,7 @@ function mapIsReady(error, us) {
     .on('click', function() {
       switchToState(this.getAttribute('state'));
     })
-    .on('mouseover', function() {
+    /*.on('mouseover', function() {
       // TODO class
       d3.select(this)
         .style('stroke', 'black')
@@ -328,10 +328,7 @@ function mapIsReady(error, us) {
         .style('stroke', '')
         .style('stroke-width', '')
         .style('fill', '');
-    });
-
-  // DEBUG
-  //updateMap();
+    });*/
 }
 
 function updateMap() {
