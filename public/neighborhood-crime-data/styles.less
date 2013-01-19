@@ -9,7 +9,7 @@
 @navLeftPadding: 5px;
 @navPadding: 10px;
 @navValueWidth: 80px;
-@navLevelPadding: 20px;
+@navLevelPadding: 15px;
 
 @chartWidth: 50px;
 
@@ -124,7 +124,7 @@ body > nav > ul > li {
   position: relative;
   height: 25px;
 
-  border-bottom: 1px solid rgb(230, 230, 230);
+  border-top: 1px solid rgb(230, 230, 230);
 }
 body > nav > ul > li:hover {
   background: @hoverFilterColour;
@@ -137,17 +137,28 @@ body > nav > ul > li > .name {
   top: 0;
   right: @navValueWidth + @navPadding;
 }
+body > nav > ul > li[level="0"] {
+  font-weight: 600;
+}
 body > nav > ul > li[level="0"] > .name {
   left: @navLeftPadding + @navPadding;
-  font-weight: 600;
+}
+body > nav > ul > li[level="1"] {
+  font-weight: 400;
+}
+body > nav > ul[filterNumber="0"] > li[level="1"] {
+  //border-top: 1px solid rgb(180, 180, 180);
 }
 body > nav > ul > li[level="1"] > .name {
   left: @navLeftPadding + @navPadding + @navLevelPadding;
-  font-weight: 400;
 }
-body > nav > ul > li[level="2"] > .name {
+body > nav > ul[filterNumber="1"] > li[level="1"],
+body > nav > ul[filterNumber="0"] > li[level="2"] {
+  font-weight: 300;
+}
+body > nav > ul[filterNumber="1"] > li[level="1"] > .name,
+body > nav > ul[filterNumber="0"] > li[level="2"] > .name {
   left: @navLeftPadding + @navPadding + @navLevelPadding * 2;
-  font-weight: 400;
 }
 body > nav > ul > li.selected {
   background: @selectedFilterColour;
@@ -253,11 +264,9 @@ body > nav > ul > li.active > .chart {
 #legend .q8 { background: @heatMapRealColour8; }
 
 #legend {
-  margin-top: 10px;
+  margin-top: 15px;
   font-weight: 300;
   line-height: 1.2;
-
-  font-size: 14px;
 } 
 #legend * {
   vertical-align: middle;  
@@ -269,5 +278,5 @@ body > nav > ul > li.active > .chart {
 
   width: 30px;
   height: 8px;
-  margin-top: -2px;
+  margin-top: -3px;
 }

@@ -346,6 +346,8 @@ function updateMap() {
     map[filters[1].choices[i].title] = i;
   }
 
+  document.querySelector('#legend-max').innerHTML = formatNumber(max);
+
   var quantize = d3.scale.quantize()
     .domain([0, max])
     .range(d3.range(9).map(function(i) { return 'q' + i; }));
