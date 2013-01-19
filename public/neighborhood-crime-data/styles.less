@@ -16,7 +16,8 @@
 @highlightColour: rgb(247, 148, 29);
 @secondaryColour: rgb(0, 200, 0);
 
-@chartColour: darken(@secondaryColour, 10);
+//@chartColour: darken(@secondaryColour, 10);
+@chartColour: rgb(120, 120, 120);
 
 @selectedFilterColour: lighten(@highlightColour, 30);
 @hoverFilterColour: lighten(@highlightColour, 40);
@@ -270,15 +271,15 @@ body > nav > .list > li.active > .chart {
 #map .q7 { fill: @heatMapRealColour7; }
 #map .q8 { fill: @heatMapRealColour8; }
 
-#legend .q0 { background: @heatMapRealColour0; }
-#legend .q1 { background: @heatMapRealColour1; }
-#legend .q2 { background: @heatMapRealColour2; }
-#legend .q3 { background: @heatMapRealColour3; }
-#legend .q4 { background: @heatMapRealColour4; }
-#legend .q5 { background: @heatMapRealColour5; }
-#legend .q6 { background: @heatMapRealColour6; }
-#legend .q7 { background: @heatMapRealColour7; }
-#legend .q8 { background: @heatMapRealColour8; }
+#legend .q0, body > nav > .list > li > .chart.q0 { background: @heatMapRealColour0; }
+#legend .q1, body > nav > .list > li > .chart.q1 { background: @heatMapRealColour1; }
+#legend .q2, body > nav > .list > li > .chart.q2 { background: @heatMapRealColour2; }
+#legend .q3, body > nav > .list > li > .chart.q3 { background: @heatMapRealColour3; }
+#legend .q4, body > nav > .list > li > .chart.q4 { background: @heatMapRealColour4; }
+#legend .q5, body > nav > .list > li > .chart.q5 { background: @heatMapRealColour5; }
+#legend .q6, body > nav > .list > li > .chart.q6 { background: @heatMapRealColour6; }
+#legend .q7, body > nav > .list > li > .chart.q7 { background: @heatMapRealColour7; }
+#legend .q8, body > nav > .list > li > .chart.q8 { background: @heatMapRealColour8; }
 
 #legend {
   margin-top: 15px;

@@ -308,9 +308,7 @@ function switchToState(stateName) {
 function mapIsReady(error, us) {
   mapReady = true;
 
-  mapSvg//.append('g')
-    //.attr('class', 'state-bound')
-
+  mapSvg
     .selectAll('path')
     .data(mapData.features)
     .enter()
@@ -320,19 +318,6 @@ function mapIsReady(error, us) {
     .on('click', function() {
       switchToState(this.getAttribute('state'));
     })
-    /*.on('mouseover', function() {
-      // TODO class
-      d3.select(this)
-        .style('stroke', 'black')
-        .style('stroke-width', 3)
-    })
-    .on('mouseout', function() {
-      d3.select(this)
-      // TODO class
-        .style('stroke', '')
-        .style('stroke-width', '')
-        .style('fill', '');
-    });*/
 }
 
 function updateMap() {
@@ -358,6 +343,15 @@ function updateMap() {
 
   mapSvg.selectAll('path')
     .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
+
+  for (var i = 1; i < filters[1].choices.length; i++) {
+    var el = document.querySelector(
+      'body > nav > .list[filterNumber="' + 
+      1 + '"] > li[choiceNumber="' + 
+      (filters[1].choices[i].choiceNumber) + '"] > .chart');
+
+    el.classList.add(quantize(el.parentNode.value));
+  }  
 
   // TODO change to a class
   if (filters[1].selected == 0) {
