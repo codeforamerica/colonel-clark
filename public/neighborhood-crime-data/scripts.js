@@ -160,7 +160,7 @@ function updateNav() {
       el.parentNode.value = parseFloat(val);
       el.innerHTML = formatNumber(val);
 
-      if (val > max) {
+      if ((val > max) && ((parseInt(j) != 0) || (parseInt(i) == 0))) {
         max = val;
       }
     }
@@ -195,8 +195,6 @@ function updateNav() {
 
       for (var j in els) {
         var el = els[j];
-        //console.log(el.innerHTML, el.value);
-
         document.querySelector(
             'body > nav > .list[filterNumber="' + 
             (parseInt(i)) + '"]').appendChild(el);
