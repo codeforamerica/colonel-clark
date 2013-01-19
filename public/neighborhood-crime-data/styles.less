@@ -27,6 +27,8 @@
 
 @dataTransitionDelay: 150ms;
 
+@borderRadius: 7px;
+
 body {
   background: @mainBackgroundColour;
   padding: 0;
@@ -103,6 +105,8 @@ body > nav {
 
   overflow-x: hidden;
   overflow-y: visible;
+
+  border-radius: @borderRadius;
 }
 
 body > nav > .list {
@@ -177,13 +181,13 @@ body > nav > ol > li[level="1"]::before {
   counter-increment: neighborhood;
   content: counter(neighborhood) '.';
   text-align: right;
-  width: @navLevelPadding * 2 - 5px;
+  width: @navLevelPadding * 2 - 2px;
   display: inline-block;
-  color: rgb(160, 160, 160);
+  font-size: 80%;
 }
-body > nav > ol > li.selected::before {
+/*body > nav > ol > li.selected::before {
   color: black;
-}
+}*/
 
 
 body > nav > .list > li > .value {
@@ -217,11 +221,15 @@ body > nav > .list > li.active > .chart {
 }
 
 #map {
+  border-radius: @borderRadius;
+
   position: absolute;
   left: @bodyMargin;
   right: @navWidth + @bodyMargin + @bodyMargin;
   top: @headerHeight;
-  bottom: @bodyMargin;
+  bottom: @bodyMargin + @footerHeight;
+
+  overflow: hidden;  
 }
 #map > .neighborhood {
   width: 50px;
@@ -230,9 +238,36 @@ body > nav > .list > li.active > .chart {
   float: left;
 }
 
-#map svg {
-//  outline: 1px solid blue;
+#svg-container {
+  z-index: 50;
+  position: absolute;
+  top: 50px;
+  bottom: 50px;
+  left: 50px;
+  right: 50px;
 }
+#map svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+#google-maps-overlay {
+  pointer-events: none;
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  opacity: 1;
+}
+#google-maps-overlay img {
+  position: absolute;
+}
+
 
 /* Map */
 
