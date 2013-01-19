@@ -104,15 +104,17 @@ body > nav {
   overflow-y: visible;
 }
 
-body > nav > ul {
+body > nav > .list {
   padding: 0;
   margin: 0;
 
   margin-bottom: 25px;
 }
 
-body > nav > ul > li {
-  list-style: none;
+body > nav > ul.list > li {
+  list-style: none;  
+}
+body > nav > .list > li {
   margin: 0;
 
   padding: 0 @navPadding;
@@ -126,49 +128,61 @@ body > nav > ul > li {
 
   border-top: 1px solid rgb(230, 230, 230);
 }
-body > nav > ul > li:hover {
+body > nav > .list > li:hover {
   background: @hoverFilterColour;
 }
 
-body > nav > ul > li > .name {
+body > nav > .list > li > .name {
   position: absolute;
   display: block;
   text-align: left;
   top: 0;
   right: @navValueWidth + @navPadding;
 }
-body > nav > ul > li[level="0"] {
+body > nav > .list > li[level="0"] {
   font-weight: 600;
 }
-body > nav > ul > li[level="0"] > .name {
+body > nav > .list > li[level="0"] > .name {
   left: @navLeftPadding + @navPadding;
 }
-body > nav > ul > li[level="1"] {
+body > nav > .list > li[level="1"] {
   font-weight: 400;
 }
-body > nav > ul[filterNumber="0"] > li[level="1"] {
+body > nav > .list[filterNumber="0"] > li[level="1"] {
   //border-top: 1px solid rgb(180, 180, 180);
 }
-body > nav > ul > li[level="1"] > .name {
+body > nav > .list > li[level="1"] > .name {
   left: @navLeftPadding + @navPadding + @navLevelPadding;
 }
-body > nav > ul[filterNumber="1"] > li[level="1"],
-body > nav > ul[filterNumber="0"] > li[level="2"] {
+body > nav > .list[filterNumber="1"] > li[level="1"],
+body > nav > .list[filterNumber="0"] > li[level="2"] {
   font-weight: 300;
 }
-body > nav > ul[filterNumber="1"] > li[level="1"] > .name,
-body > nav > ul[filterNumber="0"] > li[level="2"] > .name {
+body > nav > .list[filterNumber="1"] > li[level="1"] > .name,
+body > nav > .list[filterNumber="0"] > li[level="2"] > .name {
   left: @navLeftPadding + @navPadding + @navLevelPadding * 2;
 }
-body > nav > ul > li.selected {
+body > nav > .list > li.selected {
   background: @selectedFilterColour;
 }
-body > nav > ul > li.active {
+body > nav > .list > li.active {
   color: black;
 }
 
+body > nav > ol {
+  counter-reset: neighborhood;
+}
+body > nav > ol > li[level="1"]::before {
+  counter-increment: neighborhood;
+  content: counter(neighborhood) '.';
+  text-align: right;
+  width: @navLevelPadding * 2 - 5px;
+  display: inline-block;
+  color: rgb(160, 160, 160);
+}
 
-body > nav > ul > li > .value {
+
+body > nav > .list > li > .value {
   position: absolute;
   display: block;
   width: @navValueWidth;
@@ -177,7 +191,7 @@ body > nav > ul > li > .value {
   right: @navPadding * 3 + @chartWidth;
 }
 
-body > nav > ul > li > .chart {
+body > nav > .list > li > .chart {
   position: absolute;
   display: block;
   width: @chartWidth;
@@ -190,7 +204,7 @@ body > nav > ul > li > .chart {
 
   -webkit-transition: width @dataTransitionDelay;
 }
-body > nav > ul > li.active > .chart {
+body > nav > .list > li.active > .chart {
   opacity: 1;
 }
 

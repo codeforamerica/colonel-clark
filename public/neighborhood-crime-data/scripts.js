@@ -54,8 +54,14 @@ function createNav() {
   for (var i in filters) {
     var filter = filters[i];
 
-    var el = document.createElement('ul');
+    // TODO put elsewhere
+    if (i == '1') {
+      var el = document.createElement('ol');
+    } else {
+      var el = document.createElement('ul');
+    }
 
+    el.classList.add('list');
     el.setAttribute('filterNumber', i);
 
     for (var j in filter.choices) {
@@ -123,7 +129,7 @@ function updateNav() {
     // Gray out things
 
     var el = document.querySelector(
-        'body > nav > ul[filterNumber="' + 
+        'body > nav > .list[filterNumber="' + 
         (parseInt(i)) + '"] > li[choiceNumber="' + 
         (filters[i].selected) + '"]');
     el.classList.add('selected');
@@ -141,7 +147,7 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > ul[filterNumber="' + 
+          'body > nav > .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .value');
 
@@ -163,7 +169,7 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > ul[filterNumber="' + 
+          'body > nav > .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .chart');
 
@@ -178,7 +184,7 @@ function updateNav() {
 
       for (var j in filters[i].choices) {
         var el = document.querySelector(
-            'body > nav > ul[filterNumber="' + 
+            'body > nav > .list[filterNumber="' + 
             (parseInt(i)) + '"] > li[choiceNumber="' + 
             (filters[i].choices[j].choiceNumber) + '"]');
 
@@ -192,7 +198,7 @@ function updateNav() {
         //console.log(el.innerHTML, el.value);
 
         document.querySelector(
-            'body > nav > ul[filterNumber="' + 
+            'body > nav > .list[filterNumber="' + 
             (parseInt(i)) + '"]').appendChild(el);
       }
     }
