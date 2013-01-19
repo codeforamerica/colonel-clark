@@ -9,14 +9,15 @@
 @navLeftPadding: 5px;
 @navPadding: 10px;
 @navValueWidth: 80px;
-@navLevelPadding: 10px;
+@navLevelPadding: 15px;
 
 @chartWidth: 50px;
 
 @highlightColour: rgb(247, 148, 29);
 @secondaryColour: rgb(0, 200, 0);
 
-@chartColour: darken(@secondaryColour, 10);
+//@chartColour: darken(@secondaryColour, 10);
+@chartColour: rgb(120, 120, 120);
 
 @selectedFilterColour: lighten(@highlightColour, 30);
 @hoverFilterColour: lighten(@highlightColour, 40);
@@ -83,7 +84,7 @@ body > footer #cfa {
 
 body > header #logo {
   margin-top: 20px;
-  width: 599px;
+  width: 740px;
   max-width: 100%;
 }
 
@@ -104,15 +105,17 @@ body > nav {
   overflow-y: visible;
 }
 
-body > nav > ul {
+body > nav > .list {
   padding: 0;
   margin: 0;
 
   margin-bottom: 25px;
 }
 
-body > nav > ul > li {
-  list-style: none;
+body > nav > ul.list > li {
+  list-style: none;  
+}
+body > nav > .list > li {
   margin: 0;
 
   padding: 0 @navPadding;
@@ -124,40 +127,66 @@ body > nav > ul > li {
   position: relative;
   height: 25px;
 
-  border-bottom: 1px solid rgb(230, 230, 230);
+  border-top: 1px solid rgb(230, 230, 230);
 }
-body > nav > ul > li:hover {
+body > nav > .list > li:hover {
   background: @hoverFilterColour;
 }
 
-body > nav > ul > li > .name {
+body > nav > .list > li > .name {
   position: absolute;
   display: block;
   text-align: left;
   top: 0;
   right: @navValueWidth + @navPadding;
 }
-body > nav > ul > li[level="0"] > .name {
-  left: @navLeftPadding + @navPadding;
+body > nav > .list > li[level="0"] {
   font-weight: 600;
 }
-body > nav > ul > li[level="1"] > .name {
+body > nav > .list > li[level="0"] > .name {
+  left: @navLeftPadding + @navPadding;
+}
+body > nav > .list > li[level="1"] {
+  font-weight: 400;
+}
+body > nav > .list[filterNumber="0"] > li[level="1"] {
+  //border-top: 1px solid rgb(180, 180, 180);
+}
+body > nav > .list > li[level="1"] > .name {
   left: @navLeftPadding + @navPadding + @navLevelPadding;
-  font-weight: 400;
 }
-body > nav > ul > li[level="2"] > .name {
+body > nav > .list[filterNumber="1"] > li[level="1"],
+body > nav > .list[filterNumber="0"] > li[level="2"] {
+  font-weight: 300;
+}
+body > nav > .list[filterNumber="1"] > li[level="1"] > .name,
+body > nav > .list[filterNumber="0"] > li[level="2"] > .name {
   left: @navLeftPadding + @navPadding + @navLevelPadding * 2;
-  font-weight: 400;
 }
-body > nav > ul > li.selected {
+body > nav > .list > li.selected {
   background: @selectedFilterColour;
 }
-body > nav > ul > li.active {
+body > nav > .list > li.active {
+  color: black;
+}
+
+body > nav > ol {
+  counter-reset: neighborhood;
+}
+body > nav > ol > li[level="1"]::before {
+  counter-increment: neighborhood;
+  content: counter(neighborhood) '.';
+  text-align: right;
+  width: @navLevelPadding * 2 - 5px;
+  display: inline-block;
+  color: rgb(160, 160, 160);
+}
+body > nav > ol > li.selected::before {
   color: black;
 }
 
 
-body > nav > ul > li > .value {
+body > nav > .list > li > .value {
   position: absolute;
   display: block;
   width: @navValueWidth;
@@ -166,7 +195,7 @@ body > nav > ul > li > .value {
   right: @navPadding * 3 + @chartWidth;
 }
 
-body > nav > ul > li > .chart {
+body > nav > .list > li > .chart {
   position: absolute;
   display: block;
   width: @chartWidth;
@@ -179,7 +208,7 @@ body > nav > ul > li > .chart {
 
   -webkit-transition: width @dataTransitionDelay;
 }
-body > nav > ul > li.active > .chart {
+body > nav > .list > li.active > .chart {
   opacity: 1;
 }
 
@@ -207,16 +236,15 @@ body > nav > ul > li.active > .chart {
 
 /* Map */
 
-#map .state-bound {
-  fill: none;
+#map .state {
   stroke: white;
   stroke-width: .5;
   stroke-linejoin: round;
-}
 
-#map .state {
   cursor: pointer;
-  /*fill: green;*/
+}
+#map .state:hover {
+  stroke-width: 3;
 }
 
 @heatMapColour1: rgb(0, 70, 0);
@@ -243,22 +271,20 @@ body > nav > ul > li.active > .chart {
 #map .q7 { fill: @heatMapRealColour7; }
 #map .q8 { fill: @heatMapRealColour8; }
 
-#legend .q0 { background: @heatMapRealColour0; }
-#legend .q1 { background: @heatMapRealColour1; }
-#legend .q2 { background: @heatMapRealColour2; }
-#legend .q3 { background: @heatMapRealColour3; }
-#legend .q4 { background: @heatMapRealColour4; }
-#legend .q5 { background: @heatMapRealColour5; }
-#legend .q6 { background: @heatMapRealColour6; }
-#legend .q7 { background: @heatMapRealColour7; }
-#legend .q8 { background: @heatMapRealColour8; }
+#legend .q0, body > nav > .list > li > .chart.q0 { background: @heatMapRealColour0; }
+#legend .q1, body > nav > .list > li > .chart.q1 { background: @heatMapRealColour1; }
+#legend .q2, body > nav > .list > li > .chart.q2 { background: @heatMapRealColour2; }
+#legend .q3, body > nav > .list > li > .chart.q3 { background: @heatMapRealColour3; }
+#legend .q4, body > nav > .list > li > .chart.q4 { background: @heatMapRealColour4; }
+#legend .q5, body > nav > .list > li > .chart.q5 { background: @heatMapRealColour5; }
+#legend .q6, body > nav > .list > li > .chart.q6 { background: @heatMapRealColour6; }
+#legend .q7, body > nav > .list > li > .chart.q7 { background: @heatMapRealColour7; }
+#legend .q8, body > nav > .list > li > .chart.q8 { background: @heatMapRealColour8; }
 
 #legend {
-  margin-top: 10px;
+  margin-top: 15px;
   font-weight: 300;
   line-height: 1.2;
-
-  font-size: 14px;
 } 
 #legend * {
   vertical-align: middle;  
@@ -270,5 +296,5 @@ body > nav > ul > li.active > .chart {
 
   width: 30px;
   height: 8px;
-  margin-top: -2px;
+  margin-top: -3px;
 }

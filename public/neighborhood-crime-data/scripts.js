@@ -41,10 +41,10 @@ var FILTERS = [
 ];
 
 // data without any filters
-//var unfilteredData = [];
+var unfilteredData = [];
 var cachedRawData = [];
 
-var data = [];
+var currentData = [];
 
 var filters = [];
 
@@ -54,8 +54,14 @@ function createNav() {
   for (var i in filters) {
     var filter = filters[i];
 
-    var el = document.createElement('ul');
+    // TODO put elsewhere
+    if (i == '1') {
+      var el = document.createElement('ol');
+    } else {
+      var el = document.createElement('ul');
+    }
 
+    el.classList.add('list');
     el.setAttribute('filterNumber', i);
 
     for (var j in filter.choices) {
@@ -123,7 +129,7 @@ function updateNav() {
     // Gray out things
 
     var el = document.querySelector(
-        'body > nav > ul[filterNumber="' + 
+        'body > nav > .list[filterNumber="' + 
         (parseInt(i)) + '"] > li[choiceNumber="' + 
         (filters[i].selected) + '"]');
     el.classList.add('selected');
@@ -141,20 +147,20 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > ul[filterNumber="' + 
+          'body > nav > .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .value');
 
       if (el.parentNode.classList.contains('active')) {
-        var val = data[i][j];
+        var val = currentData[i][j];
       } else {
-        var val = unfilteredData[i][j];        
+        var val = unfilteredData[i][i][j];        
       }
 
       el.parentNode.value = parseFloat(val);
       el.innerHTML = formatNumber(val);
 
-      if (val > max) {
+      if ((val > max) && ((parseInt(j) != 0) || (parseInt(i) == 0))) {
         max = val;
       }
     }
@@ -163,7 +169,7 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > ul[filterNumber="' + 
+          'body > nav > .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .chart');
 
@@ -178,7 +184,7 @@ function updateNav() {
 
       for (var j in filters[i].choices) {
         var el = document.querySelector(
-            'body > nav > ul[filterNumber="' + 
+            'body > nav > .list[filterNumber="' + 
             (parseInt(i)) + '"] > li[choiceNumber="' + 
             (filters[i].choices[j].choiceNumber) + '"]');
 
@@ -189,10 +195,8 @@ function updateNav() {
 
       for (var j in els) {
         var el = els[j];
-        //console.log(el.innerHTML, el.value);
-
         document.querySelector(
-            'body > nav > ul[filterNumber="' + 
+            'body > nav > .list[filterNumber="' + 
             (parseInt(i)) + '"]').appendChild(el);
       }
     }
@@ -304,9 +308,7 @@ function switchToState(stateName) {
 function mapIsReady(error, us) {
   mapReady = true;
 
-  mapSvg.append('g')
-    .attr('class', 'state-bound')
-
+  mapSvg
     .selectAll('path')
     .data(mapData.features)
     .enter()
@@ -316,22 +318,6 @@ function mapIsReady(error, us) {
     .on('click', function() {
       switchToState(this.getAttribute('state'));
     })
-    .on('mouseover', function() {
-      // TODO class
-      d3.select(this)
-        .style('stroke', 'black')
-        .style('stroke-width', 3)
-    })
-    .on('mouseout', function() {
-      d3.select(this)
-      // TODO class
-        .style('stroke', '')
-        .style('stroke-width', '')
-        .style('fill', '');
-    });
-
-  // DEBUG
-  //updateMap();
 }
 
 function updateMap() {
@@ -342,19 +328,30 @@ function updateMap() {
   var max = 0;
   var map = {};
   for (var i = 1; i < filters[1].choices.length; i++) {
-    if (max < data[1][i]) {
-      max = data[1][i];
+    if (max < unfilteredData[1][1][i]) {
+      max = unfilteredData[1][1][i];
     }
 
     map[filters[1].choices[i].title] = i;
   }
+
+  document.querySelector('#legend-max').innerHTML = formatNumber(max);
 
   var quantize = d3.scale.quantize()
     .domain([0, max])
     .range(d3.range(9).map(function(i) { return 'q' + i; }));
 
   mapSvg.selectAll('path')
-    .attr('class', function(d) { return 'state ' + quantize(data[1][map[d.properties.name]]); })
+    .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
+
+  for (var i = 1; i < filters[1].choices.length; i++) {
+    var el = document.querySelector(
+      'body > nav > .list[filterNumber="' + 
+      1 + '"] > li[choiceNumber="' + 
+      (filters[1].choices[i].choiceNumber) + '"] > .chart');
+
+    el.classList.add(quantize(el.parentNode.value));
+  }  
 
   // TODO change to a class
   if (filters[1].selected == 0) {
@@ -389,16 +386,28 @@ function addNeighborhoodsToFilters(mapData) {
 function incidentsLoaded(error) {
   console.log('Incidents loaded…');
 
-  console.log(arguments.length);
-
   for (var i = 1; i < arguments.length; i++) {
-    console.log(arguments[i]);
+    var data = arguments[i];
+
+    var crime = data.query.filters.crime || '';
+    var neighborhood = data.query.filters.neighborhood || '';
+
+    // TODO cachedRawData necessary?
+    if (!cachedRawData[crime]) {
+      cachedRawData[crime] = [];
+    }
+    cachedRawData[crime][neighborhood] = data;
+
+    processData(crime, neighborhood, data);
   }
 
-  //return;
+  updateNav();
+  window.setTimeout(updateMap, 0);
+}
 
-  // temp
-  loadedData = arguments[1];
+function processData(crime, neighborhood, loadedData) {
+  //console.log('Processing', 'c:' + crime, 'n:' + neighborhood);
+  //loadedData = data;
 
   data = [];
 
@@ -432,19 +441,49 @@ function incidentsLoaded(error) {
     }
   }
 
-  if ((filters[0].selected == 0) && (filters[1].selected == 0)) {
-    unfilteredData = data;
+  /*if ((filters[0].selected == 0) && (filters[1].selected == 0)) {
+    unfilteredData = currentData;
+  }*/
+
+
+
+  // TODO actually compare crime and neighborhood strings to numbers
+  // and allocate properly
+  if (crime == '') {
+    //console.log('allocated unfiltered data 0 (crime)');
+    unfilteredData[0] = data;
   }
 
-  updateNav();
-  window.setTimeout(updateMap, 0);
+  if (neighborhood == '') {
+    //console.log('allocated unfiltered data 1 (n)');
+    unfilteredData[1] = data;
+  }
+
+  if ( ((crime != '') || (filters[0].selected == 0)) &&
+       ((neighborhood != '') || (filters[1].selected == 0)) ) {
+    //console.log('allocated proper data');
+    currentData = data;
+  }
 }
 
 function getIncidentDataUrl(crimeId, neighborhoodId) {
   if (crimeId == 0) {
     var crime = '';
   } else {
-    var crime = filters[0].choices[crimeId].title.toUpperCase();
+    console.log(crimeId);
+
+    //console.log(filters[0].choices[crimeId].filterList);
+
+    var crimeList = [];
+    for (var i in filters[0].choices[crimeId].filterList) {
+      crimeList.push(filters[0].choices[filters[0].choices[crimeId].filterList[i]].title);
+    }
+    var crime = crimeList.join(',').toUpperCase();
+
+    //filters[1].choices[filters[1].selected]
+
+    //var crime = filters[0].choices[crimeId].title.toUpperCase();
+    console.log(crime);
   }
 
   if (neighborhoodId == 0) {
