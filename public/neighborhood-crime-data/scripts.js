@@ -350,8 +350,12 @@ function updateMap() {
       1 + '"] > li[choiceNumber="' + 
       (filters[1].choices[i].choiceNumber) + '"] > .chart');
 
+    // TODO change to do attr
+    for (var j = 0; j < 9; j++) {
+      el.classList.remove('q' + j);
+    }
     el.classList.add(quantize(el.parentNode.value));
-  }  
+  } 
 
   // TODO change to a class
   if (filters[1].selected == 0) {
@@ -470,7 +474,7 @@ function getIncidentDataUrl(crimeId, neighborhoodId) {
   if (crimeId == 0) {
     var crime = '';
   } else {
-    console.log(crimeId);
+    //console.log(crimeId);
 
     //console.log(filters[0].choices[crimeId].filterList);
 
@@ -483,7 +487,7 @@ function getIncidentDataUrl(crimeId, neighborhoodId) {
     //filters[1].choices[filters[1].selected]
 
     //var crime = filters[0].choices[crimeId].title.toUpperCase();
-    console.log(crime);
+    //console.log(crime);
   }
 
   if (neighborhoodId == 0) {
