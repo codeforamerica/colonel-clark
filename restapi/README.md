@@ -116,3 +116,11 @@
         "Prestonia":34
       }
     }
+
+### Subscribe to neighborhood crime emails
+
+#### Request
+    PUT /v1/user/shaunak@codeforamerica.org/subscriptions/neighborhoods
+    {
+      "neighborhoods": [ "Prestonia", "Central Business District" ]
+    }
