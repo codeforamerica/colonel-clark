@@ -32,6 +32,7 @@ var chart;
 var chartScale;
 
 var currentData;
+var currentSecondaryData;
 var currentDataOrdering;
 
 function toTitleCase(text) {
@@ -60,7 +61,7 @@ function calculateDataOrder() {
   }
 }
 
-function prepareData() {
+function getData(dataType, dataSource) {
   switch (dataType) {
     case DATA_TYPE_ARRESTS:
       var dataTypeField = 'arrestOffensesByYear';
@@ -72,24 +73,31 @@ function prepareData() {
   switch (dataSource) {
     case DATA_SOURCE_2010:
       var dataSourceField = '2010';
-      chartCount = 1;
       break;
     case DATA_SOURCE_2011:
       var dataSourceField = '2011';
-      chartCount = 1;
-      break;
-    case DATA_SOURCE_2010_VS_2011:
-      var dataSourceField = '2010';
-      chartCount = 2;
       break;
   }
 
-  currentData = [];
+  var data = [];
   for (var i in loadedData[dataTypeField][dataSourceField]['part1']) {
-    currentData.push(loadedData[dataTypeField][dataSourceField]['part1'][i]);
+    data.push(loadedData[dataTypeField][dataSourceField]['part1'][i]);
   }
   for (var i in loadedData[dataTypeField][dataSourceField]['part2']) {
-    currentData.push(loadedData[dataTypeField][dataSourceField]['part2'][i]);
+    data.push(loadedData[dataTypeField][dataSourceField]['part2'][i]);
+  }
+  return data;
+}
+
+function prepareData() {
+  if (dataSource == DATA_SOURCE_2010_VS_2011) {
+    currentData = getData(dataType, DATA_SOURCE_2011);
+    currentSecondaryData = getData(dataType, DATA_SOURCE_2010);
+    chartCount = 2;
+  } else {
+    currentData = getData(dataType, dataSource);
+    currentSecondaryData = currentData;
+    chartCount = 1;
   }
 }
 
@@ -174,14 +182,16 @@ function createChart() {
   // Chart
 
   for (chartNo = 1; chartNo <= 2; chartNo++) {
+    var data = (chartNo == 2) ? currentData : currentSecondaryData;
+
     chart.selectAll("rect.rect.chart" + chartNo)
-        .data(currentData)
+        .data(data)
         .enter().append("rect")
         .attr("class", "rect chart" + chartNo)
         .attr("height", BAR_HEIGHT);
 
     chart.selectAll("text.value.chart" + chartNo)
-        .data(currentData)
+        .data(data)
         .enter().append("text")
         .attr("class", "value chart" + chartNo)
         .attr("dy", BAR_HEIGHT)
@@ -234,6 +244,8 @@ function updateChart(animate) {
   // Chart
 
   for (chartNo = 1; chartNo <= 2; chartNo++) {
+    var data = (chartNo == 2) ? currentData : currentSecondaryData;
+
     switch (chartCount) {
       case 1:
         var x = (chartNo == 1) ? (-chartWidth - LABEL_WIDTH) : LABEL_WIDTH;
@@ -244,7 +256,7 @@ function updateChart(animate) {
     }
 
     chart.selectAll("rect.rect.chart" + chartNo)
-        .data(currentData)
+        .data(data)
         .transition()
         .duration(time)
         .attr("width", chartScale)
@@ -258,7 +270,7 @@ function updateChart(animate) {
         .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); });
 
     chart.selectAll("text.value.chart" + chartNo)
-        .data(currentData)
+        .data(data)
         .transition()
         .duration(time)
         .attr("x", function(d) {
