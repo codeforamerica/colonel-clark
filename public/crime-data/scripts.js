@@ -14,10 +14,10 @@ var DATA_TYPE_OFFENSES_VS_ARRESTS = 'data-type-offenses-vs-arrests';
 var DATA_NOT_AVAILABLE = -1;
 
 var LABEL_WIDTH = 200;
-var VALUE_WIDTH = 50;
+var VALUE_WIDTH = 60;
 var BAR_HEIGHT = 22;
-var BAR_PADDING = 2;
-var LABEL_OFFSET = 5;
+var BAR_PADDING = 3;
+var LABEL_OFFSET = 10;
 
 var DURATION_TIME = 500;
 
@@ -237,6 +237,7 @@ function createChart() {
       .data(simpleDataLabels)
       .enter().append('text')
       .attr('class', 'label')
+      .attr('part', function(d, i) { return dataLabels[simpleDataLabels[i]].part; })
       .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
       .attr('dy', BAR_HEIGHT)
       .text(toTitleCase);
