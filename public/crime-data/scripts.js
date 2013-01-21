@@ -8,6 +8,8 @@ var DATA_SOURCE_2010_VS_2011 = 3;
 var DATA_TYPE_OFFENSES = 1;
 var DATA_TYPE_ARRESTS = 2;
 
+var DATA_NOT_AVAILABLE = -1;
+
 var LABEL_WIDTH = 200;
 var VALUE_WIDTH = 50;
 var BAR_HEIGHT = 22;
@@ -22,8 +24,9 @@ var dataType = DATA_TYPE_ARRESTS;
 var chartCount = 2;
 
 var loadedData;
-var dataCount;
 var absoluteMaximum;
+var dataLabels;
+var simpleDataLabels;
 
 var globalWidth;
 var chartWidth;
@@ -41,6 +44,14 @@ function toTitleCase(text) {
   });
 }
 
+function formatValue(val) {
+  if (val == DATA_NOT_AVAILABLE) {
+    return 'n/a'; 
+  } else {
+    return val;
+  }
+}
+
 function calculateDataOrder() { 
   currentDataOrdering = [];
   for (var i = 0; i < currentData.length; i++) {
@@ -49,15 +60,15 @@ function calculateDataOrder() {
 
   switch (sortOrder) {
     case SORT_ORDER_VALUE:
-        currentDataOrdering.sort(function(a, b) {
-          return currentData[b] - currentData[a];
-        });
-        break;
+      currentDataOrdering.sort(function(a, b) {
+        return currentData[b] - currentData[a];
+      });
+      break;
     case SORT_ORDER_NAME:
-        currentDataOrdering.sort(function(a, b) {
-          return (currentDataLabels[a] > currentDataLabels[b]) ? 1 : ((currentDataLabels[b] > currentDataLabels[a]) ? -1 : 0);
-        });
-        break;
+      currentDataOrdering.sort(function(a, b) {
+        return (dataLabels[a].label > dataLabels[b].label) ? 1 : ((dataLabels[b].label > dataLabels[a].label) ? -1 : 0);
+      });
+      break;
   }
 }
 
@@ -80,11 +91,10 @@ function getData(dataType, dataSource) {
   }
 
   var data = [];
-  for (var i in loadedData[dataTypeField][dataSourceField]['part1']) {
-    data.push(loadedData[dataTypeField][dataSourceField]['part1'][i]);
-  }
-  for (var i in loadedData[dataTypeField][dataSourceField]['part2']) {
-    data.push(loadedData[dataTypeField][dataSourceField]['part2'][i]);
+  for (var i in dataLabels) {
+    var label = dataLabels[i];
+
+    data.push(loadedData[dataTypeField][dataSourceField][label.part][label.label]);
   }
   return data;
 }
@@ -101,13 +111,18 @@ function prepareData() {
   }
 }
 
-function findDataCount() {
-  dataCount = 0;
-  for (var i in loadedData['offensesByYear']['2010']['part1']) {
-    dataCount++;
-  }
-  for (var i in loadedData['offensesByYear']['2010']['part2']) {
-    dataCount++;
+function fillInTheBlanks() {
+  var dataTypes = ['offensesByYear', 'arrestOffensesByYear'];
+  var dataSources = ['2010', '2011'];
+
+  for (var j in dataTypes) {
+    for (var k in dataSources) {
+      for (var label in dataLabels) {
+        if (typeof loadedData[dataTypes[j]][dataSources[k]][dataLabels[label].part][label] == 'undefined') {
+          loadedData[dataTypes[j]][dataSources[k]][dataLabels[label].part][label] = DATA_NOT_AVAILABLE;
+        }
+      }
+    }
   }
 }
 
@@ -129,7 +144,8 @@ function findAbsoluteMaximum() {
 }
 
 function analyzeData() {
-  findDataCount();
+  putTogetherLabels();
+  fillInTheBlanks();
   findAbsoluteMaximum();
 }
 
@@ -145,57 +161,78 @@ function calculateChartWidth() {
       break;
   }
 
-  chartScale = d3.scale.linear()
+  chartScale = function(d) {
+    if (d == DATA_NOT_AVAILABLE) {
+      d = 0;
+    }
+    return d3.scale.linear()
       .domain([0, absoluteMaximum])
-      .range([0, chartWidth]);
+      .range([0, chartWidth])(d);
+  }
+}
+
+function putTogetherLabels() {
+  dataLabels = {};
+
+  var dataTypes = ['offensesByYear', 'arrestOffensesByYear'];
+  var dataSources = ['2010', '2011'];
+  var parts = ['part1', 'part2'];
+
+  for (var j in dataTypes) {
+    for (var k in dataSources) {
+      for (var l in parts) {
+        for (var label in loadedData[dataTypes[j]][dataSources[k]][parts[l]]) {
+          dataLabels[label] = { label: label, part: parts[l] };
+        }
+      }
+    }
+  }
+
+  simpleDataLabels = [];
+
+  for (var label in dataLabels) {
+    simpleDataLabels.push(label);
+  }
 }
 
 function createChart() {
   calculateChartWidth();
 
-  chart = d3.select("#chart").append("svg")
-      .attr("class", "chart")
-      .attr("width", globalWidth)
-      .attr("height", (BAR_HEIGHT + BAR_PADDING) * dataCount);
-
-  currentDataLabels = [];
-  for (var i in loadedData['offensesByYear']['2010']['part1']) {
-    currentDataLabels.push(toTitleCase(i));
-  }
-  for (var i in loadedData['offensesByYear']['2010']['part2']) {
-    currentDataLabels.push(toTitleCase(i));
-  }
+  chart = d3.select('#chart').append('svg')
+      .attr('class', 'chart')
+      .attr('width', globalWidth)
+      .attr('height', (BAR_HEIGHT + BAR_PADDING) * simpleDataLabels.length);
 
   prepareData();
   calculateDataOrder();
 
   // Label
 
-  chart.selectAll("text.label")
-      .data(currentDataLabels)
-      .enter().append("text")
-      .attr("class", "label")
-      .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-      .attr("dy", BAR_HEIGHT)
-      .text(String);             
+  chart.selectAll('text.label')
+      .data(simpleDataLabels)
+      .enter().append('text')
+      .attr('class', 'label')
+      .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
+      .attr('dy', BAR_HEIGHT)
+      .text(toTitleCase);
 
   // Chart
 
   for (chartNo = 1; chartNo <= 2; chartNo++) {
     var data = (chartNo == 2) ? currentData : currentSecondaryData;
 
-    chart.selectAll("rect.rect.chart" + chartNo)
+    chart.selectAll('rect.rect.chart' + chartNo)
         .data(data)
-        .enter().append("rect")
-        .attr("class", "rect chart" + chartNo)
-        .attr("height", BAR_HEIGHT);
+        .enter().append('rect')
+        .attr('class', 'rect chart' + chartNo)
+        .attr('height', BAR_HEIGHT);
 
-    chart.selectAll("text.value.chart" + chartNo)
+    chart.selectAll('text.value.chart' + chartNo)
         .data(data)
-        .enter().append("text")
-        .attr("class", "value chart" + chartNo)
-        .attr("dy", BAR_HEIGHT)
-        .text(String);             
+        .enter().append('text')
+        .attr('class', 'value chart' + chartNo)
+        .attr('dy', BAR_HEIGHT)
+        .text(formatValue); 
   }
 }
 
@@ -232,13 +269,13 @@ function updateChart(animate) {
       break;
   }
 
-  chart.selectAll("text.label")
+  chart.selectAll('text.label')
       .data(currentData)
       .transition()
       .duration(time)
-      .attr("x", x)
-      .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-      .attr("dx", function() {
+      .attr('x', x)
+      .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
+      .attr('dx', function() {
         switch (chartCount) {
           case 1:
             // Right-aligned
@@ -265,33 +302,33 @@ function updateChart(animate) {
         break;
     }
 
-    chart.selectAll("rect.rect.chart" + chartNo)
+    chart.selectAll('rect.rect.chart' + chartNo)
         .data(data)
         .transition()
         .duration(time)
-        .attr("width", chartScale)
-        .attr("x", function(d) { 
+        .attr('width', chartScale)
+        .attr('x', function(d) { 
           if (chartNo == 1) {
             return x + VALUE_WIDTH + chartWidth - chartScale(d); 
           } else {
             return x;
           }
         })
-        .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); });
+        .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); });
 
-    chart.selectAll("text.value.chart" + chartNo)
+    chart.selectAll('text.value.chart' + chartNo)
         .data(data)
         .transition()
         .duration(time)
-        .attr("x", function(d) {
+        .attr('x', function(d) {
           if (chartNo == 1) {
             return x + chartWidth - chartScale(d);
           } else {
             return x + chartScale(d);
           }
         })
-        .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-        .attr("dx", function() {
+        .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
+        .attr('dx', function() {
           switch (chartNo) {
             case 2:
               // Left-aligned
@@ -303,11 +340,16 @@ function updateChart(animate) {
               break;
           }
         })
-        .tween("text", function(d) {
+        .tween('text', function(d, i, a) {
           // TODO(mwichary): Must be a better way to do this.
-          var i = d3.interpolateNumber(parseInt(this.textContent), d);
+
+          var initValue = parseInt(this.textContent);
+          if (isNaN(initValue)) {
+            initValue = DATA_NOT_AVAILABLE;
+          }
+          var i = d3.interpolateNumber(initValue, d);
           return function(t) {
-            this.textContent = parseInt(i(t));
+            this.textContent = formatValue(parseInt(i(t)));
           };
         });
   }
