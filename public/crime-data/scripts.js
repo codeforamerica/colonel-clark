@@ -30,7 +30,7 @@ var DURATION_TIME = 500;
 
 var dataSource = DATA_SOURCE_2011;
 var sortOrder = SORT_ORDER_VALUE;
-var dataType = DATA_TYPE_ARRESTS;
+var dataType = DATA_TYPE_OFFENSES;
 var chartCount = 2;
 
 var loadedData;
