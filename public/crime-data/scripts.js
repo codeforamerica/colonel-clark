@@ -401,13 +401,13 @@ function changeDataSource(event) {
   updateNav();
 }
 
-function changeSortOrder(newSortOrder) {
+function changeSortOrder(event) {
   sortOrder = event.target.getAttribute('type');
   updateChart(true);
   updateNav();
 }
 
-function changeDataType(newDataType) {
+function changeDataType(event) {
   dataType = event.target.getAttribute('type');
 
   if ((dataType == DATA_TYPE_OFFENSES_VS_ARRESTS) && 
