@@ -1,13 +1,13 @@
-var SORT_ORDER_VALUE = 1;
-var SORT_ORDER_NAME = 2;
+var SORT_ORDER_VALUE = 'sort-order-value';
+var SORT_ORDER_NAME = 'sort-order-name';
 
-var DATA_SOURCE_2010 = 1;
-var DATA_SOURCE_2011 = 2;
-var DATA_SOURCE_2010_VS_2011 = 3;
+var DATA_SOURCE_2010 = 'data-source-2010';
+var DATA_SOURCE_2011 = 'data-source-2011';
+var DATA_SOURCE_2010_VS_2011 = 'data-source-2010-vs-2011';
 
-var DATA_TYPE_OFFENSES = 1;
-var DATA_TYPE_ARRESTS = 2;
-var DATA_TYPE_OFFENSES_VS_ARRESTS = 3;
+var DATA_TYPE_OFFENSES = 'data-type-offenses';
+var DATA_TYPE_ARRESTS = 'data-type-arrests';
+var DATA_TYPE_OFFENSES_VS_ARRESTS = 'data-type-offenses-vs-arrests';
 
 var DATA_NOT_AVAILABLE = -1;
 
@@ -241,24 +241,26 @@ function createChart() {
   }
 }
 
-function changeDataSource(newDataSource) {
-  dataSource = newDataSource;
+function changeDataSource(event) {
+  dataSource = event.target.getAttribute('type');
 
   if ((dataType == DATA_TYPE_OFFENSES_VS_ARRESTS) && 
       (dataSource == DATA_SOURCE_2010_VS_2011)) {
-    dataType = DATA_TYPE_OFFENSES;
+    dataType = DATA_TYPE_ARRESTS;
   }
 
   updateChart(true);
+  updateNav();
 }
 
 function changeSortOrder(newSortOrder) {
-  sortOrder = newSortOrder;
+  sortOrder = event.target.getAttribute('type');
   updateChart(true);
+  updateNav();
 }
 
 function changeDataType(newDataType) {
-  dataType = newDataType;
+  dataType = event.target.getAttribute('type');
 
   if ((dataType == DATA_TYPE_OFFENSES_VS_ARRESTS) && 
       (dataSource == DATA_SOURCE_2010_VS_2011)) {
@@ -266,6 +268,7 @@ function changeDataType(newDataType) {
   }
 
   updateChart(true);
+  updateNav();
 }
 
 function updateChart(animate) {
@@ -290,17 +293,16 @@ function updateChart(animate) {
       .data(currentData)
       .transition()
       .duration(time)
-      .attr('x', x)
       .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-      .attr('dx', function() {
+      .attr('x', function() {
         switch (chartCount) {
           case 1:
             // Right-aligned
-            return LABEL_WIDTH - LABEL_OFFSET - this.getBBox().width;
+            return x + LABEL_WIDTH - LABEL_OFFSET - this.getBBox().width;
             break;
           case 2:
             // Centered
-            return (LABEL_WIDTH - this.getBBox().width) / 2;
+            return x + (LABEL_WIDTH - this.getBBox().width) / 2;
             break;
         }
       });      
@@ -339,25 +341,13 @@ function updateChart(animate) {
         .duration(time)
         .attr('x', function(d) {
           if (chartNo == 1) {
-            return x + chartWidth - chartScale(d);
+            return x + chartWidth - chartScale(d) + VALUE_WIDTH - LABEL_OFFSET - this.getBBox().width;
           } else {
-            return x + chartScale(d);
+            return x + chartScale(d) + LABEL_OFFSET;
           }
         })
         .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-        .attr('dx', function() {
-          switch (chartNo) {
-            case 2:
-              // Left-aligned
-              return LABEL_OFFSET;
-              break;
-            case 1:
-              // Right-aligned
-              return VALUE_WIDTH - LABEL_OFFSET - this.getBBox().width;
-              break;
-          }
-        })
-        .tween('text', function(d, i, a) {
+        .tween('text', function(d) {
           // TODO(mwichary): Must be a better way to do this.
 
           var initValue = parseInt(this.textContent);
@@ -370,6 +360,17 @@ function updateChart(animate) {
           };
         });
   }
+}
+
+function updateNav() {
+  var els = document.querySelectorAll('nav button.selected');
+  for (var i = 0, el; el = els[i]; i++) {
+    el.classList.remove('selected');
+  }
+
+  document.querySelector('nav button[type="' + dataSource + '"]').classList.add('selected');
+  document.querySelector('nav button[type="' + dataType + '"]').classList.add('selected');
+  document.querySelector('nav button[type="' + sortOrder + '"]').classList.add('selected');
 }
 
 function onResize() {
@@ -385,6 +386,8 @@ function dataLoaded(error, data) {
   analyzeData();
   createChart();
   updateChart(false);
+
+  updateNav();
 }
 
 function loadData() {
