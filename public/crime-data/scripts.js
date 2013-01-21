@@ -2,6 +2,7 @@ var SORT_ORDER_VALUE = 'sort-order-value';
 var SORT_ORDER_NAME = 'sort-order-name';
 var SORT_ORDER_PART_NAME = 'sort-order-part-name';
 var SORT_ORDER_PART_VALUE = 'sort-order-part-value';
+var SORT_ORDER_PERCENTAGE_CHANGE = 'sort-order-percentage-change';
 
 var DATA_SOURCE_2010 = 'data-source-2010';
 var DATA_SOURCE_2011 = 'data-source-2011';
@@ -62,13 +63,15 @@ function formatValue(val, i, chartNo) {
     if ((val != -1) && (currentSecondaryData[i] != -1)) {
       var perc = val / currentSecondaryData[i] * 100;
 
-      if (perc > 100) {
-        perc = '+' + (perc - 100).toFixed(1);
-      } else {
-        perc = '–' + (100 - perc).toFixed(1);
+      if (perc == Number.POSITIVE_INFINITY) {
+        text += ' (+∞)';
+      } else if (perc == Number.NEGATIVE_INFINITY) {
+        text += ' (–∞)';
+      } else if (perc > 100) {
+        text += ' (+' + (perc - 100).toFixed(1) + '%)';
+      } else if (perc < 100) {
+        text += ' (–' + (100 - perc).toFixed(1) + '%)';
       }
-
-      text += ' (' + perc + '%)';
     }
   }
 
@@ -108,6 +111,13 @@ function calculateDataOrder() {
 
         return partA.localeCompare(partB) || 
           ((simpleDataLabels[a] > simpleDataLabels[b]) ? 1 : ((simpleDataLabels[b] > simpleDataLabels[a]) ? -1 : 0));
+      });
+      break;
+    case SORT_ORDER_PERCENTAGE_CHANGE:
+      currentDataOrdering.sort(function(a, b) {
+        var percA = currentData[a] / currentSecondaryData[a];
+        var percB = currentData[b] / currentSecondaryData[b];
+        return percB - percA;
       });
       break;
   }
@@ -305,6 +315,11 @@ function changeDataSource(event) {
     dataType = DATA_TYPE_ARRESTS;
   }
 
+  if ((dataSource != DATA_SOURCE_2010_VS_2011) && 
+      (sortOrder == SORT_ORDER_PERCENTAGE_CHANGE)) {
+    sortOrder = SORT_ORDER_VALUE;
+  }
+
   updateChart(true);
   updateNav();
 }
@@ -321,6 +336,11 @@ function changeDataType(newDataType) {
   if ((dataType == DATA_TYPE_OFFENSES_VS_ARRESTS) && 
       (dataSource == DATA_SOURCE_2010_VS_2011)) {
     dataSource = DATA_SOURCE_2011;
+  }
+
+  if ((dataType != DATA_TYPE_OFFENSES_VS_ARRESTS) && 
+      (sortOrder == SORT_ORDER_PERCENTAGE_CHANGE)) {
+      sortOrder = SORT_ORDER_VALUE;
   }
 
   updateChart(true);
@@ -452,6 +472,13 @@ function updateNav() {
   document.querySelector('nav button[type="' + dataSource + '"]').classList.add('selected');
   document.querySelector('nav button[type="' + dataType + '"]').classList.add('selected');
   document.querySelector('nav button[type="' + sortOrder + '"]').classList.add('selected');
+
+  var sortOrderByPercChangeAvailable =
+     ((dataSource == DATA_SOURCE_2010_VS_2011) || 
+      (dataType == DATA_TYPE_OFFENSES_VS_ARRESTS));
+
+  document.querySelector('nav button[type="sort-order-percentage-change"]').disabled = 
+    !sortOrderByPercChangeAvailable;
 }
 
 function onResize() {
