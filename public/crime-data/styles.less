@@ -13,6 +13,9 @@
 
 @borderRadius: 7px;
 
+@part1Colour: darken(@highlightColour, 15%);
+@part2Colour: lighten(@highlightColour, 20%);
+
 body {
   background: @mainBackgroundColour;
   padding: 20px;
@@ -67,10 +70,10 @@ nav button.selected {
 #chart svg .rect {
 }
 #chart svg .rect[part='part1'] {
-  fill: darken(@highlightColour, 10%);
+  fill: @part1Colour;
 }
 #chart svg .rect[part='part2'] {
-  fill: darken(@secondaryColour, 10%);
+  fill: @part2Colour;
 }
 #chart svg .label {
   fill: black;
@@ -85,4 +88,9 @@ nav button.selected {
 #chart svg .value {
   fill: @valueColour;
   font-weight: 400;
+}
+
+#chart svg .tick {
+  stroke: rgb(200, 200, 200);
+  stroke-width: .5px;
 }

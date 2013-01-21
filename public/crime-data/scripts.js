@@ -19,6 +19,8 @@ var BAR_HEIGHT = 22;
 var BAR_PADDING = 3;
 var LABEL_OFFSET = 10;
 
+var TICK_COUNT = 10;
+
 var DURATION_TIME = 500;
 
 var dataSource = DATA_SOURCE_2011;
@@ -36,6 +38,7 @@ var chartWidth;
 
 var chart;
 var chartScale;
+var chartScaleSimple;
 
 var currentData;
 var currentSecondaryData;
@@ -203,13 +206,15 @@ function calculateChartWidth() {
       break;
   }
 
+  chartScaleSimple = d3.scale.linear()
+      .domain([0, absoluteMaximum])
+      .range([0, chartWidth]);
+
   chartScale = function(d) {
     if (d == DATA_NOT_AVAILABLE) {
       d = 0;
     }
-    return d3.scale.linear()
-      .domain([0, absoluteMaximum])
-      .range([0, chartWidth])(d);
+    return chartScaleSimple(d);
   }
 }
 
@@ -247,6 +252,17 @@ function createChart() {
 
   prepareData();
   calculateDataOrder();
+
+  // Ticks
+
+  for (chartNo = 1; chartNo <= 2; chartNo++) {
+    chart.selectAll('line.tick.chart' + chartNo)
+        .data(chartScaleSimple.ticks(TICK_COUNT))
+        .enter().append('line')
+        .attr('class', 'tick chart' + chartNo)
+        .attr('y1', 0)
+        .attr('y2', '100%')
+  }
 
   // Label
 
@@ -402,6 +418,28 @@ function updateChart(animate) {
           }
         );
     })(chartNo);
+
+    // Ticks
+
+    chart.selectAll('line.tick.chart' + chartNo)
+        .data(chartScaleSimple.ticks(TICK_COUNT))
+        .transition()
+        .duration(time)
+        .attr('x1', function(d) {
+          if (chartNo == 1) {
+            return x + VALUE_WIDTH + chartWidth - chartScale(d); 
+          } else {
+            return x + chartScale(d);
+          }
+        })
+        .attr('x2', function(d) {
+          if (chartNo == 1) {
+            return x + VALUE_WIDTH + chartWidth - chartScale(d); 
+          } else {
+            return x + chartScale(d);
+          }
+        });
+
   }
 }
 
