@@ -14,7 +14,7 @@ var DATA_TYPE_OFFENSES_VS_ARRESTS = 'data-type-offenses-vs-arrests';
 var DATA_NOT_AVAILABLE = -1;
 
 var LABEL_WIDTH = 200;
-var VALUE_WIDTH = 60;
+var VALUE_WIDTH = 70;
 var BAR_HEIGHT = 22;
 var BAR_PADDING = 3;
 var LABEL_OFFSET = 10;
@@ -257,6 +257,7 @@ function createChart() {
     chart.selectAll('text.value.chart' + chartNo)
         .data(data)
         .enter().append('text')
+        .attr('value', function(d) { return d; })
         .attr('class', 'value chart' + chartNo)
         .attr('dy', BAR_HEIGHT)
         .text(formatValue); 
@@ -371,15 +372,18 @@ function updateChart(animate) {
         .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
         .tween('text', function(d) {
           // TODO(mwichary): Must be a better way to do this.
+          var initValue = parseInt(this.getAttribute('value'));
+          this.setAttribute('value', d);
 
-          var initValue = parseInt(this.textContent);
-          if (isNaN(initValue)) {
-            initValue = DATA_NOT_AVAILABLE;
-          }
+          //var initValue = parseInt(this.textContent);
+          //if (isNaN(initValue)) {
+          //  initValue = DATA_NOT_AVAILABLE;
+          //}
           var i = d3.interpolateNumber(initValue, d);
           return function(t) {
             this.textContent = formatValue(parseInt(i(t)));
           };
+
         });
   }
 }
