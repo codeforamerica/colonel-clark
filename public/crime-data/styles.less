@@ -2,6 +2,10 @@
 
 @valueColour: rgb(120, 120, 120);
 
+@highlightColour: rgb(247, 148, 29);
+@secondaryColour: rgb(0, 200, 0);
+
+
 nav {
   display: block;
   width: @navWidth;
@@ -19,7 +23,12 @@ nav .selected {
 }
 #chart svg .rect {
   stroke: white;
-  fill: steelblue;
+}
+#chart svg .rect[part='part1'] {
+  fill: darken(@highlightColour, 10%);
+}
+#chart svg .rect[part='part2'] {
+  fill: darken(@secondaryColour, 10%);
 }
 #chart svg .label {
   font-family: Arial;

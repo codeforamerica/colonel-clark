@@ -229,6 +229,7 @@ function createChart() {
     chart.selectAll('rect.rect.chart' + chartNo)
         .data(data)
         .enter().append('rect')
+        .attr('part', function(d, i) { return dataLabels[simpleDataLabels[i]].part; })
         .attr('class', 'rect chart' + chartNo)
         .attr('height', BAR_HEIGHT);
 
