@@ -14,7 +14,7 @@ var DATA_TYPE_OFFENSES_VS_ARRESTS = 'data-type-offenses-vs-arrests';
 var DATA_NOT_AVAILABLE = -1;
 
 var LABEL_WIDTH = 200;
-var VALUE_WIDTH = 70;
+var VALUE_WIDTH = 120;
 var BAR_HEIGHT = 22;
 var BAR_PADDING = 3;
 var LABEL_OFFSET = 10;
@@ -47,12 +47,29 @@ function toTitleCase(text) {
   });
 }
 
-function formatValue(val) {
+function formatValue(val, i, chartNo) {
+  var text;
   if (val == DATA_NOT_AVAILABLE) {
-    return 'n/a'; 
+    text = 'n/a'; 
   } else {
-    return val;
+    text = val;
   }
+
+  if ((chartCount == 2) && (chartNo == 2)) {
+    if ((val != -1) && (currentSecondaryData[i] != -1)) {
+      var perc = val / currentSecondaryData[i] * 100;
+
+      if (perc > 100) {
+        perc = '+' + (perc - 100).toFixed(1);
+      } else {
+        perc = '–' + (100 - perc).toFixed(1);
+      }
+
+      text += ' (' + perc + '%)';
+    }
+  }
+
+  return text;
 }
 
 function calculateDataOrder() { 
@@ -260,7 +277,7 @@ function createChart() {
         .attr('value', function(d) { return d; })
         .attr('class', 'value chart' + chartNo)
         .attr('dy', BAR_HEIGHT)
-        .text(formatValue); 
+        .text(function(d, i) { return formatValue(d, i, chartNo); }); 
   }
 }
 
@@ -358,33 +375,33 @@ function updateChart(animate) {
         })
         .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); });
 
-    chart.selectAll('text.value.chart' + chartNo)
-        .data(data)
-        .transition()
-        .duration(time)
-        .attr('x', function(d) {
-          if (chartNo == 1) {
-            return x + chartWidth - chartScale(d) + VALUE_WIDTH - LABEL_OFFSET - this.getBBox().width;
-          } else {
-            return x + chartScale(d) + LABEL_OFFSET;
+    // Weird construct for closure-in-a-loop.
+    (function(chartNo) {
+      chart.selectAll('text.value.chart' + chartNo)
+          .data(data)
+          .transition()
+          .duration(time)
+          .attr('x', function(d) {
+            if (chartNo == 1) {
+              return x + chartWidth - chartScale(d) + VALUE_WIDTH - LABEL_OFFSET - this.getBBox().width;
+            } else {
+              return x + chartScale(d) + LABEL_OFFSET;
+            }
+          })
+          .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
+          .tween('text', function(d, i) {
+            // TODO(mwichary): Must be a better way to do this.
+            var initValue = parseInt(this.getAttribute('value'));
+            this.setAttribute('value', d);
+
+            var interp = d3.interpolateNumber(initValue, d);
+
+            return function(t) {
+              this.textContent = formatValue(parseInt(interp(t)), i, chartNo);
+            };
           }
-        })
-        .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-        .tween('text', function(d) {
-          // TODO(mwichary): Must be a better way to do this.
-          var initValue = parseInt(this.getAttribute('value'));
-          this.setAttribute('value', d);
-
-          //var initValue = parseInt(this.textContent);
-          //if (isNaN(initValue)) {
-          //  initValue = DATA_NOT_AVAILABLE;
-          //}
-          var i = d3.interpolateNumber(initValue, d);
-          return function(t) {
-            this.textContent = formatValue(parseInt(i(t)));
-          };
-
-        });
+        );
+    })(chartNo);
   }
 }
 
