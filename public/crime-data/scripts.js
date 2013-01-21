@@ -232,14 +232,24 @@ function updateChart(animate) {
       break;
   }
 
-
   chart.selectAll("text.label")
       .data(currentData)
       .transition()
       .duration(time)
       .attr("x", x)
       .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-      .attr("dx", LABEL_WIDTH - LABEL_OFFSET);      
+      .attr("dx", function() {
+        switch (chartCount) {
+          case 1:
+            // Right-aligned
+            return LABEL_WIDTH - LABEL_OFFSET - this.getBBox().width;
+            break;
+          case 2:
+            // Centered
+            return (LABEL_WIDTH - this.getBBox().width) / 2;
+            break;
+        }
+      });      
 
   // Chart
 
@@ -281,7 +291,18 @@ function updateChart(animate) {
           }
         })
         .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-        .attr("dx", LABEL_OFFSET)
+        .attr("dx", function() {
+          switch (chartNo) {
+            case 2:
+              // Left-aligned
+              return LABEL_OFFSET;
+              break;
+            case 1:
+              // Right-aligned
+              return VALUE_WIDTH - LABEL_OFFSET - this.getBBox().width;
+              break;
+          }
+        })
         .tween("text", function(d) {
           // TODO(mwichary): Must be a better way to do this.
           var i = d3.interpolateNumber(parseInt(this.textContent), d);
