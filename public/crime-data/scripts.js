@@ -20,7 +20,8 @@ var BAR_HEIGHT = 22;
 var BAR_PADDING = 3;
 var LABEL_OFFSET = 10;
 
-var HEADER_HEIGHT = 100;
+var HEADER_HEIGHT = 150;
+var PIE_CHART_Y = 50;
 var PIE_CHART_RADIUS = 30;
 
 var TICK_COUNT = 10;
@@ -267,6 +268,17 @@ function createChart() {
   prepareData();
   calculateDataOrder();
 
+  // Header
+
+  for (chartNo = 1; chartNo <= 2; chartNo++) {
+    chart//.selectAll('text.header')
+        .append('text')
+        //.attr('x', 100)
+        .attr('y', 40)
+        .attr('class', 'header chart' + chartNo);
+        //.text(function() { return 'Test' });
+  }
+
   // Pie chart
 
   for (chartNo = 1; chartNo <= 2; chartNo++) {
@@ -440,6 +452,86 @@ function updateChart(animate) {
 
   var time = animate ? DURATION_TIME : 0;
 
+  // Header
+
+  for (chartNo = 1; chartNo <= 2; chartNo++) {
+    switch (chartCount) {
+      case 1:
+        var x = (chartNo == 1) ? (PIE_CHART_RADIUS + LABEL_WIDTH - globalWidth / 2) : (globalWidth / 2 - PIE_CHART_RADIUS / 2);
+        break;
+      case 2:
+        var x = (chartNo == 1) ? (globalWidth * 1 / 4 - PIE_CHART_RADIUS / 2) : (globalWidth * 3 / 4 - PIE_CHART_RADIUS / 2);
+        break;
+    }
+
+    // TODO: Nastiness
+    switch (dataType + dataSource) {
+      case DATA_TYPE_ARRESTS + DATA_SOURCE_2010:
+        var header = 'Arrests in 2010';
+        break;
+      case DATA_TYPE_ARRESTS + DATA_SOURCE_2011:
+        var header = 'Arrests in 2011';
+        break;
+      case DATA_TYPE_ARRESTS + DATA_SOURCE_2010_VS_2011:
+        switch (chartNo) {
+          case 1:
+            var header = 'Arrests in 2010';
+            break;
+          case 2:
+            var header = 'Arrests in 2011';
+            break;
+        }        
+        break;
+
+      case DATA_TYPE_OFFENSES + DATA_SOURCE_2010:
+        var header = 'Offenses in 2010';
+        break;
+      case DATA_TYPE_OFFENSES + DATA_SOURCE_2011:
+        var header = 'Offenses in 2011';
+        break;
+      case DATA_TYPE_OFFENSES + DATA_SOURCE_2010_VS_2011:
+        switch (chartNo) {
+          case 1:
+            var header = 'Offenses in 2010';
+            break;
+          case 2:
+            var header = 'Offenses in 2011';
+            break;
+        }        
+        break;
+
+      case DATA_TYPE_OFFENSES_VS_ARRESTS + DATA_SOURCE_2010:
+        switch (chartNo) {
+          case 1:
+            var header = 'Offenses in 2010';
+            break;
+          case 2:
+            var header = 'Arrests in 2010';
+            break;
+        }
+        break;
+
+      case DATA_TYPE_OFFENSES_VS_ARRESTS + DATA_SOURCE_2011:
+        switch (chartNo) {
+          case 1:
+            var header = 'Offenses in 2011';
+            break;
+          case 2:
+            var header = 'Arrests in 2011';
+            break;
+        }
+        break;
+    }
+
+    chart.selectAll('text.header.chart' + chartNo)
+        .transition()
+        .duration(time)
+        .attr('x', x)
+        //.attr('y', 40);
+        .text(function() { return header });
+  }
+
+
   // Pie chart
 
   for (chartNo = 1; chartNo <= 2; chartNo++) {
@@ -484,7 +576,7 @@ function updateChart(animate) {
         .transition()
         .duration(time)
         .attr("transform", 
-              "translate(" + x + "," + (HEADER_HEIGHT / 2) + ")");
+              "translate(" + x + "," + (PIE_CHART_Y + (HEADER_HEIGHT - PIE_CHART_Y) / 2) + ")");
 
     chart.selectAll('path.pie.chart' + chartNo)
         .data(pie(counts))
