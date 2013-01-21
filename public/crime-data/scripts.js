@@ -8,19 +8,22 @@ var DATA_TYPE_OFFENSES = 1;
 var DATA_TYPE_ARRESTS = 2;
 
 var LABEL_WIDTH = 200;
-var CHART_WIDTH = 620;
+var VALUE_WIDTH = 50;
 var BAR_HEIGHT = 22;
 var BAR_PADDING = 2;
 
 var DURATION_TIME = 500;
 
 var dataSource = DATA_SOURCE_2011;
-var sortOrder = SORT_ORDER_NAME;
+var sortOrder = SORT_ORDER_VALUE;
 var dataType = DATA_TYPE_OFFENSES;
 
 var loadedData;
 var dataCount;
-var maxValueEver;
+var absoluteMaximum;
+
+var globalWidth;
+var chartWidth;
 
 var chart;
 var chartScale;
@@ -114,11 +117,23 @@ function analyzeData() {
   findAbsoluteMaximum();
 }
 
+function calculateChartWidth() {
+  globalWidth = document.querySelector('#chart').offsetWidth;
+
+  chartWidth = globalWidth - LABEL_WIDTH - VALUE_WIDTH;
+
+  chartScale = d3.scale.linear()
+      .domain([0, absoluteMaximum])
+      .range([0, chartWidth]);
+}
+
 function createChart() {
+  calculateChartWidth();
+
   chart = d3.select("#chart").append("svg")
       .attr("class", "chart")
-      .attr("width", LABEL_WIDTH + CHART_WIDTH + 100)
-      .attr("height", BAR_HEIGHT * dataCount);
+      .attr("width", globalWidth)
+      .attr("height", (BAR_HEIGHT + BAR_PADDING) * dataCount);
 
   currentDataLabels = [];
   for (var i in loadedData['offensesByYear']['2010']['part1']) {
@@ -130,10 +145,6 @@ function createChart() {
 
   prepareData();
   calculateDataOrder();
-
-  chartScale = d3.scale.linear()
-      .domain([0, absoluteMaximum])
-      .range([0, CHART_WIDTH]);
 
   chart.selectAll("rect")
       .data(currentData)
@@ -149,8 +160,8 @@ function createChart() {
       .attr("class", "label")
       .attr("x", 0)
       .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-      .attr("dx", LABEL_WIDTH - 3) // padding-right
-      .attr("dy", BAR_HEIGHT) // vertical-align: middle
+      .attr("dx", LABEL_WIDTH - 3)
+      .attr("dy", BAR_HEIGHT)
       .text(String);             
 
   chart.selectAll("text.value")
@@ -159,47 +170,49 @@ function createChart() {
       .attr("class", "value")
       .attr("x", chartScale)
       .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-      .attr("dx", LABEL_WIDTH + 3) // padding-right
-      .attr("dy", BAR_HEIGHT) // vertical-align: middle
+      .attr("dx", LABEL_WIDTH + 3)
+      .attr("dy", BAR_HEIGHT)
       .text(String);             
 }
 
 function changeDataSource(newDataSource) {
   dataSource = newDataSource;
-  updateChart();
+  updateChart(true);
 }
 
 function changeSortOrder(newSortOrder) {
   sortOrder = newSortOrder;
-  updateChart();
+  updateChart(true);
 }
 
 function changeDataType(newDataType) {
   dataType = newDataType;
-  updateChart();
+  updateChart(true);
 }
 
-function updateChart() {
+function updateChart(animate) {
   prepareData();
   calculateDataOrder();
+
+  var time = animate ? DURATION_TIME : 0;
 
   chart.selectAll("rect")
       .data(currentData)
       .transition()
-      .duration(DURATION_TIME)
+      .duration(time)
       .attr("width", chartScale)
       .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); });
 
   chart.selectAll("text.label")
       .data(currentData)
       .transition()
-      .duration(DURATION_TIME)
+      .duration(time)
       .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
 
   chart.selectAll("text.value")
       .data(currentData)
       .transition()
-      .duration(DURATION_TIME)
+      .duration(time)
       .attr("x", chartScale)
       .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
       .tween("text", function(d) {
@@ -211,8 +224,16 @@ function updateChart() {
       });
 }
 
+function onResize() {
+  calculateChartWidth();
+  updateChart(false);
+}
+
 function dataLoaded(error, data) {
   loadedData = data;
+
+  window.addEventListener('resize', onResize, false);
+
   analyzeData();
   createChart();
 }
