@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<meta charset='utf-8'>
+
+<link href='styles.less' rel='stylesheet/less' type='text/css'>
+<script src='less-1.3.0.min.js'></script>
+
+<script src='scripts.js'></script>
+
+<script src='http://d3js.org/d3.v3.min.js'></script>
+<script src='http://d3js.org/queue.v1.min.js'></script>
+
+<body>
+  <nav>
+    <ul>
+      <li><button onclick='changeDataSource(DATA_SOURCE_2010)'>2010</button>
+      <li><button onclick='changeDataSource(DATA_SOURCE_2011)'>2011</button>
+      <li><button onclick='changeDataSource(DATA_SOURCE_2010_VS_2011)'>2010 vs. 2011</button>
+    </ul>
+    <ul>
+      <li><button onclick='changeDataType(DATA_TYPE_OFFENSES)'>Offenses</button>
+      <li><button onclick='changeDataType(DATA_TYPE_ARRESTS)'>Arrests</button>
+    </ul>
+    <ul>
+      <li><button onclick='changeSortOrder(SORT_ORDER_NAME)'>Sort by name</button>
+      <li><button onclick='changeSortOrder(SORT_ORDER_VALUE)'>Sort by value</button>
+    </ul>
+  </nav>
+  <div id='chart'>
+  </div>
+
+
+  <script>
+    main();
+  </script>
+</body>

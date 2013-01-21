@@ -1,0 +1,30 @@
+@navWidth: 200px;
+
+@valueColour: rgb(120, 120, 120);
+
+nav {
+  display: block;
+  width: @navWidth;
+  position: fixed;
+}
+
+#chart {
+  margin-left: @navWidth;
+}
+#chart svg {
+  width: 100%;
+}
+#chart svg .rect {
+  stroke: white;
+  fill: steelblue;
+}
+#chart svg .label {
+  font-family: Arial;
+  font-size: 12px;
+  fill: black;
+}
+#chart svg .value {
+  font-family: Arial;
+  font-size: 12px;
+  fill: @valueColour;
+}

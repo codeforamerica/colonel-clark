@@ -368,7 +368,7 @@ function mapIsReady(error, us) {
       var val = parseInt(el.getAttribute('value'));
 
       document.querySelector('#legend-hover .name').innerHTML = d.properties.name;
-      document.querySelector('#legend-hover .value').innerHTML = val;
+      document.querySelector('#legend-hover .value').innerHTML = formatNumber(val);
 
       var offset = (val / chartMax) * document.querySelector('#legend-graph').offsetWidth;
       document.querySelector('#legend-hover').style.left = offset + 'px';
