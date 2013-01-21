@@ -166,7 +166,9 @@ function prepareData() {
     chartCount = 2;
   } else {
     currentData = getData(dataType, dataSource);
-    currentSecondaryData = currentData;
+    if (!currentSecondaryData) {
+      currentSecondaryData = currentData;
+    }
     chartCount = 1;
   }
 }
@@ -523,12 +525,16 @@ function updateChart(animate) {
         break;
     }
 
-    chart.selectAll('text.header.chart' + chartNo)
+
+    var text = chart.selectAll('text.header.chart' + chartNo)
         .transition()
         .duration(time)
-        .attr('x', x)
-        //.attr('y', 40);
-        .text(function() { return header });
+        .attr('x', x);
+
+    // Don’t change the label that’s going away
+    if ((chartNo != 1) || (chartCount != 1)) {
+      text.text(function() { return header });
+    }
   }
 
 
