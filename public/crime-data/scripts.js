@@ -3,6 +3,7 @@ var SORT_ORDER_NAME = 2;
 
 var DATA_SOURCE_2010 = 1;
 var DATA_SOURCE_2011 = 2;
+var DATA_SOURCE_2010_VS_2011 = 3;
 
 var DATA_TYPE_OFFENSES = 1;
 var DATA_TYPE_ARRESTS = 2;
@@ -11,12 +12,14 @@ var LABEL_WIDTH = 200;
 var VALUE_WIDTH = 50;
 var BAR_HEIGHT = 22;
 var BAR_PADDING = 2;
+var LABEL_OFFSET = 5;
 
 var DURATION_TIME = 500;
 
 var dataSource = DATA_SOURCE_2011;
 var sortOrder = SORT_ORDER_VALUE;
-var dataType = DATA_TYPE_OFFENSES;
+var dataType = DATA_TYPE_ARRESTS;
+var chartCount = 2;
 
 var loadedData;
 var dataCount;
@@ -69,9 +72,15 @@ function prepareData() {
   switch (dataSource) {
     case DATA_SOURCE_2010:
       var dataSourceField = '2010';
+      chartCount = 1;
       break;
     case DATA_SOURCE_2011:
       var dataSourceField = '2011';
+      chartCount = 1;
+      break;
+    case DATA_SOURCE_2010_VS_2011:
+      var dataSourceField = '2010';
+      chartCount = 2;
       break;
   }
 
@@ -92,7 +101,6 @@ function findDataCount() {
   for (var i in loadedData['offensesByYear']['2010']['part2']) {
     dataCount++;
   }
-  dataCount += 2;    
 }
 
 function findAbsoluteMaximum() {
@@ -120,7 +128,14 @@ function analyzeData() {
 function calculateChartWidth() {
   globalWidth = document.querySelector('#chart').offsetWidth;
 
-  chartWidth = globalWidth - LABEL_WIDTH - VALUE_WIDTH;
+  switch (chartCount) {
+    case 1:
+      chartWidth = globalWidth - LABEL_WIDTH - VALUE_WIDTH;
+      break;
+    case 2:
+      chartWidth = (globalWidth - LABEL_WIDTH - VALUE_WIDTH * 2) / 2;
+      break;
+  }
 
   chartScale = d3.scale.linear()
       .domain([0, absoluteMaximum])
@@ -146,33 +161,32 @@ function createChart() {
   prepareData();
   calculateDataOrder();
 
-  chart.selectAll("rect")
-      .data(currentData)
-      .enter().append("rect")
-      .attr("x", LABEL_WIDTH)
-      .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); })
-      .attr("width", chartScale)
-      .attr("height", BAR_HEIGHT);
+  // Label
 
   chart.selectAll("text.label")
       .data(currentDataLabels)
       .enter().append("text")
       .attr("class", "label")
-      .attr("x", 0)
       .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-      .attr("dx", LABEL_WIDTH - 3)
       .attr("dy", BAR_HEIGHT)
       .text(String);             
 
-  chart.selectAll("text.value")
-      .data(currentData)
-      .enter().append("text")
-      .attr("class", "value")
-      .attr("x", chartScale)
-      .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-      .attr("dx", LABEL_WIDTH + 3)
-      .attr("dy", BAR_HEIGHT)
-      .text(String);             
+  // Chart
+
+  for (chartNo = 1; chartNo <= 2; chartNo++) {
+    chart.selectAll("rect.rect.chart" + chartNo)
+        .data(currentData)
+        .enter().append("rect")
+        .attr("class", "rect chart" + chartNo)
+        .attr("height", BAR_HEIGHT);
+
+    chart.selectAll("text.value.chart" + chartNo)
+        .data(currentData)
+        .enter().append("text")
+        .attr("class", "value chart" + chartNo)
+        .attr("dy", BAR_HEIGHT)
+        .text(String);             
+  }
 }
 
 function changeDataSource(newDataSource) {
@@ -192,36 +206,78 @@ function changeDataType(newDataType) {
 
 function updateChart(animate) {
   prepareData();
+  calculateChartWidth();
   calculateDataOrder();
 
   var time = animate ? DURATION_TIME : 0;
 
-  chart.selectAll("rect")
-      .data(currentData)
-      .transition()
-      .duration(time)
-      .attr("width", chartScale)
-      .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); });
+  // Label
+
+  switch (chartCount) {
+    case 1:
+      var x = 0;
+      break;
+    case 2:
+      var x = chartWidth + VALUE_WIDTH;
+      break;
+  }
+
 
   chart.selectAll("text.label")
       .data(currentData)
       .transition()
       .duration(time)
+      .attr("x", x)
       .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
+      .attr("dx", LABEL_WIDTH - LABEL_OFFSET);      
 
-  chart.selectAll("text.value")
-      .data(currentData)
-      .transition()
-      .duration(time)
-      .attr("x", chartScale)
-      .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
-      .tween("text", function(d) {
-        // TODO(mwichary): Must be a better way to do this.
-        var i = d3.interpolateNumber(parseInt(this.textContent), d);
-        return function(t) {
-          this.textContent = parseInt(i(t));
-        };
-      });
+  // Chart
+
+  for (chartNo = 1; chartNo <= 2; chartNo++) {
+    switch (chartCount) {
+      case 1:
+        var x = (chartNo == 1) ? (-chartWidth - LABEL_WIDTH) : LABEL_WIDTH;
+        break;
+      case 2:
+        var x = (chartNo == 1) ? 0 : chartWidth + LABEL_WIDTH + VALUE_WIDTH;
+        break;
+    }
+
+    chart.selectAll("rect.rect.chart" + chartNo)
+        .data(currentData)
+        .transition()
+        .duration(time)
+        .attr("width", chartScale)
+        .attr("x", function(d) { 
+          if (chartNo == 1) {
+            return x + VALUE_WIDTH + chartWidth - chartScale(d); 
+          } else {
+            return x;
+          }
+        })
+        .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); });
+
+    chart.selectAll("text.value.chart" + chartNo)
+        .data(currentData)
+        .transition()
+        .duration(time)
+        .attr("x", function(d) {
+          if (chartNo == 1) {
+            return x + chartWidth - chartScale(d);
+          } else {
+            return x + chartScale(d);
+          }
+        })
+        .attr("y", function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
+        .attr("dx", LABEL_OFFSET)
+        .tween("text", function(d) {
+          // TODO(mwichary): Must be a better way to do this.
+          var i = d3.interpolateNumber(parseInt(this.textContent), d);
+          return function(t) {
+            this.textContent = parseInt(i(t));
+          };
+        });
+  }
 }
 
 function onResize() {
@@ -236,6 +292,7 @@ function dataLoaded(error, data) {
 
   analyzeData();
   createChart();
+  updateChart(false);
 }
 
 function loadData() {
