@@ -473,10 +473,10 @@ function updateChart(animate) {
 
     switch (chartCount) {
       case 1:
-        var x = (chartNo == 1) ? (PIE_CHART_RADIUS + LABEL_WIDTH - globalWidth / 2) : (PIE_CHART_RADIUS + LABEL_WIDTH);
+        var x = (chartNo == 1) ? (PIE_CHART_RADIUS + LABEL_WIDTH - globalWidth / 2) : (globalWidth / 2 - PIE_CHART_RADIUS / 2);
         break;
       case 2:
-        var x = (chartNo == 1) ? (PIE_CHART_RADIUS + LABEL_WIDTH) : (globalWidth - PIE_CHART_RADIUS - LABEL_WIDTH);
+        var x = (chartNo == 1) ? (globalWidth * 1 / 4 - PIE_CHART_RADIUS / 2) : (globalWidth * 3 / 4 - PIE_CHART_RADIUS / 2);
         break;
     }
 
