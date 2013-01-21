@@ -56,7 +56,7 @@ function formatValue(val, i, chartNo) {
   if (val == DATA_NOT_AVAILABLE) {
     text = 'n/a'; 
   } else {
-    text = val;
+    text = val.toString().replace(/\d(?=(?:\d{3})+(?!\d))/g, '$&,');
   }
 
   if ((chartCount == 2) && (chartNo == 2)) {
