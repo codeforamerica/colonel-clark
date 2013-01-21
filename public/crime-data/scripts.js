@@ -41,6 +41,7 @@ var globalWidth;
 var chartWidth;
 
 var chart;
+var pieChart;
 var chartScale;
 var chartScaleSimple;
 
@@ -266,57 +267,64 @@ function createChart() {
   prepareData();
   calculateDataOrder();
 
-  chartNo = 1;
-  counts = { part1: 0, part2: 0 };
-  var data = (chartNo == 2) ? currentData : currentSecondaryData;
-  for (var i in data) {
-    if (data[i] != DATA_NOT_AVAILABLE) {
-      //console.log(data[i]);
-      counts[dataLabels[simpleDataLabels[i]].part] += data[i];
-    }
+  // Pie chart
+
+  for (chartNo = 1; chartNo <= 2; chartNo++) {
+  /*  counts = { part1: 0, part2: 0 };
+    var data = (chartNo == 2) ? currentData : currentSecondaryData;
+    for (var i in data) {
+      if (data[i] != DATA_NOT_AVAILABLE) {
+        counts[dataLabels[simpleDataLabels[i]].part] += data[i];
+      }
+    }*/
+    var counts = [3, 1];
+
+    var arc = d3.svg.arc()
+        .outerRadius(PIE_CHART_RADIUS)
+        .innerRadius(0);
+
+    var pie = d3.layout.pie().sort(null).startAngle(0).endAngle(-3.1415 * 2);
+
+    var pieChart = chart.append('g')
+        .attr('class', 'piechart' + chartNo)
+        //.attr("transform", 
+        //      "translate(" + (LABEL_WIDTH + PIE_CHART_RADIUS) + "," + (HEADER_HEIGHT / 2) + ")");
+
+    /*var g = pieChart
+        .selectAll('g.arc.chart' + chartNo)
+        .data(pie(counts))
+        .enter()
+        .append("g")
+        .attr("class", 'arc chart' + chartNo);*/
+    
+    pieChart.selectAll('path.pie.chart' + chartNo)
+        .data(pie(counts))
+        .enter()
+        .append("path")
+        .attr("d", arc)
+        .attr('class', 'pie chart' + chartNo)
+        .attr("transform",
+             "rotate(" + (-90 + (counts[0] / (counts[1] + counts[0])) * 180) + ")")
+        .attr("part", function(d, i) { return 'part' + (i + 1) } );
+
+    pieChart.selectAll('text.pielabel.chart' + chartNo)
+        .data(pie(counts))
+        .enter()
+        .append("text")
+        .attr('x', function(d, i) {
+          return (i == 0) ? -(PIE_CHART_RADIUS + LABEL_OFFSET) : (PIE_CHART_RADIUS + LABEL_OFFSET);
+        })
+        .attr('y', PIE_CHART_RADIUS / 2)
+        .attr("dy", "-.6em")
+        .attr("part", function(d, i) { return 'part' + (i + 1) } )
+        .style("text-anchor", function(d, i) {
+          return (i == 0) ? 'end' : 'start';
+        })
+        .attr('class', 'pielabel chart' + chartNo)
+        .text(function(d, i) { 
+            return 'Part ' + (i + 1) + ': ' + formatValue(d.data) + ' (' + (d.data / (counts[0] + counts[1]) * 100).toFixed(1) + '%)';
+        });
   }
-  counts = [counts.part1, counts.part2];
-
-  var arc = d3.svg.arc()
-      .outerRadius(PIE_CHART_RADIUS)
-      .innerRadius(0);
-
-  var pie = d3.layout.pie().sort(null).startAngle(0).endAngle(-3.1415 * 2);
-
-
-  var svg = chart.append('g').
-      attr("transform", 
-           "translate(" + (LABEL_WIDTH + PIE_CHART_RADIUS) + "," + (HEADER_HEIGHT / 2) + ")");
-
-  var g = svg
-      .selectAll(".arc")
-      .data(pie(counts))
-      .enter().append("g")
-      .attr("class", "arc");
-  
-  g.append("path")
-      .attr("d", arc)
-      .attr('class', 'pie')
-      .attr("transform",
-           "rotate(" + (-90 + (counts[0] / (counts[1] + counts[0])) * 180) + ")")
-      .attr("part", function(d, i) { return 'part' + (i + 1) } );
-
-  g.append("text")
-      //.attr('y', function(d, i) { return PIE_CHART_RADIUS / 2 - BAR_HEIGHT + BAR_HEIGHT * i; })
-      //.attr('x', PIE_CHART_RADIUS + 10)
-      .attr('x', function(d, i) {
-        return (i == 0) ? -(PIE_CHART_RADIUS + LABEL_OFFSET) : (PIE_CHART_RADIUS + LABEL_OFFSET);
-      })
-      .attr('y', PIE_CHART_RADIUS / 2)
-      .attr("dy", "-.6em")
-      .attr("part", function(d, i) { return 'part' + (i + 1) } )
-      .style("text-anchor", function(d, i) {
-        return (i == 0) ? 'end' : 'start';
-      })
-      .attr('class', 'value')
-      .text(function(d, i) { 
-          return 'Part ' + (i + 1) + ': ' + formatValue(d.data) + ' (' + (d.data / (counts[0] + counts[1]) * 100).toFixed(1) + '%)';
-      });
 
   // Ticks
 
@@ -402,12 +410,102 @@ function changeDataType(newDataType) {
   updateNav();
 }
 
+function arcTween(b, a, z) {
+  //console.log(i, ':', b);
+  //console.log(z);
+  //console.log(arc(b));
+  //return;
+  var i = d3.interpolate(z, b);
+
+  return function(t) {
+    return arc(i(t));
+  };
+}      
+
+/*function arcTween(b) {
+      return function(a) {
+        var i = d3.interpolate(a, b);
+        for (var key in b) a[key] = b[key]; // update data
+        return function(t) {
+              return arc(i(t));
+        };
+      };
+} */
+
+
 function updateChart(animate) {
   prepareData();
   calculateChartWidth();
   calculateDataOrder();
 
   var time = animate ? DURATION_TIME : 0;
+
+  // Pie chart
+
+  for (chartNo = 1; chartNo <= 2; chartNo++) {
+    var counts = { part1: 0, part2: 0 };
+    var data = (chartNo == 2) ? currentData : currentSecondaryData;
+    for (var i in data) {
+      if (data[i] != DATA_NOT_AVAILABLE) {
+        counts[dataLabels[simpleDataLabels[i]].part] += data[i];
+      }
+    }
+    counts = [counts.part1, counts.part2];
+    //console.log(counts);
+
+    var pie = d3.layout.pie().sort(null).startAngle(0).endAngle(-3.1415 * 2);
+
+
+    /*var g = chart
+        .selectAll('g.arc.chart' + chartNo)
+        .data(pie(counts))
+        .transition()
+        .duration(time);*/
+    
+    var arc = d3.svg.arc()
+        .outerRadius(PIE_CHART_RADIUS)
+        .innerRadius(0);
+
+/*    var pieChart = chart.append('g')
+        .attr('class', 'piechart' + chartNo)
+        .attr("transform", 
+              "translate(" + (LABEL_WIDTH + PIE_CHART_RADIUS) + "," + (HEADER_HEIGHT / 2) + ")");*/
+
+    switch (chartCount) {
+      case 1:
+        var x = (chartNo == 1) ? (PIE_CHART_RADIUS + LABEL_WIDTH - globalWidth / 2) : (PIE_CHART_RADIUS + LABEL_WIDTH);
+        break;
+      case 2:
+        var x = (chartNo == 1) ? (PIE_CHART_RADIUS + LABEL_WIDTH) : (globalWidth - PIE_CHART_RADIUS - LABEL_WIDTH);
+        break;
+    }
+
+    chart.selectAll('g.piechart' + chartNo)
+        .transition()
+        .duration(time)
+        .attr("transform", 
+              "translate(" + x + "," + (HEADER_HEIGHT / 2) + ")");
+
+    chart.selectAll('path.pie.chart' + chartNo)
+        .data(pie(counts))
+        .attr('d', arc)
+//        .transition()
+  //      .duration(time)
+        .attr("transform",
+             "rotate(" + (-90 + (counts[0] / (counts[1] + counts[0])) * 180) + ")")
+        //.attrTween('d', arc);
+
+    chart.selectAll('text.pielabel.chart' + chartNo)
+        .data(pie(counts))
+        .text(function(d, i) { 
+            return 'Part ' + (i + 1) + ': ' + formatValue(d.data) + ' (' + (d.data / (counts[0] + counts[1]) * 100).toFixed(1) + '%)';
+        });
+
+    //g.selectAll('text.pielabel.chart' + chartNo)
+    //    .transition()
+    //    .duration(time)
+    //    .data(pie(counts));
+  } 
 
   // Label
 
@@ -482,6 +580,7 @@ function updateChart(animate) {
           .attr('y', function(d, i) { return HEADER_HEIGHT + currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
           .tween('text', function(d, i) {
             // TODO(mwichary): Must be a better way to do this.
+            // b.previous?
             var initValue = parseInt(this.getAttribute('value'));
             this.setAttribute('value', d);
 
