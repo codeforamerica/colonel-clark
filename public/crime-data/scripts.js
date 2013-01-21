@@ -7,6 +7,7 @@ var DATA_SOURCE_2010_VS_2011 = 3;
 
 var DATA_TYPE_OFFENSES = 1;
 var DATA_TYPE_ARRESTS = 2;
+var DATA_TYPE_OFFENSES_VS_ARRESTS = 3;
 
 var DATA_NOT_AVAILABLE = -1;
 
@@ -66,7 +67,7 @@ function calculateDataOrder() {
       break;
     case SORT_ORDER_NAME:
       currentDataOrdering.sort(function(a, b) {
-        return (dataLabels[a].label > dataLabels[b].label) ? 1 : ((dataLabels[b].label > dataLabels[a].label) ? -1 : 0);
+        return (simpleDataLabels[a] > simpleDataLabels[b]) ? 1 : ((simpleDataLabels[b] > simpleDataLabels[a]) ? -1 : 0);
       });
       break;
   }
@@ -103,6 +104,10 @@ function prepareData() {
   if (dataSource == DATA_SOURCE_2010_VS_2011) {
     currentData = getData(dataType, DATA_SOURCE_2011);
     currentSecondaryData = getData(dataType, DATA_SOURCE_2010);
+    chartCount = 2;
+  } else if (dataType == DATA_TYPE_OFFENSES_VS_ARRESTS) {
+    currentData = getData(DATA_TYPE_ARRESTS, dataSource);
+    currentSecondaryData = getData(DATA_TYPE_OFFENSES, dataSource);
     chartCount = 2;
   } else {
     currentData = getData(dataType, dataSource);
@@ -238,6 +243,12 @@ function createChart() {
 
 function changeDataSource(newDataSource) {
   dataSource = newDataSource;
+
+  if ((dataType == DATA_TYPE_OFFENSES_VS_ARRESTS) && 
+      (dataSource == DATA_SOURCE_2010_VS_2011)) {
+    dataType = DATA_TYPE_OFFENSES;
+  }
+
   updateChart(true);
 }
 
@@ -248,6 +259,12 @@ function changeSortOrder(newSortOrder) {
 
 function changeDataType(newDataType) {
   dataType = newDataType;
+
+  if ((dataType == DATA_TYPE_OFFENSES_VS_ARRESTS) && 
+      (dataSource == DATA_SOURCE_2010_VS_2011)) {
+    dataSource = DATA_SOURCE_2011;
+  }
+
   updateChart(true);
 }
 
