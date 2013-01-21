@@ -1,5 +1,7 @@
 var SORT_ORDER_VALUE = 'sort-order-value';
 var SORT_ORDER_NAME = 'sort-order-name';
+var SORT_ORDER_PART_NAME = 'sort-order-part-name';
+var SORT_ORDER_PART_VALUE = 'sort-order-part-value';
 
 var DATA_SOURCE_2010 = 'data-source-2010';
 var DATA_SOURCE_2011 = 'data-source-2011';
@@ -65,9 +67,27 @@ function calculateDataOrder() {
         return currentData[b] - currentData[a];
       });
       break;
+    case SORT_ORDER_PART_VALUE:
+      currentDataOrdering.sort(function(a, b) {
+        var partA = dataLabels[simpleDataLabels[a]].part;
+        var partB = dataLabels[simpleDataLabels[b]].part;
+
+        return partA.localeCompare(partB) || 
+            (currentData[b] - currentData[a]);
+      });
+      break;
     case SORT_ORDER_NAME:
       currentDataOrdering.sort(function(a, b) {
         return (simpleDataLabels[a] > simpleDataLabels[b]) ? 1 : ((simpleDataLabels[b] > simpleDataLabels[a]) ? -1 : 0);
+      });
+      break;
+    case SORT_ORDER_PART_NAME:
+      currentDataOrdering.sort(function(a, b) {
+        var partA = dataLabels[simpleDataLabels[a]].part;
+        var partB = dataLabels[simpleDataLabels[b]].part;
+
+        return partA.localeCompare(partB) || 
+          ((simpleDataLabels[a] > simpleDataLabels[b]) ? 1 : ((simpleDataLabels[b] > simpleDataLabels[a]) ? -1 : 0));
       });
       break;
   }
