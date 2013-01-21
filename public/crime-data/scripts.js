@@ -20,6 +20,9 @@ var BAR_HEIGHT = 22;
 var BAR_PADDING = 3;
 var LABEL_OFFSET = 10;
 
+var HEADER_HEIGHT = 100;
+var PIE_CHART_RADIUS = 30;
+
 var TICK_COUNT = 10;
 
 var DURATION_TIME = 500;
@@ -258,10 +261,62 @@ function createChart() {
   chart = d3.select('#chart').append('svg')
       .attr('class', 'chart')
       .attr('width', globalWidth)
-      .attr('height', (BAR_HEIGHT + BAR_PADDING) * simpleDataLabels.length);
+      .attr('height', HEADER_HEIGHT + (BAR_HEIGHT + BAR_PADDING) * simpleDataLabels.length);
 
   prepareData();
   calculateDataOrder();
+
+  chartNo = 1;
+  counts = { part1: 0, part2: 0 };
+  var data = (chartNo == 2) ? currentData : currentSecondaryData;
+  for (var i in data) {
+    if (data[i] != DATA_NOT_AVAILABLE) {
+      //console.log(data[i]);
+      counts[dataLabels[simpleDataLabels[i]].part] += data[i];
+    }
+  }
+  counts = [counts.part1, counts.part2];
+
+  var arc = d3.svg.arc()
+      .outerRadius(PIE_CHART_RADIUS)
+      .innerRadius(0);
+
+  var pie = d3.layout.pie().sort(null).startAngle(0).endAngle(-3.1415 * 2);
+
+
+  var svg = chart.append('g').
+      attr("transform", 
+           "translate(" + (LABEL_WIDTH + PIE_CHART_RADIUS) + "," + (HEADER_HEIGHT / 2) + ")");
+
+  var g = svg
+      .selectAll(".arc")
+      .data(pie(counts))
+      .enter().append("g")
+      .attr("class", "arc");
+  
+  g.append("path")
+      .attr("d", arc)
+      .attr('class', 'pie')
+      .attr("transform",
+           "rotate(" + (-90 + (counts[0] / (counts[1] + counts[0])) * 180) + ")")
+      .attr("part", function(d, i) { return 'part' + (i + 1) } );
+
+  g.append("text")
+      //.attr('y', function(d, i) { return PIE_CHART_RADIUS / 2 - BAR_HEIGHT + BAR_HEIGHT * i; })
+      //.attr('x', PIE_CHART_RADIUS + 10)
+      .attr('x', function(d, i) {
+        return (i == 0) ? -(PIE_CHART_RADIUS + LABEL_OFFSET) : (PIE_CHART_RADIUS + LABEL_OFFSET);
+      })
+      .attr('y', PIE_CHART_RADIUS / 2)
+      .attr("dy", "-.6em")
+      .attr("part", function(d, i) { return 'part' + (i + 1) } )
+      .style("text-anchor", function(d, i) {
+        return (i == 0) ? 'end' : 'start';
+      })
+      .attr('class', 'value')
+      .text(function(d, i) { 
+          return 'Part ' + (i + 1) + ': ' + formatValue(d.data) + ' (' + (d.data / (counts[0] + counts[1]) * 100).toFixed(1) + '%)';
+      });
 
   // Ticks
 
@@ -270,7 +325,7 @@ function createChart() {
         .data(chartScaleSimple.ticks(TICK_COUNT))
         .enter().append('line')
         .attr('class', 'tick chart' + chartNo)
-        .attr('y1', 0)
+        .attr('y1', HEADER_HEIGHT)
         .attr('y2', '100%')
   }
 
@@ -281,7 +336,7 @@ function createChart() {
       .enter().append('text')
       .attr('class', 'label')
       .attr('part', function(d, i) { return dataLabels[simpleDataLabels[i]].part; })
-      .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
+      .attr('y', function(d, i) { return HEADER_HEIGHT + currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
       .attr('dy', BAR_HEIGHT)
       .text(toTitleCase);
 
@@ -369,7 +424,7 @@ function updateChart(animate) {
       .data(currentData)
       .transition()
       .duration(time)
-      .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
+      .attr('y', function(d, i) { return HEADER_HEIGHT + currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
       .attr('x', function() {
         switch (chartCount) {
           case 1:
@@ -409,7 +464,7 @@ function updateChart(animate) {
             return x;
           }
         })
-        .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); });
+        .attr('y', function(d, i) { return HEADER_HEIGHT + currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING); });
 
     // Weird construct for closure-in-a-loop.
     (function(chartNo) {
@@ -424,7 +479,7 @@ function updateChart(animate) {
               return x + chartScale(d) + LABEL_OFFSET;
             }
           })
-          .attr('y', function(d, i) { return currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
+          .attr('y', function(d, i) { return HEADER_HEIGHT + currentDataOrdering.indexOf(i) * (BAR_HEIGHT + BAR_PADDING) - 5; })
           .tween('text', function(d, i) {
             // TODO(mwichary): Must be a better way to do this.
             var initValue = parseInt(this.getAttribute('value'));

@@ -63,6 +63,7 @@ nav button:disabled {
 
   background: white;
   padding: 10px;
+  padding-top: 0;
   border-radius: @borderRadius;
 }
 #chart svg {
@@ -72,30 +73,38 @@ nav button:disabled {
   font-family: @fontFamily;
   font-size: 14px;
 }
-#chart svg .rect {
+#chart .rect {
 }
-#chart svg .rect[part='part1'] {
+#chart .rect[part='part1'] {
   fill: @part1Colour;
 }
-#chart svg .rect[part='part2'] {
+#chart .rect[part='part2'] {
   fill: @part2Colour;
 }
-#chart svg .label {
+#chart .label {
   fill: black;
 }
-#chart svg .label[part='part1'] {
+#chart .label[part='part1'],
+#chart .value[part='part1'] {
   font-weight: 600;
 }
-#chart svg .label[part='part2'] {
+#chart .label[part='part2'],
+#chart .value[part='part2'] {
   font-weight: 400;
-  fill: rgb(64, 64, 64);
 }
-#chart svg .value {
+#chart .value {
   fill: @valueColour;
   font-weight: 400;
 }
 
-#chart svg .tick {
+#chart .tick {
   stroke: rgb(200, 200, 200);
   stroke-width: .5px;
+}
+
+#chart .pie[part='part1'] {
+  fill: @part1Colour;
+}
+#chart .pie[part='part2'] {
+  fill: @part2Colour;
 }
