@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<meta charset='utf-8'>
+
+<script src='http://d3js.org/d3.v3.min.js'></script>
+
+<style>
+  .chart {
+  }
+  .chart rect {
+    stroke: white;
+    fill: steelblue;
+  }
+  .chart .label {
+    font-family: Arial;
+    font-size: 12px;
+    fill: white;
+    text-anchor: end;
+  }
+</style>
+
+<script>
+  var data = [100, 50, 23, 78, 120];
+
+  var data2 = [80, 30, 43, 98, 70];
+
+  var CHART_WIDTH = 420;
+  var BAR_HEIGHT = 20;
+
+  var DURATION_TIME = 1000;
+
+  var chart;
+  var chartScale;
+
+  function prepareChart() {
+    chart = d3.select("body").append("svg")
+        .attr("class", "chart")
+        .attr("width", CHART_WIDTH)
+        .attr("height", 20 * data.length);   
+
+    chartScale = d3.scale.linear()
+        .domain([0, d3.max(data)])
+        .range([0, CHART_WIDTH]);
+
+    chart.selectAll("rect")
+        .data(data)
+        .enter().append("rect")
+        .attr("y", function(d, i) { return i * BAR_HEIGHT; })
+        .attr("width", chartScale)
+        .attr("height", BAR_HEIGHT);
+
+    chart.selectAll("text")
+        .data(data)
+        .enter().append("text")
+        .attr("class", "label")
+        .attr("x", chartScale)
+        .attr("y", function(d, i) { return i * BAR_HEIGHT - 5; })
+        .attr("dx", -3) // padding-right
+        .attr("dy", BAR_HEIGHT) // vertical-align: middle
+        .text(String);             
+  }
+
+  function change() {
+    chart.selectAll("rect")
+        .data(data2)
+        .transition()
+        .duration(DURATION_TIME)
+        .attr("width", chartScale);
+
+    chart.selectAll("text")
+        .data(data2)
+        .transition()
+        .duration(DURATION_TIME)
+        .attr("x", chartScale)
+        .tween("text", function(d) {
+          var i = d3.interpolateNumber(parseInt(this.textContent), d);
+          return function(t) {
+            this.textContent = parseInt(i(t));
+          };
+        });
+        //.text(function(d, i) { return i; });
+  }
+
+  function main() {
+    prepareChart();
+  }
+</script>
+
+<body>
+
+  <button onclick='change()'>Change</button>
+
+  <script>
+    main();
+  </script>
+</body>
