@@ -120,8 +120,8 @@ function calculateDataOrder() {
       break;
     case SORT_ORDER_PERCENTAGE_CHANGE:
       currentDataOrdering.sort(function(a, b) {
-        var percA = currentData[a] / currentSecondaryData[a];
-        var percB = currentData[b] / currentSecondaryData[b];
+        var percA = (currentData[a] / currentSecondaryData[a]) || -99999999;
+        var percB = (currentData[b] / currentSecondaryData[b]) || -99999999;
         return percB - percA;
       });
       break;
