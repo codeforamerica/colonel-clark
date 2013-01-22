@@ -152,6 +152,12 @@ function mapIsReady(error, us) {
     .on('click', function(d) {
       handleNeighborhoodClick(this, d.properties.name);
     })
+    .on('mouseup', function(d) {
+      handleNeighborhoodClick(this, d.properties.name);
+    })
+    .on('mousedown', function(d) {
+      d3.event.preventDefault();
+    })
     .on('mouseover', function(d) {
       // TODO make a function
 
