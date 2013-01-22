@@ -312,6 +312,9 @@ body.no-hover #neighborhood-hover {
   color: black;
 }
 #cover.visible {
+  display: block;
+  outline: 1px solid red;
+  display: -moz-box;
   display: -webkit-box;  
 }
 #cover button {
@@ -328,6 +331,8 @@ body.no-hover #neighborhood-hover {
 #cover > div {
   display: none;
 
+  margin: 0 auto;
+
   max-width: 500px;
 }
 
@@ -337,6 +342,14 @@ body.no-hover #neighborhood-hover {
 
 .small {
   font-size: 80%;
+}
+
+.small img {
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  margin: 0 5px;
+  outline: 1px solid rgba(0, 0, 0, .5);
 }
 
 q::before {
