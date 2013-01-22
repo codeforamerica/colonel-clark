@@ -280,6 +280,10 @@ function startIntro() {
   document.querySelector('#intro').classList.add('visible');
 }
 
+function playAgain() {
+  location.reload();
+}
+
 function startGame() {
   document.querySelector('#intro').classList.remove('visible');  
   document.querySelector('#cover').classList.remove('visible');
