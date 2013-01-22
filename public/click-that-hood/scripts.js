@@ -123,11 +123,6 @@ function prepareMap() {
   calculateMapSize();
 
   mapSvg = d3.select('#svg-container').append('svg')
-      //.attr('width', '100%')
-      //.attr('height', '100%')
-      //.attr('viewBox', '0 0 ' + canvasWidth + ' ' + canvasHeight)
-      //.attr("preserveAspectRatio", "xMidYMid meet");
-
       .attr('width', canvasWidth)
       .attr('height', canvasHeight);    
 
@@ -178,6 +173,8 @@ function mapIsReady(error, us) {
       // TODO use target
       document.querySelector('#neighborhood-hover').classList.remove('visible');  
     });
+
+  onResize();
 }
 
 function setMapClickable(newMapClickable) {
