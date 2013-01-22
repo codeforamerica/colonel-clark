@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/codeforamerica/colonel-clark.png?branch=master)](https://travis-ci.org/codeforamerica/colonel-clark)
+
 # Louisville Neighborhood Crime Watch
 ## January Test Application: 2013 Code for America 
 
