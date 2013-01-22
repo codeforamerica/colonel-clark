@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 
+<title>UCR crime data in Louisville, KY</title>
 <meta charset='utf-8'>
 
 <link href='styles.less' rel='stylesheet/less' type='text/css'>
-<script src='less-1.3.0.min.js'></script>
+<script src='../less-1.3.0.min.js'></script>
 
 <script src='scripts.js'></script>
 
@@ -11,25 +12,29 @@
 <script src='http://d3js.org/queue.v1.min.js'></script>
 
 <body>
-  <nav>
-    <ul>
-      <li><button type='data-source-2010' onclick='changeDataSource(event)'>2010</button>
-      <li><button type='data-source-2011' onclick='changeDataSource(event)'>2011</button>
-      <li><button type='data-source-2010-vs-2011' onclick='changeDataSource(event)'>2010 vs. 2011</button>
-    </ul>
-    <ul>
-      <li><button type='data-type-offenses' onclick='changeDataType(event)'>Offenses</button>
-      <li><button type='data-type-arrests' onclick='changeDataType(event)'>Arrests</button>
-      <li><button type='data-type-offenses-vs-arrests' onclick='changeDataType(event)'>Offenses vs. arrests</button>
-    </ul>
-    <ul>
-      <li><button type='sort-order-value' onclick='changeSortOrder(event)'>Sort by value</button>
-      <li><button type='sort-order-percentage-change' onclick='changeSortOrder(event)'>Sort by value change</button>
-      <li><button type='sort-order-part-value' onclick='changeSortOrder(event)'>Sort by part, then value</button>
-      <li><button type='sort-order-name' onclick='changeSortOrder(event)'>Sort by name</button>
-      <li><button type='sort-order-part-name' onclick='changeSortOrder(event)'>Sort by part, then name</button>
-    </ul>
-  </nav>
+  <header>
+    <img id='logo' src='images/logo.png'>
+
+    <nav>
+      <ul>
+        <li><button type='data-source-2010' onclick='changeDataSource(event)'>2010</button>
+        <li><button type='data-source-2011' onclick='changeDataSource(event)'>2011</button>
+        <li><button type='data-source-2010-vs-2011' onclick='changeDataSource(event)'>2010 vs. 2011</button>
+      </ul>
+      <ul>
+        <li><button type='data-type-offenses' onclick='changeDataType(event)'>Offenses</button>
+        <li><button type='data-type-arrests' onclick='changeDataType(event)'>Arrests</button>
+        <li><button type='data-type-offenses-vs-arrests' onclick='changeDataType(event)'>Offenses vs. arrests</button>
+      </ul>
+      <ul>
+        <li><button type='sort-order-value' onclick='changeSortOrder(event)'>Sort by value</button>
+        <li><button type='sort-order-percentage-change' onclick='changeSortOrder(event)'>Sort by value change</button>
+        <li><button type='sort-order-part-value' onclick='changeSortOrder(event)'>Sort by part, then value</button>
+        <li><button type='sort-order-name' onclick='changeSortOrder(event)'>Sort by name</button>
+        <li><button type='sort-order-part-name' onclick='changeSortOrder(event)'>Sort by part, then name</button>
+      </ul>
+    </nav>
+  </header>
   <div id='chart'>
   </div>
 

@@ -1,6 +1,6 @@
 @import 'http://fonts.googleapis.com/css?family=Open+Sans:400,300,600';
 
-@navWidth: 200px;
+@navWidth: 326px;
 
 @valueColour: rgb(120, 120, 120);
 
@@ -16,31 +16,63 @@
 @part1Colour: darken(@highlightColour, 15%);
 @part2Colour: lighten(@highlightColour, 20%);
 
+@selectedColour: lighten(@highlightColour, 30);
+@hoverColour: lighten(@highlightColour, 40);
+
+
+@bodyMargin: 15px;
+
 body {
   background: @mainBackgroundColour;
-  padding: 20px;
+  margin: 0;
+  padding: @bodyMargin;
 }
 
-nav {
+header {
   display: block;
-  width: @navWidth;
+  width: @navWidth - @bodyMargin;
   position: fixed;
+
+  box-sizing: border-box;
+
+  left: @bodyMargin;
+  top: @bodyMargin;
+}
+#logo {
+  width: 276px;
+  max-width: 100%;
+  margin: 5px auto;
+  display: block;
+}
+nav {
+  background: white;
+  border-radius: @borderRadius;
+  border: 1px solid white; // Prevents margin collapsing 
 }
 nav ul {
   list-style: none;
   padding: 0;
-  margin: 0;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
+nav ul:first-child {
+  margin-top: 10px;
+}
+nav ul:last-child {
+  margin-bottom: 10px;
+}
+
 nav button {
   appearance: none;
   -webkit-appearance: none;
 
+  text-align: left;
+
   background: transparent;
-  padding: 0;
+  padding: 0 20px;
+  width: 100%;
   margin: 0;
   border: 0;
-  line-height: 1.6;
+  line-height: 1.8;
 
   cursor: pointer;
 
@@ -48,8 +80,11 @@ nav button {
   font-size: 14px;
   white-space: nowrap;
 }
+nav button:hover {
+  background: @hoverColour;
+}
 nav button.selected {
-  font-weight: bold;
+  background: @selectedColour;
 }
 nav button:disabled {
   color: black;
