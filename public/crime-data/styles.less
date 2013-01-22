@@ -22,6 +22,7 @@
 @selectedColour: @menuColour;
 @hoverColour: lighten(@menuColour, 15);
 
+@headerColour: darken(@menuColour, 20%);
 
 @bodyMargin: 15px;
 
@@ -164,12 +165,10 @@ nav button:disabled {
   fill: @valueColour;
   font-weight: 400;
 }
-
 #chart .tick {
   stroke: rgb(200, 200, 200);
   stroke-width: .5px;
 }
-
 #chart .pie[part='part1'] {
   fill: @part1Colour;
 }
@@ -182,7 +181,8 @@ nav button:disabled {
 
 #chart .header {
   font-weight: 600;
-  font-size: 22px;
+  font-size: 24px;
   text-anchor: middle;
-  fill: black;
+
+  fill: @headerColour;
 }
