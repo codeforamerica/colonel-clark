@@ -1,47 +1,31 @@
 var geojson = require('geojson'),
-    pg = require('pg'),
+    request = require('request'),
     config = require('config');
 
 exports.get = function(req, res, next) {
-
-  pg.connect(config.db_connection_string, function(err, client) {
-
-    if (err) {
-        console.error(err);
-        res.send(500, { message: String(err) });
-    }
-
-    appendNeighborhoods(client, req, res, next);
-
-  });
+    
+    appendNeighborhoods(req, res, next);
 
 }
 
-var appendNeighborhoods = function(client, req, res, next) {
+var appendNeighborhoods = function(req, res, next) {
 
-  var query = client.query({
-    text: "SELECT name, ST_AsGeoJSON(geom) AS geojson FROM neighborhoods WHERE city = $1",
-    values: [ "Louisville" ]
-  });
-
-  query.on('error', function(err) {
-    console.error("query error = " + err);
-    res.send(500, { message: "query error = " + String(err) });
-  });
-
-  data = [];
-  query.on('row', function(row) {
-    data.push({
-      name: row.name,
-      coordinates: JSON.parse(row.geojson).coordinates
+    var queryText = "SELECT name,the_geom FROM neighborhoods WHERE city = 'Louisville'";
+    
+    var cartoDbApiUri = config.cartodb_api_base_uri
+        + '?q=' + queryText
+        + '&format=GeoJSON';
+    
+    request(cartoDbApiUri, function(err, response, body) {
+        
+        if (err) {
+            console.error('CartoDB API returned error:');
+            console.error(err);
+            res.send(500, { message: String(err) });
+        }
+        
+        res.send(response.statusCode, body);
+        
     });
-  });
-
-  query.on('end', function(result) {
-    geojson.parse(data, { MultiPolygon: 'coordinates' }, function(json) {
-      res.send(json);
-    });
-
-  });
 
 }
