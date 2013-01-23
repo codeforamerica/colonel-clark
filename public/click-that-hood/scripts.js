@@ -18,15 +18,20 @@ function updateData() {
   window.setTimeout(updateMap, 0);
 }
 
+function getCanvasSize() {
+  // TODO better const
+  canvasWidth = document.querySelector('#map').offsetWidth;
+  canvasHeight = 
+      document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+}
+
 function calculateMapSize() {
   // TODO get from the map itself
   // At scale 250.000
   var mapWidth = 1507 / 2500000;
   var mapHeight = 1196 / 2500000;
 
-  // TODO better const
-  canvasWidth = document.querySelector('#map').offsetWidth;
-  canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+  getCanvasSize();
 
   var desiredWidth = canvasWidth;
   var desiredHeight = canvasWidth / mapWidth * mapHeight;
@@ -40,14 +45,44 @@ function calculateMapSize() {
   // TODO not top-level variable
   globalScale = scale;
 
-  // TODO get lat/long from the map itself
+  var minLat = 99999999;
+  var maxLat = -99999999;
+  var minLon = 99999999;
+  var maxLon = -99999999;
+
+  for (var i in mapData.features) {
+    for (var j in mapData.features[i].geometry.coordinates[0]) {
+      for (var k in mapData.features[i].geometry.coordinates[0][j]) {
+        var lon = mapData.features[i].geometry.coordinates[0][j][k][0];
+        var lat = mapData.features[i].geometry.coordinates[0][j][k][1];
+
+        if (lat > maxLat) {
+          maxLat = lat;
+        }
+        if (lat < minLat) {
+          minLat = lat;
+        }
+        if (lon > maxLon) {
+          maxLon = lon;
+        }
+        if (lon < minLon) {
+          minLon = lon;
+        }
+      }
+    }
+  }
+
+  // TODO no global variables
+  centerLat = (minLat + maxLat) / 2;
+  centerLon = (minLon + maxLon) / 2;
+
   mapPath = d3.geo.path().projection(
-      d3.geo.mercator().center([-85.735719, 38.214]).
+      d3.geo.mercator().center([centerLon, centerLat]).
       scale(globalScale).translate([canvasWidth / 2, canvasHeight / 2]));
 }
 
 function prepareMap() {
-  calculateMapSize();
+  getCanvasSize();
 
   mapSvg = d3.select('#svg-container').append('svg')
       .attr('width', canvasWidth)
@@ -60,6 +95,11 @@ function prepareMap() {
 
 function mapIsReady(error, data) {
   mapData = data;
+
+  calculateMapSize();
+
+  prepareMapOverlay();
+  resizeMapOverlay();
 
   prepareNeighborhoods();
   createMap();
@@ -307,8 +347,8 @@ function prepareMapOverlay() {
   var LAT_STEP = -.1725;
   var LONG_STEP = .2195;
 
-  var lat = 38.214 - LAT_STEP / 2;
-  var lon = -85.735719 - LONG_STEP / 2;
+  var lat = centerLat - LAT_STEP / 2;
+  var lon = centerLon - LONG_STEP / 2;
 
   var pixelRatio = window.devicePixelRatio || 1;
 
@@ -372,12 +412,7 @@ function main() {
   document.querySelector('#cover').classList.add('visible');
   document.querySelector('#loading').classList.add('visible');
 
-
   prepareMap();
 
-  prepareMapOverlay();
-  resizeMapOverlay();
-
   window.addEventListener('resize', onResize, false);
-
 }
