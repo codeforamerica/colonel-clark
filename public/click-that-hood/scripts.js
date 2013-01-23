@@ -3,76 +3,6 @@ var NEXT_GUESS_DELAY = 1000;
 
 var MAP_VERT_PADDING = 50;
 
-var NEIGHBORHOODS = [
-  { title: 'Algonquin' },
-  { title: 'Audubon' },
-  { title: 'Avondale Melbourne Heights' },
-  { title: 'Bashford Manor' },
-  { title: 'Beechmont' },
-  { title: 'Belknap' },
-  { title: 'Bon Air' },
-  { title: 'Bonnycastle' },
-  { title: 'Bowman' },
-  { title: 'Brownsboro Zorn' },
-  { title: 'Butchertown' },
-  { title: 'California' },
-  { title: 'Camp Taylor' },
-  { title: 'Central Business District' },
-  { title: 'Cherokee Gardens' },
-  { title: 'Cherokee Seneca' },
-  { title: 'Cherokee Triangle' },
-  { title: 'Chickasaw' },
-  { title: 'Clifton' },
-  { title: 'Clifton Heights' },
-  { title: 'Cloverleaf' },
-  { title: 'Crescent Hill' },
-  { title: 'Deer Park' },
-  { title: 'Edgewood' },
-  { title: 'Fairgrounds' },
-  { title: 'Gardiner Lane' },
-  { title: 'Germantown' },
-  { title: 'Hallmark' },
-  { title: 'Hawthorne' },
-  { title: 'Hayfield Dundee' },
-  { title: 'Hazelwood' },
-  { title: 'Highland Park' },
-  { title: 'Highlands' },
-  { title: 'Highlands Douglas' },
-  { title: 'Hikes Point' },
-  { title: 'Irish Hill' },
-  { title: 'Iroquios Park' },
-  { title: 'Iroquois' },
-  { title: 'Jacobs' },
-  { title: 'Kenwood Hill' },
-  { title: 'Klondike' },
-  { title: 'Limerick' },
-  { title: 'Merriwether' },
-  { title: 'Old Louisville' },
-  { title: 'Paristowne Point' },
-  { title: 'Park Duvalle' },
-  { title: 'Park Hill' },
-  { title: 'Parkland' },
-  { title: 'Phoenix Hill' },
-  { title: 'Poplar Level' },
-  { title: 'Portland' },
-  { title: 'Prestonia' },
-  { title: 'Rock Creek Lexington Road' },
-  { title: 'Russell' },
-  { title: 'Saint Joseph' },
-  { title: 'Schnitzelburg' },
-  { title: 'Shawnee' },
-  { title: 'Shelby Park' },
-  { title: 'Smoketown Jackson' },
-  { title: 'South Louisville' },
-  { title: 'Southside' },
-  { title: 'Soutland Park' },
-  { title: 'Taylor Berry' },
-  { title: 'Tyler Park' },
-  { title: 'University' },
-  { title: 'Wilder Park' },
-  { title: 'Wyandotte' },
-];
-
 var startTime = 0;
 var timerIntervalId;
 
@@ -80,8 +10,6 @@ var neighborhoodsToBeGuessed = [];
 var neighborhoodsGuessed = [];
 
 var mapClickable = false;
-
-var mapReady = false;
 
 function updateData() {
   loadData();
@@ -131,14 +59,28 @@ function prepareMap() {
       .await(mapIsReady);
 }
 
-function mapIsReady(error, us) {
-  mapReady = true;
+function mapIsReady(error, data) {
+  mapData = data;
 
-  mapUsData = us;
+  prepareNeighborhoods();
+  createMap();
+  startIntro();
+}
 
+function prepareNeighborhoods() {
+  var neighborhoods = [];
+
+  for (var i in mapData.features) {
+    neighborhoodsToBeGuessed.push(mapData.features[i].properties.name);
+  }
+
+  neighborhoodsToBeGuessed.sort();
+}
+
+function createMap() {
   mapSvg
     .selectAll('path')
-    .data(mapUsData.features)
+    .data(mapData.features)
     .enter()
     .append('path')
     .attr('d', mapPath)
@@ -278,7 +220,7 @@ function nextGuess() {
 }
 
 function startIntro() {
-  document.querySelector('#cover').classList.add('visible');
+  document.querySelector('#loading').classList.remove('visible');
   document.querySelector('#intro').classList.add('visible');
 }
 
@@ -399,16 +341,15 @@ function onResize() {
 }
 
 function main() {
+  document.querySelector('#cover').classList.add('visible');
+  document.querySelector('#loading').classList.add('visible');
+
+
   prepareMap();
 
   prepareMapOverlay();
   resizeMapOverlay();
 
-  for (var i in NEIGHBORHOODS) {
-    neighborhoodsToBeGuessed.push(NEIGHBORHOODS[i].title);
-  }
-
   window.addEventListener('resize', onResize, false);
 
-  startIntro();
 }
