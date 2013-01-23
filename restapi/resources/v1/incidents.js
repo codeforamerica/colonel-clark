@@ -100,9 +100,44 @@ var appendCrimeTotalsByNeighborhood = function(client, data, req, res, next) {
   });
 
   query.on('end', function(result) {
+    appendDateRange(client, data, req, res, next);
+  });
+
+}
+
+var appendDateRange = function(client, data, req, res, next) {
+
+  // Get date range for crime incidents
+  var queryText = "SELECT MIN(incident_timestamp) AS start_date, MAX(incident_timestamp) AS end_date FROM crimes WHERE neighborhood IS NOT NULL";
+  if (req.query.crime && req.query.neighborhood) {
+    var crimes = convertArrayToInList(req.query.crime.split(','));
+    var neighborhoods = convertArrayToInList(req.query.neighborhood.split(','));
+    queryText += " AND crime IN ( " + crimes + " ) AND neighborhood IN ( " + neighborhoods + " )";
+  } else if (req.query.crime) {
+    var crimes = convertArrayToInList(req.query.crime.split(','));
+    queryText += " AND crime IN ( " + crimes + " )";
+  } else if (req.query.neighborhood) {
+    var neighborhoods = convertArrayToInList(req.query.neighborhood.split(','));
+    queryText += " AND neighborhood IN ( " + neighborhoods + " )";
+  }
+
+  var query = client.query(queryText);
+
+  query.on('error', function(err) {
+    console.error("query error = " + err);
+    res.send(500, { message: "query error = " + String(err) });
+  });
+
+  dataDateRange = {};
+  query.on('row', function(row) {
+    dataDateRange.start = row.start_date;
+    dataDateRange.end = row.end_date;
+  });
+
+  query.on('end', function(result) {
 
     // Get crime totals by neighborhood
-    data.byNeighborhood = dataByNeighborhood;
+    data.dateRange = dataDateRange;
     res.send(data);
   
   });
