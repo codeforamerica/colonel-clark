@@ -102,14 +102,20 @@
 
 #### Response
     {
-      "by_crime":{
+      "query": {
+        "filters": { ... }
+      },
+      "dateRange": {
+        "start": "2012-10-11T07:00:00.000Z",
+        "end": "2013-01-09T08:00:00.000Z"
+      },
+      "byCrime":{
         "AUTO THEFT":490,
         "VANDALISM":1224,
         ...,
         "HOMICIDE":14
       },
-      "by_neighborhood":{
-        "null":4559,
+      "byNeighborhood":{
         "Jacobs":134,
         "Brownsboro Zorn":13,
         ...,
