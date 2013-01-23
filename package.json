@@ -25,7 +25,8 @@
         "pg": "0.10.2",
         "config": "0.4.18",
         "requireindex": "1.0.0",
-        "nodemailer": "0.3.37"
+        "nodemailer": "0.3.37",
+        "cartodb": "0.0.3"
     },
     "devDependencies": {
         "mocha": "1.8.0"
