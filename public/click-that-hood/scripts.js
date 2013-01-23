@@ -54,7 +54,7 @@ function prepareMap() {
       .attr('height', canvasHeight);    
 
   queue()
-      .defer(d3.json, 'louisville.json')
+      .defer(d3.json, 'data/louisville.json')
       .await(mapIsReady);
 }
 
@@ -222,7 +222,6 @@ function removeNeighborhoodHighlights() {
     el.id = '';
     el.style.webkitAnimationName = '';
     el.style.stroke = 'white';
-    //el.style.fill = 'rgba(0, 0, 0, .6)';
     el.style.fill = '';
   }
 
