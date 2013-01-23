@@ -25,9 +25,23 @@
 
 @mainBackgroundColour: rgb(235, 240, 220);
 
-@dataTransitionDelay: 150ms;
+@dataTransitionDelay: 400ms;
 
 @borderRadius: 7px;
+
+@heatMapColour1: rgb(0, 70, 0);
+@heatMapColour2: rgb(180, 180, 0);
+@heatMapColour3: rgb(180, 40, 40);
+
+@heatMapRealColour0: mix(@heatMapColour1, @heatMapColour2, 100%);
+@heatMapRealColour1: mix(@heatMapColour1, @heatMapColour2, 75%);
+@heatMapRealColour2: mix(@heatMapColour1, @heatMapColour2, 50%);
+@heatMapRealColour3: mix(@heatMapColour1, @heatMapColour2, 25%);
+@heatMapRealColour4: mix(@heatMapColour2, @heatMapColour3, 100%);
+@heatMapRealColour5: mix(@heatMapColour2, @heatMapColour3, 75%);
+@heatMapRealColour6: mix(@heatMapColour2, @heatMapColour3, 50%);
+@heatMapRealColour7: mix(@heatMapColour2, @heatMapColour3, 25%);
+@heatMapRealColour8: mix(@heatMapColour2, @heatMapColour3, 0%);
 
 body {
   background: @mainBackgroundColour;
@@ -76,8 +90,6 @@ body > footer > a {
   text-decoration: none;
   border-bottom: 1px solid rgba(0, 0, 0, .25);
 }
-
-
 body > footer #cfa {
   width: 48px;
   vertical-align: middle;
@@ -189,10 +201,6 @@ body > nav > ol > li[level="1"]::before {
   display: inline-block;
   font-size: 80%;
 }
-/*body > nav > ol > li.selected::before {
-  color: black;
-}*/
-
 
 body > nav > .list > li > .value {
   position: absolute;
@@ -235,12 +243,6 @@ body > nav > .list > li.active > .chart {
 
   overflow: hidden;  
 }
-/*#map > .neighborhood {
-  width: 50px;
-  height: 50px;
-  background: red;
-  float: left;
-}*/
 
 #svg-container {
   z-index: 50;
@@ -281,24 +283,13 @@ body > nav > .list > li.active > .chart {
   stroke-linejoin: round;
 
   cursor: pointer;
-}
-#map .state:hover {
-  stroke-width: 3;
-}
 
-@heatMapColour1: rgb(0, 70, 0);
-@heatMapColour2: rgb(180, 180, 0);
-@heatMapColour3: rgb(180, 40, 40);
+  -webkit-transition: fill @dataTransitionDelay;
 
-@heatMapRealColour0: mix(@heatMapColour1, @heatMapColour2, 100%);
-@heatMapRealColour1: mix(@heatMapColour1, @heatMapColour2, 75%);
-@heatMapRealColour2: mix(@heatMapColour1, @heatMapColour2, 50%);
-@heatMapRealColour3: mix(@heatMapColour1, @heatMapColour2, 25%);
-@heatMapRealColour4: mix(@heatMapColour2, @heatMapColour3, 100%);
-@heatMapRealColour5: mix(@heatMapColour2, @heatMapColour3, 75%);
-@heatMapRealColour6: mix(@heatMapColour2, @heatMapColour3, 50%);
-@heatMapRealColour7: mix(@heatMapColour2, @heatMapColour3, 25%);
-@heatMapRealColour8: mix(@heatMapColour2, @heatMapColour3, 0%);
+  &:hover {
+    stroke-width: 3;
+  }
+}
 
 #map .q0 { fill: @heatMapRealColour0; }
 #map .q1 { fill: @heatMapRealColour1; }
