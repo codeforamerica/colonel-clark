@@ -248,19 +248,17 @@ body.no-hover #neighborhood-hover {
 }
 
 #map .neighborhood.unguessed {
-  fill: transparent;
   stroke-width: 1;
   stroke: white;
 
   fill: @unguessedNeighborhoodFillColour;
 }
 #map .neighborhood:hover {
+  // Important is only necessary for the Safari 6 bug hack
   fill: fadeout(@highlightColour, 50%);
 }
 
 #map .neighborhood.guessed {
-  fill: green;
-
   stroke: transparent;
   fill: @guessedNeighborhoodFillColour;
 }

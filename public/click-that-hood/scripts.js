@@ -36,8 +36,7 @@ function calculateMapSize() {
     var desiredWidth = canvasHeight / mapHeight * mapWidth;
   }
 
-  // TODO const
-  var scale = desiredWidth / mapWidth;// * .95;
+  var scale = desiredWidth / mapWidth;
   // TODO not top-level variable
   globalScale = scale;
 
@@ -144,6 +143,10 @@ function handleNeighborhoodClick(el, name) {
     if (el.classList) {
       el.classList.remove('unguessed');
       el.classList.add('guessed');
+    } else {
+      // Fix for early Safari 6 not supporting classes on SVG objects
+      el.style.fill = 'rgba(0, 255, 0, .25)';
+      el.style.stroke = 'transparent';
     }
 
     neighborhoodsGuessed.push(name);
@@ -160,15 +163,25 @@ function handleNeighborhoodClick(el, name) {
       window.setTimeout(nextGuess, NEXT_GUESS_DELAY);
     }
   } else {
-    el.className = 'wrong-guess';
     if (el.classList) {
       el.classList.remove('unguessed');
       el.classList.add('wrong-guess');
+    } else {
+      // Fix for early Safari 6 not supporting classes on SVG objects
+      el.style.fill = 'rgba(255, 0, 0, .7)';
+      el.style.stroke = 'white';
+      el.id = 'safari-wrong-guess';
     }
 
     var correctEl = document.querySelector('#map svg [name="' + neighborhoodToBeGuessedNext + '"]');
     if (correctEl.classList) {
       correctEl.classList.add('right-guess');
+    } else {
+      // Fix for early Safari 6 not supporting classes on SVG objects
+      correctEl.style.webkitAnimationName = 'blink';
+      correctEl.style.webkitAnimationDuration = '500ms';
+      correctEl.style.webkitAnimationIterationCount = 'infinite';
+      correctEl.id = 'safari-right-guess';
     }
 
     window.setTimeout(removeNeighborhoodHighlights, HIGHLIGHT_DELAY);
@@ -191,12 +204,28 @@ function removeNeighborhoodHighlights() {
     el.classList.remove('wrong-guess');
     el.classList.add('unguessed');
   }
-
   var el = document.querySelector('#map svg .right-guess');
   if (el) {
     el.classList.remove('right-guess');
     el.classList.add('unguessed');
   }
+
+  // Fix for early Safari 6 not supporting classes on SVG objects
+  var el = document.querySelector('#safari-wrong-guess');
+  if (el) {
+    el.id = '';
+    el.style.stroke = 'white';
+    el.style.fill = '';
+  }
+  var el = document.querySelector('#safari-right-guess');
+  if (el) {
+    el.id = '';
+    el.style.webkitAnimationName = '';
+    el.style.stroke = 'white';
+    //el.style.fill = 'rgba(0, 0, 0, .6)';
+    el.style.fill = '';
+  }
+
 }
 
 function updateNeighborhoodDisplay() {
