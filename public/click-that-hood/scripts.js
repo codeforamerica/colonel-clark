@@ -145,10 +145,8 @@ function mapIsReady(error, us) {
     .attr('class', 'neighborhood unguessed')
     .attr('name', function(d) { return d.properties.name; })
     .on('click', function(d) {
-      handleNeighborhoodClick(this, d.properties.name);
-    })
-    .on('mouseup', function(d) {
-      handleNeighborhoodClick(this, d.properties.name);
+      var el = d3.event.target || d3.event.toElement;
+      handleNeighborhoodClick(el, d.properties.name);
     })
     .on('mousedown', function(d) {
       d3.event.preventDefault();
@@ -201,8 +199,10 @@ function handleNeighborhoodClick(el, name) {
   setMapClickable(false);
 
   if (name == neighborhoodToBeGuessedNext) {
-    el.classList.remove('unguessed');
-    el.classList.add('guessed');
+    if (el.classList) {
+      el.classList.remove('unguessed');
+      el.classList.add('guessed');
+    }
 
     neighborhoodsGuessed.push(name);
 
@@ -218,11 +218,16 @@ function handleNeighborhoodClick(el, name) {
       window.setTimeout(nextGuess, NEXT_GUESS_DELAY);
     }
   } else {
-    el.classList.remove('unguessed');
-    el.classList.add('wrong-guess');
+    el.className = 'wrong-guess';
+    if (el.classList) {
+      el.classList.remove('unguessed');
+      el.classList.add('wrong-guess');
+    }
 
     var correctEl = document.querySelector('#map svg [name="' + neighborhoodToBeGuessedNext + '"]');
-    correctEl.classList.add('right-guess');
+    if (correctEl.classList) {
+      correctEl.classList.add('right-guess');
+    }
 
     window.setTimeout(removeNeighborhoodHighlights, HIGHLIGHT_DELAY);
     window.setTimeout(nextGuess, HIGHLIGHT_DELAY + NEXT_GUESS_DELAY);
