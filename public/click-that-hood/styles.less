@@ -51,10 +51,6 @@ body > header {
   text-align: center;
 }
 
-body > header > h2 {
-  color: @highlightColour;
-}
-
 body > footer {
   font-size: 12px;
 
@@ -95,6 +91,7 @@ body > header #logo {
 }
 
 body > header > h2 {
+  color: @highlightColour;
   font-size: 200%;
   font-weight: 600;
 }
@@ -113,12 +110,6 @@ body > header > h3 {
   bottom: @footerHeight + @bodyMargin;
 
   overflow: hidden;
-}
-#map > .neighborhood {
-  width: 50px;
-  height: 50px;
-  background: red;
-  float: left;
 }
 
 #svg-container {
@@ -177,10 +168,12 @@ body > header > h3 {
   font-weight: 300;
 
   display: none;
+  
+  &.visible {
+    display: block;
+  }
 }
-#neighborhood-guess.visible {
-  display: block;
-}
+
 #neighborhood-guess span {
   font-weight: 600;
   font-size: @fontSize * 2.5;
@@ -188,7 +181,6 @@ body > header > h3 {
   line-height: 1;
   display: block;
 }
-
 
 body.no-hover #neighborhood-hover {
   display: none;
@@ -232,12 +224,11 @@ body.no-hover #neighborhood-hover {
   font-size: @fontSize * 1.5;
   letter-spacing: 0;
   line-height: 1;
-}
-#neighborhood-hover.visible {
-  opacity: 1;
-}
 
-
+  &.visible {
+    opacity: 1;
+  }
+}
 
 #map .neighborhood-boundary {
   fill: none;
@@ -245,49 +236,42 @@ body.no-hover #neighborhood-hover {
 
 #map .neighborhood {
   cursor: pointer;
-}
 
-#map .neighborhood.unguessed {
-  stroke-width: 1;
-  stroke: white;
+  &.unguessed {
+    stroke-width: 1;
+    stroke: white;
 
-  fill: @unguessedNeighborhoodFillColour;
-}
-#map .neighborhood:hover {
-  // Important is only necessary for the Safari 6 bug hack
-  fill: fadeout(@highlightColour, 50%);
-}
+    fill: @unguessedNeighborhoodFillColour;
+  }
+  &:hover {
+    // Important is only necessary for the Safari 6 bug hack
+    fill: fadeout(@highlightColour, 50%);
+  }
+  &.guessed {
+    stroke: transparent;
+    fill: @guessedNeighborhoodFillColour;
+  }
+  &.guessed:hover {
+    stroke: white;
 
-#map .neighborhood.guessed {
-  stroke: transparent;
-  fill: @guessedNeighborhoodFillColour;
-}
+    fill: mix(@guessedNeighborhoodFillColour, @hoverNeighborhoodFillColour, 50%);
+  }
+  &.right-guess {
+    -webkit-animation-name: blink;
+    -webkit-animation-duration: 500ms;
+    -webkit-animation-iteration-count: infinite;
+  }
+  &.wrong-guess {
+    fill: rgba(255, 0, 0, .7);
 
-#map .neighborhood.guessed:hover {
-  stroke: white;
-
-  fill: mix(@guessedNeighborhoodFillColour, @hoverNeighborhoodFillColour, 50%);
-}
-
-
-#map .neighborhood.right-guess {
-  -webkit-animation-name: blink;
-  -webkit-animation-duration: 500ms;
-  -webkit-animation-iteration-count: infinite;
+    stroke: white;
+  }
 }
 
 @-webkit-keyframes blink {
   0%, 49.99% { fill: rgba(0, 255, 0, .25); }
   50%, 100% { fill: rgba(0, 0, 0, .6); }
 }
-
-
-#map .neighborhood.wrong-guess {
-  fill: rgba(255, 0, 0, .7);
-
-  stroke: white;
-}
-
 
 #cover {
   position: absolute;
@@ -308,12 +292,13 @@ body.no-hover #neighborhood-hover {
   -webkit-box-align: center;
 
   color: black;
-}
-#cover.visible {
-  display: block;
-  outline: 1px solid red;
-  display: -moz-box;
-  display: -webkit-box;  
+
+  &.visible {
+    display: block;
+    outline: 1px solid red;
+    display: -moz-box;
+    display: -webkit-box;  
+  }
 }
 #cover button {
   font-size: @fontSize * 2;
@@ -332,10 +317,10 @@ body.no-hover #neighborhood-hover {
   margin: 0 auto;
 
   max-width: 500px;
-}
-
-#cover > div.visible {
-  display: block;
+ 
+  &.visible {
+    display: block;
+  }
 }
 
 .small {
@@ -355,10 +340,11 @@ body.no-hover #neighborhood-hover {
 
 q {
   font-style: italic;
-}
-q::before {
-  content: '“';
-}
-q::after {
-  content: '”';
+  
+  &::before {
+    content: '“';
+  }
+  &::after {
+    content: '”';
+  }
 }
