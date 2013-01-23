@@ -3,6 +3,9 @@ var NEXT_GUESS_DELAY = 1000;
 
 var MAP_VERT_PADDING = 50;
 
+var LAT_STEP = -.1725;
+var LONG_STEP = .2195;
+
 var startTime = 0;
 var timerIntervalId;
 
@@ -26,25 +29,6 @@ function getCanvasSize() {
 }
 
 function calculateMapSize() {
-  // TODO get from the map itself
-  // At scale 250.000
-  var mapWidth = 1507 / 2500000;
-  var mapHeight = 1196 / 2500000;
-
-  getCanvasSize();
-
-  var desiredWidth = canvasWidth;
-  var desiredHeight = canvasWidth / mapWidth * mapHeight;
-
-  if (desiredHeight > canvasHeight) {
-    var desiredHeight = canvasHeight;
-    var desiredWidth = canvasHeight / mapHeight * mapWidth;
-  }
-
-  var scale = desiredWidth / mapWidth;
-  // TODO not top-level variable
-  globalScale = scale;
-
   var minLat = 99999999;
   var maxLat = -99999999;
   var minLon = 99999999;
@@ -75,6 +59,39 @@ function calculateMapSize() {
   // TODO no global variables
   centerLat = (minLat + maxLat) / 2;
   centerLon = (minLon + maxLon) / 2;
+
+  latSpread = maxLat - minLat;
+  lonSpread = maxLon - minLon;
+
+  // TODO get from the map itself
+  // At scale 250.000
+  var mapWidth = 1507 / 2500000;
+  var mapHeight = 1196 / 2500000;
+
+  var mapRatio = mapWidth / mapHeight;
+
+  getCanvasSize();
+
+  var desiredWidth = canvasWidth;
+  var desiredHeight = canvasWidth / mapRatio;
+
+  if (desiredHeight > canvasHeight) {
+    var desiredHeight = canvasHeight;
+    var desiredWidth = canvasHeight * mapRatio;
+  }
+
+  var scale = desiredWidth / mapWidth;
+  // TODO not top-level variable
+  globalScale = scale; 
+
+  //console.log(globalScale);
+
+  //console.log(canvasHeight / lonSpread * 360); 
+
+  //console.log(latSpread, lonSpread);
+  //console.log(lonSpread / latSpread * LAT_STEP / LONG_STEP);
+
+  //console.log(mapWidth / mapHeight);  
 
   mapPath = d3.geo.path().projection(
       d3.geo.mercator().center([centerLon, centerLat]).
@@ -344,9 +361,6 @@ var MAP_OVERLAY_TILES_COUNT_Y = 2;
 var MAP_OVERLAY_OVERLAP_RATIO = .95;
 
 function prepareMapOverlay() {
-  var LAT_STEP = -.1725;
-  var LONG_STEP = .2195;
-
   var lat = centerLat - LAT_STEP / 2;
   var lon = centerLon - LONG_STEP / 2;
 
