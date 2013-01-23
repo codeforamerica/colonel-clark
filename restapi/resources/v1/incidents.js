@@ -100,6 +100,7 @@ var appendCrimeTotalsByNeighborhood = function(client, data, req, res, next) {
   });
 
   query.on('end', function(result) {
+    data.byNeighborhood = dataByNeighborhood;
     appendDateRange(client, data, req, res, next);
   });
 
