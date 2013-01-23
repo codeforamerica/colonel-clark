@@ -27,32 +27,26 @@ Please follow the instructions below to setup your development environment. In c
     $ createuser -h localhost -DPSR bp
     $ createdb -h localhost -O bp louisville_crime
 
-3) Enable PostGIS extension for the database. (Scroll below if you are getting a libjpeg-related error.)
-
-    $ psql -h localhost louisville_crime
-
-    louisville_crime=# CREATE EXTENSION postgis;
-
-4) Clone this repository onto your local development machine:
+3) Clone this repository onto your local development machine:
 
     $ git clone <REPLACE THIS WITH REPO CLONE LOCATION>
     $ cd colonel-clark
 
-5) Install [Node](http://nodejs.org/#download).
+4) Install [Node](http://nodejs.org/#download).
 
-6) Install dependencies. This will take a while.
+5) Install dependencies. This will take a while.
 
     $ npm install
 
-7) Setup database schema. Give it a bit of time even after it says “done.”
+6) Setup database schema. Give it a bit of time even after it says “done.”
 
     $ node db/migrator.js
 
-8) Start the Web Application and REST API server (default on port 8000).
+7) Start the Web Application and REST API server (default on port 8000).
 
     $ node app.js
 
-9) Open your website at http://localhost:8000
+8) Open your website at http://localhost:8000
 
 ## Directory Layout
 
@@ -67,9 +61,3 @@ This is the layout of directories relative to the current one (i.e. the one hous
 * `public`: Contains publicly-accessible, static code. E.g.: images, css, (browser-side) javascript, html, etc.
 * `test`: Contains unit tests.
 
-## FAQ
-
-### When trying to enable the PostGIS extension in the database, I get this error: `ERROR:  could not load library ... Library not loaded: /usr/local/lib/libjpeg.8.dylib ...`. How do I fix this?
-This error occurs when `libjpeg` is not installed on your computer. Here are a few ways to install `libjpeg` on your computer:
-* Using [Homebrew](http://mxcl.github.com/homebrew/): `$ brew install libjpeg`
-* From source (i.e. manually): follow the instructions [here](http://arcoleo.org/dsawiki/Wiki.jsp?page=How%20to%20Install%20Libjpeg%20on%20Mac#section-How+to+Install+Libjpeg+on+Mac-Manual).
