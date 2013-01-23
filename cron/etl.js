@@ -5,7 +5,7 @@ var extractor = require(__dirname + '/../lib/extractor'),
 
 var e = extractor.createExtractor(config.extractor_source_url);
 var t = transformer.createTransformer();
-var l = loader.createLoader(config.db_connection_string);
+var l = loader.createLoader(process.env.DATABASE_URL || config.db_connection_string);
 
 t.setLoader(l);
 e.setTransformer(t);

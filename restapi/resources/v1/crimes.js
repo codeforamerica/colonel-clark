@@ -3,7 +3,7 @@ config = require('config');
 
 exports.get = function(req, res, next) {
 
-  pg.connect(config.db_connection_string, function(err, client) {
+  pg.connect(process.env.DATABASE_URL || config.db_connection_string, function(err, client) {
 
     if (err) {
       console.error(err);
