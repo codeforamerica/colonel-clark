@@ -92,7 +92,7 @@
       ]
     }
     
-### Retrieve a list of crime incidents
+### Retrieve a summary of crime incidents
 
 #### Requests
     GET /v1/incidents-summary
@@ -131,7 +131,7 @@
       "neighborhoods": [ "Prestonia", "Central Business District" ]
     }
 
-### Retrieve a list of geo-coded crime incidents in Louisville, KY
+### Retrieve a list of geo-coded crime incidents
 
 #### Request
     GET /v1/incidents
