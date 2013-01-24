@@ -95,10 +95,10 @@
 ### Retrieve a list of crime incidents
 
 #### Requests
-    GET /v1/incidents
-    GET /v1/incidents?crime=AUTO+THEFT
-    GET /v1/incidents?neighborhood=Gardiner+Lane
-    GET /v1/incidents?crime=VANDALISM&neighborhood=University
+    GET /v1/incidents-summary
+    GET /v1/incidents-summary?crime=AUTO+THEFT
+    GET /v1/incidents-summary?neighborhood=Gardiner+Lane
+    GET /v1/incidents-summary?crime=VANDALISM&neighborhood=University
 
 #### Response
     {
@@ -129,4 +129,34 @@
     PUT /v1/user/shaunak@codeforamerica.org/subscriptions/neighborhoods
     {
       "neighborhoods": [ "Prestonia", "Central Business District" ]
+    }
+
+### Retrieve a list of geo-coded crime incidents in Louisville, KY
+
+#### Request
+    GET /v1/incidents
+    GET /v1/incidents?crime=HOMICIDE
+    GET /v1/incidents?crime=HOMICIDE,AUTO+THEFT
+
+#### Response ([GeoJSON](http://www.geojson.org/geojson-spec.html))
+    {
+      "query": {
+        "filters": {
+          "crime": "HOMICIDE,AUTO THEFT"
+        }
+      },
+      "incidents": {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [ -85.7843, 38.1994 ]
+            },
+            "properties": {}
+          },
+          ...
+        ]
+      }
     }
