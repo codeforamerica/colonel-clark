@@ -21,7 +21,7 @@ var checkSubscriptionExists = function(client, req, res, next) {
     var subscriptionId = req.params.id;
 
     var query = client.query({
-        text: 'SELECT _key FROM user_subscriptions WHERE uuid = $1',
+        text: 'SELECT * FROM user_subscriptions WHERE uuid = $1',
         values: [ subscriptionId ]
     });
 
@@ -30,14 +30,14 @@ var checkSubscriptionExists = function(client, req, res, next) {
         res.send(500, { message: "query error = " + String(err) });
     });
 
-    var subscriptionKey;
+    var subscription;
     query.on('row', function(row) {
-        subscriptionKey = row['_key'];
+        subscription = row;
     });
     
     query.on('end', function(result) {
-        if (subscriptionKey) {
-            updateSubscriptionStatus(client, subscriptionKey, req, res, next);
+        if (subscription) {
+            updateSubscriptionStatus(client, subscription, req, res, next);
         } else {
             res.send(404, { message: "Could not find subscription." });
         }
@@ -45,13 +45,13 @@ var checkSubscriptionExists = function(client, req, res, next) {
 
 }
 
-var updateSubscriptionStatus = function(client, subscriptionKey, req, res, next) {
+var updateSubscriptionStatus = function(client, subscription, req, res, next) {
 
     var subscriptionStatus = req.body.status;
 
     var query = client.query({
         text: 'UPDATE user_subscriptions SET status = $1 WHERE _key = $2',
-        values: [ subscriptionStatus, subscriptionKey ]
+        values: [ subscriptionStatus, subscription._key ]
     });
 
     query.on('error', function(err) {
