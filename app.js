@@ -12,7 +12,7 @@ app.get('/api/v1/incidents', api.v1.incidents.get);
 app.get('/api/v1/incidents-summary', api.v1.incidents_summary.get);
 app.post('/api/v1/user/:email/subscriptions', api.v1.user_subscriptions.post);
 app.put('/api/v1/subscription/:id/status', api.v1.subscription_status.put);
-//app.del('/api/v1/subscription/:id', api.v1.subscriptions.del);
+app.del('/api/v1/subscription/:id', api.v1.subscription.del);
 //app.del('/api/v1/user/:id/subscriptions', api.v1.user_subscriptions.del);
 
 // Serve all other URIs as static files from the "public" directory.
