@@ -123,14 +123,6 @@
       }
     }
 
-### Subscribe to neighborhood crime emails
-
-#### Request
-    PUT /v1/user/shaunak@codeforamerica.org/subscriptions/neighborhoods
-    {
-      "neighborhoods": [ "Prestonia", "Central Business District" ]
-    }
-
 ### Retrieve a list of geo-coded crime incidents
 
 #### Request
@@ -159,4 +151,20 @@
           ...
         ]
       }
+    }
+
+### Subscribe to neighborhood crime emails
+
+#### Request
+    POST /v1/user/shaunak@codeforamerica.org/subscriptions
+    {
+      "neighborhoods": [ "Prestonia", "Central Business District" ]
+    }
+
+### Update subscription status to VERIFIED
+
+#### Request
+    PUT /v1/subscription/b45a0c2d-2f2f-4362-9ed8-bc7a5efc2352/status
+    {
+      "status": "VERIFIED"
     }
