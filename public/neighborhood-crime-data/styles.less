@@ -57,12 +57,10 @@ body > header {
   position: absolute;
 
   left: @bodyMargin;
-  right: @navWidth + @bodyMargin + @bodyMargin;
+  right: @bodyMargin;
 
   top: 0;
   height: @headerHeight;
-
-  z-index: 2000;
 
   text-align: center;
 }
@@ -115,7 +113,7 @@ body > nav {
   background: white;
 
   position: absolute;
-  top: @bodyMargin;
+  top: @headerHeight - 50;
   bottom: @bodyMargin + @footerHeight;
   right: @bodyMargin;
 
@@ -208,7 +206,7 @@ body > nav > .list > li > .value {
   width: @navValueWidth;
   text-align: right;
   top: 0;
-  right: @navPadding * 3 + @chartWidth;
+  left: @navWidth - @chartWidth - @navPadding * 4 - @navValueWidth;
 }
 
 body > nav > .list > li > .chart {
@@ -258,6 +256,15 @@ body > nav > .list > li.active > .chart {
   right: 0;
   bottom: 0;
 }
+#heatmap-container {
+  z-index: 60;
+  position: absolute;
+  top: 80px;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+}
+
 #google-maps-overlay {
   pointer-events: none;
 
@@ -288,6 +295,12 @@ body > nav > .list > li.active > .chart {
   &:hover {
     stroke-width: 3;
   }
+}
+
+#map .state.hollow {
+  stroke-width: 2;
+  stroke: black;
+  fill: transparent;
 }
 
 #map .q0 { fill: @heatMapRealColour0; }
