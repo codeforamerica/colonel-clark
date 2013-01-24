@@ -25,7 +25,9 @@
         "pg": "0.10.2",
         "config": "0.4.18",
         "requireindex": "1.0.0",
-        "nodemailer": "0.3.37"
+        "nodemailer": "0.3.37",
+        "node-uuid": "1.4.0",
+        "async": "0.1.22"
     },
     "devDependencies": {
         "mocha": "1.8.0"
