@@ -1,5 +1,4 @@
-var geojson = require('geojson'),
-    request = require('request'),
+var request = require('request'),
     config = require('config');
 
 exports.get = function(req, res, next) {
