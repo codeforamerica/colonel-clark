@@ -168,3 +168,9 @@
     {
       "status": "VERIFIED"
     }
+
+### Delete a specific subscription
+
+#### Request
+    DELETE /v1/subscription/b45a0c2d-2f2f-4362-9ed8-bc7a5efc2352
+
