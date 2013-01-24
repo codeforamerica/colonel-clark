@@ -566,7 +566,7 @@ function getIncidentDataUrl(crimeId, neighborhoodId) {
   }
 
   // TODO remove random when you do caching properly
-  var url = '/api/v1/incidents?neighborhood=' + encodeURI(neighborhood) + 
+  var url = '/api/v1/incidents-summary?neighborhood=' + encodeURI(neighborhood) + 
       '&crime=' + encodeURI(crime) + '&rand=' + Math.random();
 
   return url;
