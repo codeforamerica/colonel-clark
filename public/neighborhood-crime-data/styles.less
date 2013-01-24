@@ -243,7 +243,6 @@ body > nav > .list > li.active > .chart {
 
   overflow: hidden;  
 }
-
 #svg-container {
   z-index: 50;
   position: absolute;
@@ -252,7 +251,7 @@ body > nav > .list > li.active > .chart {
   left: 20px;
   right: 20px;
 }
-#map svg {
+#svg-container svg {
   position: absolute;
   left: 0;
   top: 0;
@@ -360,22 +359,23 @@ body > nav > .list > li.active > .chart {
   width: 200px;
   margin-left: -100px;
   display: none;
-}
-#legend-hover.visible {
-  display: block;
-}
+  
+  &.visible {
+    display: block;
+  }
 
-#legend-hover::before {
-  position: absolute;
-  left: 100px;
-  right: 0;
-  border-left: 1px solid white;
-  height: 20px;
-  top: -30px;
-  content: '';
-  display: block;
-  text-align: center;
-  width: 0;
+  &::before {
+    position: absolute;
+    left: 100px;
+    right: 0;
+    border-left: 1px solid white;
+    height: 20px;
+    top: -30px;
+    content: '';
+    display: block;
+    text-align: center;
+    width: 0;
+  }
 }
 #legend-hover .name {
   display: block;
