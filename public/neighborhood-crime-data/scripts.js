@@ -42,6 +42,11 @@ var FILTERS = [
   }
 ];
 
+var MODE_NORMAL = 1;
+var MODE_HEATMAP = 2;
+
+var mode = MODE_NORMAL;
+
 // data without any filters
 var unfilteredData = [];
 var cachedRawData = [];
@@ -59,6 +64,11 @@ function createNav() {
     // TODO put elsewhere
     if (i == '1') {
       var el = document.createElement('ol');
+
+      // Nasty hack
+      if (mode == MODE_HEATMAP) {
+        el.style.display = 'none';
+      }
     } else {
       var el = document.createElement('ul');
     }
@@ -277,6 +287,40 @@ function prepareFilters() {
 }
 
 function calculateMapSize() {
+  minLat = 99999999;
+  maxLat = -99999999;
+  minLon = 99999999;
+  maxLon = -99999999;
+
+  for (var i in mapData.features) {
+    for (var j in mapData.features[i].geometry.coordinates[0]) {
+      for (var k in mapData.features[i].geometry.coordinates[0][j]) {
+        var lon = mapData.features[i].geometry.coordinates[0][j][k][0];
+        var lat = mapData.features[i].geometry.coordinates[0][j][k][1];
+
+        if (lat > maxLat) {
+          maxLat = lat;
+        }
+        if (lat < minLat) {
+          minLat = lat;
+        }
+        if (lon > maxLon) {
+          maxLon = lon;
+        }
+        if (lon < minLon) {
+          minLon = lon;
+        }
+      }
+    }
+  }
+
+  // TODO no global variables
+  centerLat = (minLat + maxLat) / 2;
+  centerLon = (minLon + maxLon) / 2;
+
+  latSpread = maxLat - minLat;
+  lonSpread = maxLon - minLon;
+
   // TODO get from the map itself
   // At scale 250.000
   var mapWidth = 1507 / 2500000;
@@ -286,12 +330,12 @@ function calculateMapSize() {
   canvasWidth = document.querySelector('#svg-container').offsetWidth;
   canvasHeight = document.querySelector('#svg-container').offsetHeight;
 
-  var desiredWidth = canvasWidth;
-  var desiredHeight = canvasWidth / mapWidth * mapHeight;
+  desiredWidth = canvasWidth;
+  desiredHeight = canvasWidth / mapWidth * mapHeight;
 
   if (desiredHeight > canvasHeight) {
-    var desiredHeight = canvasHeight;
-    var desiredWidth = canvasHeight / mapHeight * mapWidth;
+    desiredHeight = canvasHeight;
+    desiredWidth = canvasHeight / mapHeight * mapWidth;
   }
 
   // TODO const
@@ -301,7 +345,7 @@ function calculateMapSize() {
 
   // TODO get lat/long from the map itself
   mapPath = d3.geo.path().projection(
-      d3.geo.mercator().center([-85.735719, 38.214]).
+      d3.geo.mercator().center([centerLon, centerLat]).
       scale(globalScale).translate([canvasWidth / 2, canvasHeight / 2]));
 }
 
@@ -309,19 +353,8 @@ function prepareMap() {
   calculateMapSize();
 
   mapSvg = d3.select('#svg-container').append('svg')
-      //.attr('width', '100%')
-      //.attr('height', '100%')
-      //.attr('viewBox', '0 0 ' + canvasWidth + ' ' + canvasHeight)
-      //.attr("preserveAspectRatio", "xMidYMid meet");
-
       .attr('width', canvasWidth)
       .attr('height', canvasHeight);    
-
-/*  mapPath = d3.geo.path().projection(d3.geo.albers().scale(180000).center([12.28, 38.226314]));
-
-  mapSvg = d3.select('#svg-container').append('svg')
-      .attr('width', 900)
-      .attr('height', 540);    */
 }
 
 // TODO stupid name
@@ -403,8 +436,12 @@ function updateMap() {
     .domain([0, max])
     .range(d3.range(9).map(function(i) { return 'q' + i; }));
 
-  mapSvg.selectAll('path')
-    .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
+  if (mode == MODE_NORMAL) {
+    mapSvg.selectAll('path')
+      .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
+  } else {
+    mapSvg.selectAll('path').attr('class', 'state hollow');
+  }
 
   mapSvg.selectAll('path')
     .attr('value', function(d) { return unfilteredData[1][1][map[d.properties.name]]; })
@@ -475,6 +512,10 @@ function incidentsLoaded(error) {
   window.setTimeout(function() {
     updateCaption();
     updateMap();
+  }, 0);
+
+  window.setTimeout(function() {
+    updateHeatmap();
   }, 0);
 }
 
@@ -603,8 +644,8 @@ function prepareMapOverlay() {
   var LAT_STEP = -.1725;
   var LONG_STEP = .2195;
 
-  var lat = 38.214 - LAT_STEP / 2;
-  var lon = -85.735719 - LONG_STEP / 2;
+  var lat = centerLat - LAT_STEP / 2;
+  var lon = centerLon - LONG_STEP / 2;
 
   var pixelRatio = window.devicePixelRatio || 1;
 
@@ -662,6 +703,9 @@ function onResize() {
   mapSvg
     .selectAll('path')
     .attr('d', mapPath);
+
+  prepareHeatmap(); // in order to resize pixels etc.
+  updateHeatmap();
 }
 
 function initialDataLoaded(error, mapDataLoaded) {
@@ -681,6 +725,77 @@ function initialDataLoaded(error, mapDataLoaded) {
 
   prepareMapOverlay();
   resizeMapOverlay();  
+
+  if (mode == MODE_HEATMAP) {
+    prepareHeatmap();
+  }
+}
+
+function prepareHeatmap() {
+  document.querySelector('#heatmap-container').innerHTML = '';
+
+  var config = {
+      element: document.querySelector('#heatmap-container'),
+      radius: desiredWidth / 50,
+      opacity: 80,
+      gradient: { 0.45: "rgb(0,0,255)", 0.55: "rgb(0,255,255)", 0.65: "rgb(0,255,0)", 0.95: "yellow", 1.0: "rgb(255,0,0)" }
+  };
+
+  heatmap = heatmapFactory.create(config);
+}
+
+function updateHeatmap() {
+  if (mode != MODE_HEATMAP) {
+    return;
+  }
+
+  var crimeId = filters[0].selected;
+
+  if (crimeId == 0) {
+    var crime = '';
+  } else {
+    var crimeList = [];
+    for (var i in filters[0].choices[crimeId].filterList) {
+      crimeList.push(filters[0].choices[filters[0].choices[crimeId].filterList[i]].title);
+    }
+    var crime = crimeList.join(',').toUpperCase();
+  }
+
+  var url = '/api/v1/incidents?crime=' + encodeURI(crime) + '&rand=' + Math.random();
+
+  var q = queue();
+  q.defer(d3.json, url);
+  q.await(heatmapDataLoaded);  
+}
+
+function heatmapDataLoaded(error, heatmapData) {
+  var data = {
+    max: 3,
+    data: []
+  };
+
+  if (desiredHeight == canvasHeight) {
+    var offsetX = (canvasWidth - desiredWidth) / 2;
+    var offsetY = 0;
+  } else {
+    var offsetX = 0;
+    var offsetY = (canvasHeight - desiredHeight) / 2;
+  }
+  
+  for (var i in heatmapData.incidents.features) {
+    var feature = heatmapData.incidents.features[i];
+
+    var x = offsetX + ((feature.geometry.coordinates[0] - minLon) / lonSpread) * desiredWidth;
+    var y = offsetY + (1 - (feature.geometry.coordinates[1] - minLat) / latSpread) * desiredHeight;
+
+    data.data.push({ 
+        x: x, 
+        y: y,
+        count: 1 
+    });
+  }
+ 
+  heatmap.store.setDataSet(data);
 }
 
 function loadInitialData() {
@@ -698,6 +813,16 @@ function prepareUI() {
 }
 
 function main() {
+  if (location.href.indexOf('heatmap') != -1) {
+    mode = MODE_HEATMAP;
+
+    document.body.setAttribute('mode', 'heatmap');
+  }
+
+  if (mode == MODE_NORMAL) {
+    document.querySelector('#heatmap-container').style.display = 'none';
+  }
+
   prepareUI();
 
   window.addEventListener('resize', onResize, false);
