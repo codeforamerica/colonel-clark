@@ -2,6 +2,7 @@ var express = require('express'),
     api = require(__dirname + '/restapi/resources');
 
 var app = express();
+app.use(express.compress());
 app.use(express.bodyParser());
 
 // REST API URIs
