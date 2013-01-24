@@ -12,7 +12,22 @@ exports.post = function(req, res, next) {
       res.send(500, { message: String(err) });
     }
   
-    checkUserExists(client, req, res, next);
+    checkUserByEmailExists(client, req, res, next);
+  
+  });
+
+}
+
+exports.del = function(req, res, next) {
+
+  pg.connect(process.env.DATABASE_URL || config.db_connection_string, function(err, client) {
+    
+    if (err) {
+      console.error(err);
+      res.send(500, { message: String(err) });
+    }
+  
+    checkUserByUuidExists(client, req, res, next);
   
   });
 
@@ -21,8 +36,8 @@ exports.post = function(req, res, next) {
 var insertUser = function(client, email_address, req, res, next) {
 
   var query = client.query({
-    text: 'INSERT INTO users (email_address) VALUES ($1)',
-    values: [ email_address ]
+    text: 'INSERT INTO users (email_address, uuid) VALUES ($1, $2)',
+    values: [ email_address, uuid.v4() ]
   });
   
   query.on('error', function(err) {
@@ -130,7 +145,7 @@ var insertNewSubscriptions = function(client, userKey, newSubscriptions, req, re
 
 }
 
-var checkUserExists = function(client, req, res, next) {
+var checkUserByEmailExists = function(client, req, res, next) {
 
   // Insert user if necessary
   var email_address = req.params.email;
@@ -158,4 +173,51 @@ var checkUserExists = function(client, req, res, next) {
     }
   });
 
+}
+
+var checkUserByUuidExists = function(client, req, res, next) {
+
+    var userId = req.params.id;
+
+    var query = client.query({
+        text: 'SELECT * FROM users WHERE uuid = $1',
+        values: [ userId ]
+    });
+
+    query.on('error', function(err) {
+        console.error("user select query error = " + err);
+        res.send(500, { message: "query error = " + String(err) });
+    });
+
+    var user;
+    query.on('row', function(row) {
+        user = row;
+    });
+    
+    query.on('end', function(result) {
+        if (user) {
+            deleteAllUserSubscriptions(client, user, req, res, next);
+        } else {
+            res.send(404, { message: "Could not find user." });
+        }
+    });
+
+}
+
+var deleteAllUserSubscriptions = function(client, user, req, res, next) {
+
+    var query = client.query({
+        text: 'DELETE FROM user_subscriptions WHERE user__key = $1',
+        values: [ user._key ]
+    });
+
+    query.on('error', function(err) {
+        console.error("user subscriptions delete query error = " + err);
+        res.send(500, { message: "query error = " + String(err) });
+    });
+
+    query.on('end', function(result) {
+        res.send({ message: "All subscriptions for " + user.email_address + " deleted."});
+    });
+    
 }

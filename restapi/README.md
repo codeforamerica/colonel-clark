@@ -174,3 +174,7 @@
 #### Request
     DELETE /v1/subscription/b45a0c2d-2f2f-4362-9ed8-bc7a5efc2352
 
+### Delete all subscriptions for a user
+
+#### Request
+    DELETE /v1/user/57d102da-8bc0-4251-b187-10983d5a2fc6/subscriptions
