@@ -112,9 +112,20 @@ var insertNewSubscriptions = function(client, userKey, newSubscriptions, req, re
     };
 
     async.forEach(newSubscriptions, insertNewSubscription, function(err) {
-        res.send({
-            message: newSubscriptions.length + " new subscriptions added."
+
+        var sendSubscriptionConfirmationEmail = function(neighborhood, callback) {
+
+            // TODO: Figure out how to send email. Tried so far: sendmail, SMTP, SendGrid
+            callback();
+
+        };
+
+        async.forEach(newSubscriptions, sendSubscriptionConfirmationEmail, function(err) {
+            res.send({
+                message: newSubscriptions.length + " new subscriptions added."
+            });
         });
+
     });
 
 }
