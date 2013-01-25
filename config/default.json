@@ -1,7 +1,7 @@
 {
     "extractor_source_url": "http://localhost/~shaunak/CrimeData.txt",
     "db_connection_string": "tcp://bp:bp@localhost/louisville_crime",
-    "cartodb_api_base_uri": "http://ycombinator.cartodb.com/api/v2/sql"
+    "cartodb_api_base_uri": "http://cfa.cartodb.com/api/v2/sql"
 }
 
 
