@@ -840,7 +840,7 @@ function heatmapDataLoaded(error, heatmapData) {
 }
 
 function prepareHeatmap3d() {
-  if (!heatmap3dPrepared) {
+  /*if (!heatmap3dPrepared) */{
     heatmap3dPrepared = true;
 
     // get data from heatmap
@@ -855,14 +855,29 @@ function prepareHeatmap3d() {
 
     for (var x = 0; x < HEATMAP_3D_TEXTURE_SIZE; x++) {
       for (var y = 0; y < HEATMAP_3D_TEXTURE_SIZE; y++) {
+        var pos = ((HEATMAP_3D_TEXTURE_SIZE - y - 1) * HEATMAP_3D_TEXTURE_SIZE + x) * 4;
+
+        // include opacity
+        var val = imageData.data[pos] * imageData.data[pos + 3];
+
         heightData[y * HEATMAP_3D_TEXTURE_SIZE + x] = //Math.random() * 10;//x / 50;
-          parseFloat(imageData.data[(y * HEATMAP_3D_TEXTURE_SIZE + x) * 4]) / 30;
+          parseFloat(val) / 1000;
       }
     }
 
     //console.log(heightData);
 
-    heatmap3d.init(heightData);
+    var max = -99999;
+    var min = 99999;
+    for (var i = 0; i < heightData.length; i++) {
+      var data = heightData[i];
+
+      if (data > max) { max = data; }
+      if (data < min) { min = data; }
+    }
+    //console.log(i, min, max);
+
+    heatmap3d.init(document.querySelector('#heatmap-3d-container'), heightData);
   }
 }
 

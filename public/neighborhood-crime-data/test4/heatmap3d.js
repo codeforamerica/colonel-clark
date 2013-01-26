@@ -33,13 +33,11 @@ var heatmap3d = (function(){
     });
   }
 
-  main.init = function(parentEl, heightData) {
+  main.init = function(parentEl) {
       var lastTime = 0;
 
       var width = parentEl.offsetWidth;
       var height = parentEl.offsetHeight;
-
-      parentEl.innerHTML = '';
 
       // renderer
       var renderer = new THREE.WebGLRenderer({
@@ -63,7 +61,6 @@ var heatmap3d = (function(){
       // scene
       var scene = new THREE.Scene();
 
-/*
       // material
       var material = new THREE.MeshLambertMaterial({
           map: THREE.ImageUtils.loadTexture("crate.jpg")
@@ -93,13 +90,11 @@ var heatmap3d = (function(){
       //scene.add(cube2);
 
       cube2.position.x = -400;
-      cube2.position.z = 600;*/
+      cube2.position.z = 600;
 
       //plane = new Plane(256, 256, 256, 256);
 
       var PLANE_SIZE = 800;
-
-      var HEATMAP_3D_TEXTURE_SIZE = 256;
 
       var material  = new THREE.MeshPhongMaterial({
         ambient   : 0x444444,
@@ -111,7 +106,7 @@ var heatmap3d = (function(){
       });
 
       var plane = new THREE.Mesh(
-          new THREE.PlaneGeometry(PLANE_SIZE, PLANE_SIZE, HEATMAP_3D_TEXTURE_SIZE, HEATMAP_3D_TEXTURE_SIZE),
+          new THREE.PlaneGeometry(PLANE_SIZE, PLANE_SIZE, 128, 128),
           //new THREE.MeshBasicMaterial({ color: 0x0000ff })
           material
       );
@@ -130,12 +125,9 @@ var heatmap3d = (function(){
 
       scene.add(plane);        
 
-      var count = 100;
-
       for (var i in plane.geometry.vertices) {
         var vertice = plane.geometry.vertices[i];
 
-        /*
         var x = (vertice.x + PLANE_SIZE / 2) / PLANE_SIZE;
         var y = (vertice.y + PLANE_SIZE / 2) / PLANE_SIZE;
 
@@ -147,20 +139,9 @@ var heatmap3d = (function(){
 
         if ((x >= 0.1) && (x <= 0.2) && (y >= 0.1) && (y <= 0.2)) {
           z += Math.sin((x - 0.1) / .2 * 3.14) * Math.sin((y - 0.1) / .2 * 3.14) * 80;
-        }*/
-
-        var x = Math.floor((vertice.x + PLANE_SIZE / 2) / PLANE_SIZE * HEATMAP_3D_TEXTURE_SIZE);
-        var y = Math.floor((vertice.y + PLANE_SIZE / 2) / PLANE_SIZE * HEATMAP_3D_TEXTURE_SIZE);
-
-        var z = heightData[y * HEATMAP_3D_TEXTURE_SIZE + x] * 2;
+        }
 
         vertice.z = z;
-
-        /*console.log(x);
-        count--;
-        if (count == 0) {
-          return;
-        }*/
       }
 
       //plane.geometry.__dirtyVertices = true;
@@ -187,7 +168,7 @@ var heatmap3d = (function(){
       light.shadowCameraNear    = 100;   
       light.shadowCameraFar = 1600;
       light.shadowDarkness    = 0.8;
-      //light.shadowCameraVisible = true;
+      light.shadowCameraVisible = true;
       scene.add(light);
 
       // create wrapper object that contains three.js objects
@@ -195,12 +176,12 @@ var heatmap3d = (function(){
           renderer: renderer,
           camera: camera,
           scene: scene,
-          plane: plane
+          cube: cube,
+          plane: plane,
+          cube2: cube2
       };
 
-      window.setTimeout(function() { renderer.render(scene, camera); }, 100);
-
-      //animate(lastTime, 0, three, this);
+      animate(lastTime, 0, three, this);
 
   };
 
