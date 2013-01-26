@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-  <title>Click that ’hood! · Louisville, KY</title>
+  <title>Click that ’hood!</title>
   <meta charset='utf-8'>
 
   <link href='styles.less' rel='stylesheet/less' type='text/css'>
@@ -28,7 +28,7 @@
 
 <body>
   <header>
-    <img id='logo' src='images/logo-retina.png'>
+    <img id='logo'>
     <h2 id='count'></h3>
     <h2 id='time'></h3>
   </header>
@@ -38,6 +38,7 @@
     <a href='http://www.codeforamerica.org'>Code for America</a>, 2013.
     <a target='_blank' href='https://github.com/codeforamerica/colonel-clark/tree/master/public/click-that-hood'>Source code</a>.
     Neighboorhood data from <a target='_blank' href='http://www.zillow.com/howto/api/neighborhood-boundaries.htm'>Zillow</a>.
+    <span id='neighborhoods-removed'>(Some neighborhoods removed due to small size.)</span>
     Map imagery &copy; 2013 Google and TerraMetrics.
   </footer>
 
@@ -58,7 +59,7 @@
           Welcome to Click That ’Hood!
         </h1>
         <p>
-          Click on the proper Louisville neighborhood
+          Click on the proper <span class='city-name'></span> neighborhood
           as soon as its name comes up. The faster, the better!
         </p>
         <p>
@@ -73,7 +74,7 @@
           Congratulations! 
         </h1>
         <p>
-          You correctly identified all Louisville
+          You correctly identified all <span class='city-name'></span>
           neighborhoods!
         </p>
         <p>

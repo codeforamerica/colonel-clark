@@ -14,6 +14,18 @@ var neighborhoodsGuessed = [];
 
 var mapClickable = false;
 
+var SUPPORTED_CITIES = ['louisville', 'lexington'];
+
+// TODO unhardcode this
+var CITY_SIZES = {
+  'louisville': [ 1507, 1196 ],
+  'lexington': [ 1507, 1507 ]
+};
+
+var SMALL_NEIGHBORHOOD_THRESHOLD = 4;
+
+var cityId = 'louisville';
+
 function updateData() {
   loadData();
   updateNav();
@@ -63,10 +75,8 @@ function calculateMapSize() {
   latSpread = maxLat - minLat;
   lonSpread = maxLon - minLon;
 
-  // TODO get from the map itself
-  // At scale 250.000
-  var mapWidth = 1507 / 2500000;
-  var mapHeight = 1196 / 2500000;
+  var mapWidth = CITY_SIZES[cityId][0] / 2500000;
+  var mapHeight = CITY_SIZES[cityId][1] / 2500000;
 
   var mapRatio = mapWidth / mapHeight;
 
@@ -84,15 +94,6 @@ function calculateMapSize() {
   // TODO not top-level variable
   globalScale = scale; 
 
-  //console.log(globalScale);
-
-  //console.log(canvasHeight / lonSpread * 360); 
-
-  //console.log(latSpread, lonSpread);
-  //console.log(lonSpread / latSpread * LAT_STEP / LONG_STEP);
-
-  //console.log(mapWidth / mapHeight);  
-
   mapPath = d3.geo.path().projection(
       d3.geo.mercator().center([centerLon, centerLat]).
       scale(globalScale).translate([canvasWidth / 2, canvasHeight / 2]));
@@ -105,9 +106,35 @@ function prepareMap() {
       .attr('width', canvasWidth)
       .attr('height', canvasHeight);    
 
-  queue()
-      .defer(d3.json, 'data/louisville.json')
+  var query = "SELECT * FROM neighborhoods WHERE city = '" + cityName + "'";
+
+  queue()  
+      .defer(d3.json, 'http://cfa.cartodb.com/api/v2/sql?q=' + 
+      encodeURIComponent(query) + ' &format=GeoJSON')
       .await(mapIsReady);
+}
+
+function removeSmallNeighborhoods() {
+  var els = document.querySelectorAll('#map .neighborhood');
+
+  someSmallNeighborhoodsRemoved = false;
+
+  for (var i = 0, el; el = els[i]; i++) {
+    var boundingBox = el.getBBox();
+
+    if ((boundingBox.width < SMALL_NEIGHBORHOOD_THRESHOLD) || 
+        (boundingBox.height < SMALL_NEIGHBORHOOD_THRESHOLD)) {
+      var name = el.getAttribute('name');
+
+      neighborhoodsToBeGuessed.splice(neighborhoodsToBeGuessed.indexOf(name), 1);
+
+      someSmallNeighborhoodsRemoved = true;
+    }
+  }
+
+  if (someSmallNeighborhoodsRemoved) {
+    document.querySelector('#neighborhoods-removed').classList.add('visible');
+  }
 }
 
 function mapIsReady(error, data) {
@@ -120,6 +147,9 @@ function mapIsReady(error, data) {
 
   prepareNeighborhoods();
   createMap();
+
+  removeSmallNeighborhoods();
+
   startIntro();
 }
 
@@ -422,7 +452,34 @@ function onResize() {
     .attr('d', mapPath);
 }
 
+function getCityName() {
+  cityId = 'louisville';
+
+  var cityMatch = location.href.match(/[\?\&]city=([^&]*)/);
+
+  if (cityMatch && cityMatch[1]) {
+    if (SUPPORTED_CITIES.indexOf(cityMatch[1]) != -1) {
+      cityId = cityMatch[1];
+    }
+  }      
+
+  cityName = cityId.charAt(0).toUpperCase() + cityId.slice(1);
+}
+
+function prepareLogo() {
+  document.querySelector('#logo').src = 'images/logo-' + cityId + '.png';
+
+  var els = document.querySelectorAll('.city-name');
+  for (var i = 0, el; el = els[i]; i++) {
+    el.innerHTML = cityName;
+  }
+}
+
 function main() {
+  getCityName();
+
+  prepareLogo();
+
   document.querySelector('#cover').classList.add('visible');
   document.querySelector('#loading').classList.add('visible');
 
