@@ -42,8 +42,11 @@ var FILTERS = [
   }
 ];
 
+var HEATMAP_3D_TEXTURE_SIZE = 256;
+
 var MODE_NORMAL = 1;
 var MODE_HEATMAP = 2;
+var MODE_HEATMAP_3D = 3;
 
 var mode = MODE_NORMAL;
 
@@ -55,6 +58,7 @@ var currentData = [];
 
 var filters = [];
 
+var heatmap3dPrepared = false;
 var mapReady = false;
 
 function createNav() {
@@ -66,7 +70,7 @@ function createNav() {
       var el = document.createElement('ol');
 
       // Nasty hack
-      if (mode == MODE_HEATMAP) {
+      if ((mode == MODE_HEATMAP) || (mode == MODE_HEATMAP_3D)) {
         el.style.display = 'none';
       }
     } else {
@@ -726,26 +730,50 @@ function initialDataLoaded(error, mapDataLoaded) {
   prepareMapOverlay();
   resizeMapOverlay();  
 
-  if (mode == MODE_HEATMAP) {
+  if ((mode == MODE_HEATMAP) || (mode == MODE_HEATMAP_3D)) {
     prepareHeatmap();
   }
 }
 
 function prepareHeatmap() {
-  document.querySelector('#heatmap-container').innerHTML = '';
+  var el = document.querySelector('#heatmap-container');
 
+  el.innerHTML = '';
+
+  if (mode == MODE_HEATMAP_3D) {
+    el.style.width = HEATMAP_3D_TEXTURE_SIZE + 'px';
+    el.style.height = HEATMAP_3D_TEXTURE_SIZE + 'px';
+  }
+  
   var config = {
-      element: document.querySelector('#heatmap-container'),
-      radius: desiredWidth / 50,
-      opacity: 80,
-      gradient: { 0.45: "rgb(0,0,255)", 0.55: "rgb(0,255,255)", 0.65: "rgb(0,255,0)", 0.95: "yellow", 1.0: "rgb(255,0,0)" }
+      element: el,
+      radius: desiredWidth / 50
   };
 
+  switch (mode) {
+    case MODE_HEATMAP:
+      config.opacity = 80;
+      config.gradient = { 
+          0.45: "rgb(0, 0, 255)", 
+          0.55: "rgb(0, 255, 255)", 
+          0.65: "rgb(0, 255, 0)", 
+          0.95: "yellow", 
+          1.00: "rgb(255, 0, 0)"
+      };
+      break; 
+    case MODE_HEATMAP_3D:
+      config.opacity = 100;
+      config.gradient = { 
+          0.00: "black", 
+          1.00: "white"
+      };
+      break;
+  }
   heatmap = heatmapFactory.create(config);
 }
 
 function updateHeatmap() {
-  if (mode != MODE_HEATMAP) {
+  if ((mode != MODE_HEATMAP) && (mode != MODE_HEATMAP_3D)) {
     return;
   }
 
@@ -774,19 +802,28 @@ function heatmapDataLoaded(error, heatmapData) {
     data: []
   };
 
-  if (desiredHeight == canvasHeight) {
-    var offsetX = (canvasWidth - desiredWidth) / 2;
-    var offsetY = 0;
-  } else {
-    var offsetX = 0;
-    var offsetY = (canvasHeight - desiredHeight) / 2;
+  var offsetX = 0;
+  var offsetY = 0;
+
+  if (mode == MODE_HEATMAP) {
+    if (desiredHeight == canvasHeight) {
+      var offsetX = (canvasWidth - desiredWidth) / 2;
+    } else {
+      var offsetY = (canvasHeight - desiredHeight) / 2;
+    }
+
+    var width = desiredWidth;
+    var height = desiredHeight;
+  } else if (mode == MODE_HEATMAP_3D) {
+    var width = HEATMAP_3D_TEXTURE_SIZE;
+    var height = HEATMAP_3D_TEXTURE_SIZE;
   }
-  
+
   for (var i in heatmapData.incidents.features) {
     var feature = heatmapData.incidents.features[i];
 
-    var x = offsetX + ((feature.geometry.coordinates[0] - minLon) / lonSpread) * desiredWidth;
-    var y = offsetY + (1 - (feature.geometry.coordinates[1] - minLat) / latSpread) * desiredHeight;
+    var x = offsetX + ((feature.geometry.coordinates[0] - minLon) / lonSpread) * width;
+    var y = offsetY + (1 - (feature.geometry.coordinates[1] - minLat) / latSpread) * height;
 
     data.data.push({ 
         x: x, 
@@ -796,6 +833,37 @@ function heatmapDataLoaded(error, heatmapData) {
   }
  
   heatmap.store.setDataSet(data);
+
+  if (mode == MODE_HEATMAP_3D) {
+    prepareHeatmap3d();
+  }
+}
+
+function prepareHeatmap3d() {
+  if (!heatmap3dPrepared) {
+    heatmap3dPrepared = true;
+
+    // get data from heatmap
+
+    var el = document.querySelector('#heatmap-container > canvas');
+    var ctx = el.getContext('2d');
+    var imageData = ctx.getImageData(0, 0, 
+        HEATMAP_3D_TEXTURE_SIZE, HEATMAP_3D_TEXTURE_SIZE);
+
+    //var heightData = [];
+    var heightData = new Float32Array(HEATMAP_3D_TEXTURE_SIZE * HEATMAP_3D_TEXTURE_SIZE);
+
+    for (var x = 0; x < HEATMAP_3D_TEXTURE_SIZE; x++) {
+      for (var y = 0; y < HEATMAP_3D_TEXTURE_SIZE; y++) {
+        heightData[y * HEATMAP_3D_TEXTURE_SIZE + x] = //Math.random() * 10;//x / 50;
+          parseFloat(imageData.data[(y * HEATMAP_3D_TEXTURE_SIZE + x) * 4]) / 30;
+      }
+    }
+
+    //console.log(heightData);
+
+    heatmap3d.init(heightData);
+  }
 }
 
 function loadInitialData() {
@@ -813,9 +881,11 @@ function prepareUI() {
 }
 
 function main() {
-  if (location.href.indexOf('heatmap') != -1) {
+  if (location.href.indexOf('heatmap-3d') != -1) {
+    mode = MODE_HEATMAP_3D;
+    document.body.setAttribute('mode', 'heatmap-3d');
+  } else if (location.href.indexOf('heatmap') != -1) {
     mode = MODE_HEATMAP;
-
     document.body.setAttribute('mode', 'heatmap');
   }
 

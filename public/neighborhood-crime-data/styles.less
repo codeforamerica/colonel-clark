@@ -265,6 +265,17 @@ body > nav > .list > li.active > .chart {
   right: 20px;
 }
 
+#heatmap-3d-container {
+  z-index: 1000;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 400px;
+  height: 400px;
+}
+#heatmap-3d-container canvas {
+}
+
 #google-maps-overlay {
   pointer-events: none;
 
@@ -397,6 +408,7 @@ body > nav > .list > li.active > .chart {
   display: block;
 }
 
-body[mode='heatmap'] #legend {
+body[mode='heatmap'] #legend,
+body[mode='heatmap-3d'] #legend {
   display: none;
 }
