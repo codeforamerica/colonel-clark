@@ -22,6 +22,8 @@ var CITY_SIZES = {
   'lexington': [ 1507, 1507 ]
 };
 
+var SMALL_NEIGHBORHOOD_THRESHOLD = 4;
+
 var cityId = 'louisville';
 
 function updateData() {
@@ -112,6 +114,29 @@ function prepareMap() {
       .await(mapIsReady);
 }
 
+function removeSmallNeighborhoods() {
+  var els = document.querySelectorAll('#map .neighborhood');
+
+  someSmallNeighborhoodsRemoved = false;
+
+  for (var i = 0, el; el = els[i]; i++) {
+    var boundingBox = el.getBBox();
+
+    if ((boundingBox.width < SMALL_NEIGHBORHOOD_THRESHOLD) || 
+        (boundingBox.height < SMALL_NEIGHBORHOOD_THRESHOLD)) {
+      var name = el.getAttribute('name');
+
+      neighborhoodsToBeGuessed.splice(neighborhoodsToBeGuessed.indexOf(name), 1);
+
+      someSmallNeighborhoodsRemoved = true;
+    }
+  }
+
+  if (someSmallNeighborhoodsRemoved) {
+    document.querySelector('#neighborhoods-removed').classList.add('visible');
+  }
+}
+
 function mapIsReady(error, data) {
   mapData = data;
 
@@ -122,6 +147,9 @@ function mapIsReady(error, data) {
 
   prepareNeighborhoods();
   createMap();
+
+  removeSmallNeighborhoods();
+
   startIntro();
 }
 
