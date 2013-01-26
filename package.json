@@ -26,7 +26,8 @@
         "config": "0.4.18",
         "requireindex": "1.0.0",
         "node-uuid": "1.4.0",
-        "async": "0.1.22"
+        "async": "0.1.22",
+        "sendgrid": "0.2.5"
     },
     "devDependencies": {
         "mocha": "1.8.0"

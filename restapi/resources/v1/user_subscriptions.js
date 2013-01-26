@@ -1,7 +1,8 @@
 var pg = require('pg'),
     config = require('config'),
     uuid = require('node-uuid'),
-    async = require('async');
+    async = require('async'),
+    SendGrid = require('sendgrid').SendGrid;
 
 exports.post = function(req, res, next) {
 
@@ -54,7 +55,7 @@ var insertUser = function(client, email_address, req, res, next) {
 var getUser = function(client, email_address, req, res, next) {
 
   var query = client.query({
-    text: 'SELECT _key FROM users WHERE email_address = $1',
+    text: 'SELECT * FROM users WHERE email_address = $1',
     values: [ email_address ]
   });
   
@@ -63,24 +64,24 @@ var getUser = function(client, email_address, req, res, next) {
     res.send(500, { message: "query error = " + String(err) });
   });
   
-  var userKey = null;
+  var user = null;
   query.on('row', function(row) {
-    userKey = row._key;
+    user = row;
   });
   
   query.on('end', function(result) {
-    determineNewSubscriptions(client, userKey, req, res, next);
+    determineNewSubscriptions(client, user, req, res, next);
   });
 
 }
 
-var determineNewSubscriptions = function(client, userKey, req, res, next) {
+var determineNewSubscriptions = function(client, user, req, res, next) {
 
     var filterNewSubscriptions = function(neighborhood, callback) {
         
         query = client.query({
             text: 'SELECT neighborhood FROM user_subscriptions WHERE user__key = $1 AND neighborhood = $2',
-            values: [ userKey, neighborhood ]
+            values: [ user._key, neighborhood ]
         });
 
         query.on('error', function(err) {
@@ -100,19 +101,23 @@ var determineNewSubscriptions = function(client, userKey, req, res, next) {
     };
 
     async.filter(req.body.neighborhoods, filterNewSubscriptions, function(results) {
-        insertNewSubscriptions(client, userKey, results, req, res, next);
+        insertNewSubscriptions(client, user, results, req, res, next);
     });
 
 }
 
-var insertNewSubscriptions = function(client, userKey, newSubscriptions, req, res, next) {
+var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, next) {
 
+    var subscriptionIds = {}
     var insertNewSubscription = function(neighborhood, callback) {
+
+        var subscriptionId = uuid.v4();
+        subscriptionIds[neighborhood] = subscriptionId;
 
         query = client.query({
             text: 'INSERT INTO user_subscriptions (user__key, neighborhood, uuid, subscribed_on) '
                 + 'VALUES($1, $2, $3, $4)',
-            values: [ userKey, neighborhood, uuid.v4(), new Date() ]
+            values: [ user._key, neighborhood, subscriptionId, new Date() ]
         });
 
         query.on('error', function(err) {
@@ -129,8 +134,28 @@ var insertNewSubscriptions = function(client, userKey, newSubscriptions, req, re
     async.forEach(newSubscriptions, insertNewSubscription, function(err) {
 
         var sendSubscriptionConfirmationEmail = function(neighborhood, callback) {
+            
+            var subscriptionLink = config.app_base_uri + 'subscription/' + subscriptionIds[neighborhood] + '/confirmation';
+            var emailHtml = '<p>Hi,</p>'
+                + '<p>You have been subscribed to neighborhood crime alerts for '
+                + '<strong>' + neighborhood + '</strong>.</p>'
+                + '<p>To confirm your subscription, please click this link: '
+                + '<a href="' + subscriptionLink + '">' + subscriptionLink + '</a></p>'
+                + '<p>Thank you,</p>'
+                + '<p>Bourbon Planners</p>'
 
-            // TODO: Figure out how to send email. Tried so far: sendmail, SMTP, SendGrid
+            var sendgrid = new SendGrid(config.sendgrid.user, process.env.SENDGRID_PASS);
+            sendgrid.send({
+                to: user.email_address,
+                from: 'bourbonplanners@codeforamerica.com',
+                subject: 'Welcome to neighborhood crime alerts!',
+                html: emailHtml
+            }, function(success, message) {
+                if (!success) {
+                    console.log(message);
+                }
+            });
+
             callback();
 
         };
