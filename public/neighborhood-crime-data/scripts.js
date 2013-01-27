@@ -185,12 +185,12 @@ function receiveSubscriptionRequest(success, httpRequest) {
     //console.log('OKAY!');
   } else {
     alert('We’re sorry, but something went wrong with your subscription. Please try again!');
-    //console.log('Error: ' + httpRequest.status);
+    console.log('Error: ' + httpRequest.status);
   }
 }
 
 function sendSubscriptionRequest() {
-  var email = document.querySelector('sidebar > [tab="subscribe"] .email').value;
+  var email = document.querySelector('nav.sidebar > [tab="subscribe"] .email').value;
 
   // TEMPORARY
   if (!email) {
