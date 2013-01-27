@@ -42,7 +42,10 @@ var FILTERS = [
   }
 ];
 
-var HEATMAP_3D_TEXTURE_SIZE = 256;
+var HEATMAP_3D_BUMP_TEXTURE_SIZE = 256;
+
+var HEATMAP_3D_TEXTURE_SIZE = 512;
+var HEATMAP_3D_MARGIN = 20;
 
 var MODE_NORMAL = 1;
 var MODE_HEATMAP = 2;
@@ -697,6 +700,84 @@ function resizeMapOverlay() {
   }
 }
 
+function copyMapOverlayToHeatmap3D() {
+  var canvasWidth = document.querySelector('#map').offsetWidth;
+  var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+
+  var size = globalScale * 0.0012238683395795992;
+  size = size * 0.995 / 2;
+
+  var offsetX = canvasWidth / 2 - size;
+  var offsetY = canvasHeight / 2 - size + 80;
+
+  var moveX = 0;
+  var moveY = 0;
+
+  var heatmapSize = HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 4;
+
+  /*
+
+      if (desiredWidth > desiredHeight) {
+      width = HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2;
+      height = (HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2) / desiredWidth * desiredHeight;
+
+      offsetX = HEATMAP_3D_MARGIN;
+      offsetY = HEATMAP_3D_MARGIN + (HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2 - height) / 2;
+    } else {
+      height = HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2;
+      width = (HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2) / desiredHeight * desiredWidth; 
+
+      offsetX = HEATMAP_3D_MARGIN + (HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2 - width) / 2;
+      offsetY = HEATMAP_3D_MARGIN;
+    }
+*/
+
+  //console.log(heatmapWidth);
+  //console.log(desiredWidth);
+  var canvasScale = heatmapHeight / desiredHeight * HEATMAP_3D_TEXTURE_SIZE / HEATMAP_3D_BUMP_TEXTURE_SIZE;//desiredWidth;
+  
+  //console.log(canvasScale);
+  if (canvasWidth > canvasHeight) {
+    //moveX = (size * MAP_OVERLAY_OVERLAP_RATIO / 2) * canvasScale;
+    //moveX = HEATMAP_3D_TEXTURE_SIZE / 2;
+  } else {
+    //var canvasScale = heatmapSize / canvasWidth;    
+    //moveY = ((canvasHeight - canvasWidth) / 2);
+  }
+
+  //console.log(moveX, moveY);
+
+  var el = document.createElement('canvas');
+  el.width = HEATMAP_3D_TEXTURE_SIZE;
+  el.height = HEATMAP_3D_TEXTURE_SIZE;
+  var ctx = el.getContext('2d');
+
+  globalCanvas = el;
+  document.querySelector('#temp-texture-container').appendChild(el);
+
+  var elCount = 0;
+  var els = document.querySelectorAll('#google-maps-overlay img');
+  for (var x = 0; x < MAP_OVERLAY_TILES_COUNT_X; x++) {
+    for (var y = 0; y < MAP_OVERLAY_TILES_COUNT_Y; y++) {
+      var el = els[elCount];
+      elCount++;
+
+      console.log((offsetX + size * x * MAP_OVERLAY_OVERLAP_RATIO) * canvasScale,
+                  (offsetY + size * y * MAP_OVERLAY_OVERLAP_RATIO) * canvasScale,
+                  size * canvasScale);
+
+      if (elCount == 2) { continue; }
+      if (elCount == 3) { continue; }
+
+      ctx.drawImage(el, 
+          (HEATMAP_3D_TEXTURE_SIZE * MAP_OVERLAY_OVERLAP_RATIO) / 2 + (/*offsetX*/ + size * (x - 1) * MAP_OVERLAY_OVERLAP_RATIO) * canvasScale - moveX, 
+          (HEATMAP_3D_TEXTURE_SIZE * MAP_OVERLAY_OVERLAP_RATIO) / 2 + (/*offsetY*/ + size * (y - 1) * MAP_OVERLAY_OVERLAP_RATIO) * canvasScale - moveY, 
+          size * canvasScale, 
+          size * canvasScale);
+    }
+  }
+}
+
 function onResize() {
   calculateMapSize();
   resizeMapOverlay();
@@ -741,17 +822,17 @@ function prepareHeatmap() {
   el.innerHTML = '';
 
   if (mode == MODE_HEATMAP_3D) {
-    el.style.width = HEATMAP_3D_TEXTURE_SIZE + 'px';
-    el.style.height = HEATMAP_3D_TEXTURE_SIZE + 'px';
+    el.style.width = HEATMAP_3D_BUMP_TEXTURE_SIZE + 'px';
+    el.style.height = HEATMAP_3D_BUMP_TEXTURE_SIZE + 'px';
   }
   
   var config = {
-      element: el,
-      radius: desiredWidth / 50
+      element: el
   };
 
   switch (mode) {
     case MODE_HEATMAP:
+      config.radius = desiredWidth / 50;
       config.opacity = 80;
       config.gradient = { 
           0.45: "rgb(0, 0, 255)", 
@@ -762,6 +843,7 @@ function prepareHeatmap() {
       };
       break; 
     case MODE_HEATMAP_3D:
+      config.radius = HEATMAP_3D_BUMP_TEXTURE_SIZE / 50;
       config.opacity = 100;
       config.gradient = { 
           0.00: "black", 
@@ -815,9 +897,28 @@ function heatmapDataLoaded(error, heatmapData) {
     var width = desiredWidth;
     var height = desiredHeight;
   } else if (mode == MODE_HEATMAP_3D) {
-    var width = HEATMAP_3D_TEXTURE_SIZE;
-    var height = HEATMAP_3D_TEXTURE_SIZE;
+    if (desiredWidth > desiredHeight) {
+      var width = HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2;
+      var height = (HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2) / desiredWidth * desiredHeight;
+
+      offsetX = HEATMAP_3D_MARGIN;
+      offsetY = HEATMAP_3D_MARGIN + (HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2 - height) / 2;
+    } else {
+      var height = HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2;
+      var width = (HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2) / desiredHeight * desiredWidth; 
+
+      offsetX = HEATMAP_3D_MARGIN + (HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2 - width) / 2;
+      offsetY = HEATMAP_3D_MARGIN;
+    }
+
+    //console.log(desiredWidth, desiredHeight);
+
+    //var width = HEATMAP_3D_TEXTURE_SIZE;
+    //var height = HEATMAP_3D_TEXTURE_SIZE;
   }
+
+  heatmapWidth = width;
+  heatmapHeight = height;
 
   for (var i in heatmapData.incidents.features) {
     var feature = heatmapData.incidents.features[i];
@@ -835,6 +936,7 @@ function heatmapDataLoaded(error, heatmapData) {
   heatmap.store.setDataSet(data);
 
   if (mode == MODE_HEATMAP_3D) {
+    copyMapOverlayToHeatmap3D();
     prepareHeatmap3d();
   }
 }
@@ -848,19 +950,19 @@ function prepareHeatmap3d() {
     var el = document.querySelector('#heatmap-container > canvas');
     var ctx = el.getContext('2d');
     var imageData = ctx.getImageData(0, 0, 
-        HEATMAP_3D_TEXTURE_SIZE, HEATMAP_3D_TEXTURE_SIZE);
+        HEATMAP_3D_BUMP_TEXTURE_SIZE, HEATMAP_3D_BUMP_TEXTURE_SIZE);
 
     //var heightData = [];
-    var heightData = new Float32Array(HEATMAP_3D_TEXTURE_SIZE * HEATMAP_3D_TEXTURE_SIZE);
+    var heightData = new Float32Array(HEATMAP_3D_BUMP_TEXTURE_SIZE * HEATMAP_3D_BUMP_TEXTURE_SIZE);
 
-    for (var x = 0; x < HEATMAP_3D_TEXTURE_SIZE; x++) {
-      for (var y = 0; y < HEATMAP_3D_TEXTURE_SIZE; y++) {
-        var pos = ((HEATMAP_3D_TEXTURE_SIZE - y - 1) * HEATMAP_3D_TEXTURE_SIZE + x) * 4;
+    for (var x = 0; x < HEATMAP_3D_BUMP_TEXTURE_SIZE; x++) {
+      for (var y = 0; y < HEATMAP_3D_BUMP_TEXTURE_SIZE; y++) {
+        var pos = ((HEATMAP_3D_BUMP_TEXTURE_SIZE - y - 1) * HEATMAP_3D_BUMP_TEXTURE_SIZE + x) * 4;
 
         // include opacity
         var val = imageData.data[pos] * imageData.data[pos + 3];
 
-        heightData[y * HEATMAP_3D_TEXTURE_SIZE + x] = //Math.random() * 10;//x / 50;
+        heightData[y * HEATMAP_3D_BUMP_TEXTURE_SIZE + x] = //Math.random() * 10;//x / 50;
           parseFloat(val) / 1000;
       }
     }
