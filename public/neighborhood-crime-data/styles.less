@@ -263,7 +263,31 @@ body > nav > .list > li.active > .chart {
   bottom: 20px;
   left: 20px;
   right: 20px;
+  outline: 1px solid red;
 }
+#temp-texture-container {
+  /*left: 35px;
+  top: 180px;
+  width: 256px;
+  height: 256px;
+  opacity: .8;*/
+  right: 0;
+  top: 0;
+  width: 256px;
+  height: 256px;
+
+  position: absolute;
+  z-index: 1000;
+  background: black;
+}
+#temp-texture-container canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
 
 #heatmap-3d-container {
   z-index: 1000;
@@ -408,6 +432,13 @@ body > nav > .list > li.active > .chart {
 }
 #legend-hover .value {
   display: block;
+}
+
+body:not([mode='heatmap-3d']) {
+  #temp-texture-container,
+  #heatmap-3d-container {
+    display: none;
+  }
 }
 
 body[mode='heatmap'] #legend,
