@@ -5,11 +5,11 @@
 
 @bodyMargin: 15px;
 
-@navWidth: 400px;
-@navLeftPadding: 5px;
-@navPadding: 10px;
-@navValueWidth: 80px;
-@navLevelPadding: 15px;
+@sidebarWidth: 400px;
+@sidebarLeftPadding: 5px;
+@sidebarPadding: 10px;
+@sidebarValueWidth: 80px;
+@sidebarLevelPadding: 15px;
 
 @chartWidth: 50px;
 
@@ -111,8 +111,40 @@ body > header > h3 {
   font-weight: 600;
 }
 
-body > nav {
-  width: @navWidth;
+body > nav.tabs {
+  position: absolute;
+  left: 30px;
+  top: 73px;
+  height: 30px;
+}
+body > nav.tabs > div {
+  cursor: pointer;
+
+  display: inline-block;
+  line-height: 30px;
+  padding: 0 15px;
+  padding-bottom: 5px;
+  background: white;
+  position: relative;
+
+  border-radius: 5px 5px 0 0;
+
+  -webkit-transition: background 150ms, top 150ms;
+}
+body > nav.tabs > div:hover {
+  top: -1px;
+  background: mix(@highlightColour, white, 50%);
+}
+
+body[tab='view'] > nav.tabs > [name='view'],
+body[tab='subscribe'] > nav.tabs > [name='subscribe'] {
+  background: @highlightColour;
+
+  top: -3px;
+}
+
+body > nav.sidebar {
+  width: @sidebarWidth;
   background: white;
 
   position: absolute;
@@ -126,34 +158,39 @@ body > nav {
   border-radius: @borderRadius;
 }
 
-body > nav > section {
-  display: none;
+body > nav.sidebar > section {
+  //display: none;
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
 }
-body[tab='view'] > nav > [tab='view'],
-body[tab='subscribe'] > nav > [tab='subscribe'] {
+
+body *[tab] {
+  display: none;
+}
+
+body[tab='view'] [tab='view'],
+body[tab='subscribe'] [tab='subscribe'] {
   display: block;
 }
 
-body > nav .list {
+body > nav.sidebar .list {
   padding: 0;
   margin: 0;
 }
-body > nav .list:not(:last-child) {
+body > nav.sidebar .list:not(:last-child) {
   margin-bottom: 25px;
 }
 
-body > nav ul.list > li {
+body > nav.sidebar ul.list > li {
   list-style: none;  
 }
-body > nav .list > li {
+body > nav.sidebar .list > li {
   margin: 0;
 
-  padding: 0 @navPadding;
+  padding: 0 @sidebarPadding;
   line-height: 25px;
   cursor: pointer;
 
@@ -164,86 +201,86 @@ body > nav .list > li {
 
   border-top: 1px solid rgb(230, 230, 230);
 }
-body > nav .list > li:hover {
+body > nav.sidebar .list > li:hover {
   background: @hoverFilterColour;
 }
 
-body > nav .list > li > .name {
+body > nav.sidebar .list > li > .name {
   position: absolute;
   display: block;
   text-align: left;
   top: 0;
-  right: @navValueWidth + @navPadding;
+  right: @sidebarValueWidth + @sidebarPadding;
 }
-body > nav .list > li[level="0"] {
+body > nav.sidebar .list > li[level="0"] {
   font-weight: 600;
 }
-body > nav .list > li[level="0"] > .name {
-  left: @navLeftPadding + @navPadding;
+body > nav.sidebar .list > li[level="0"] > .name {
+  left: @sidebarLeftPadding + @sidebarPadding;
 }
-body > nav .list > li[level="1"] {
+body > nav.sidebar .list > li[level="1"] {
   font-weight: 400;
 }
-body > nav .list[filterNumber="0"] > li[level="1"] {
+body > nav.sidebar .list[filterNumber="0"] > li[level="1"] {
   //border-top: 1px solid rgb(180, 180, 180);
 }
-body > nav .list > li[level="1"] > .name {
-  left: @navLeftPadding + @navPadding + @navLevelPadding;
+body > nav.sidebar .list > li[level="1"] > .name {
+  left: @sidebarLeftPadding + @sidebarPadding + @sidebarLevelPadding;
 }
-body > nav .list[filterNumber="1"] > li[level="1"],
-body > nav .list[filterNumber="0"] > li[level="2"] {
+body > nav.sidebar .list[filterNumber="1"] > li[level="1"],
+body > nav.sidebar .list[filterNumber="0"] > li[level="2"] {
   font-weight: 300;
 }
-body > nav .list[filterNumber="1"] > li[level="1"] > .name,
-body > nav .list[filterNumber="0"] > li[level="2"] > .name {
-  left: @navLeftPadding + @navPadding + @navLevelPadding * 2;
+body > nav.sidebar .list[filterNumber="1"] > li[level="1"] > .name,
+body > nav.sidebar .list[filterNumber="0"] > li[level="2"] > .name {
+  left: @sidebarLeftPadding + @sidebarPadding + @sidebarLevelPadding * 2;
 }
-body > nav .list > li.selected {
+body > nav.sidebar .list > li.selected {
   background: @selectedFilterColour;
 }
-body > nav .list > li.active {
+body > nav.sidebar .list > li.active {
   color: black;
 }
 
-body > nav ol {
+body > nav.sidebar ol {
   counter-reset: neighborhood;
 }
-body > nav ol > li[level="1"]::before {
+body > nav.sidebar ol > li[level="1"]::before {
   counter-increment: neighborhood;
   content: counter(neighborhood) '.';
   text-align: right;
-  width: @navLevelPadding * 2 - 2px;
+  width: @sidebarLevelPadding * 2 - 2px;
   display: inline-block;
   font-size: 80%;
 }
 
-body > nav .list > li > .value {
+body > nav.sidebar .list > li > .value {
   position: absolute;
   display: block;
-  width: @navValueWidth;
+  width: @sidebarValueWidth;
   text-align: right;
   top: 0;
-  left: @navWidth - @chartWidth - @navPadding * 4 - @navValueWidth;
+  left: @sidebarWidth - @chartWidth - @sidebarPadding * 4 - @sidebarValueWidth;
 }
 
-body > nav .list > li > .chart {
+body > nav.sidebar .list > li > .chart {
   position: absolute;
   display: block;
   width: @chartWidth;
   background: @chartColour;
   top: 11px;
   bottom: 11px;
-  left: @navWidth - @chartWidth - @navPadding * 3;
+  left: @sidebarWidth - @chartWidth - @sidebarPadding * 3;
   overflow: hidden;
   opacity: .6;
 
   -webkit-transition: width @dataTransitionDelay;
 }
-body > nav .list > li.active > .chart {
+body > nav.sidebar .list > li.active > .chart {
   opacity: 1;
 }
 
-body > nav > [tab='subscribe'] .instructions {
+body > nav.sidebar > [tab='subscribe'] .instructions {
   display: block;
   background: white;
   position: absolute;
@@ -255,12 +292,12 @@ body > nav > [tab='subscribe'] .instructions {
   padding: 0 30px;
   z-index: 100;
 }
-body > nav > [tab='subscribe'] .instructions * {
+body > nav.sidebar > [tab='subscribe'] .instructions * {
   font-family: @fontFamily;
   font-size: @fontSize;
 }
 
-body > nav > [tab='subscribe'] .subscriptions {
+body > nav.sidebar > [tab='subscribe'] .subscriptions {
   display: block;
   z-index: 80;
   position: absolute;
@@ -279,7 +316,7 @@ body > nav > [tab='subscribe'] .subscriptions {
 
   position: absolute;
   left: @bodyMargin;
-  right: @navWidth + @bodyMargin + @bodyMargin;
+  right: @sidebarWidth + @bodyMargin + @bodyMargin;
   top: @headerHeight - 50;
   bottom: @bodyMargin + @footerHeight;
 
@@ -327,7 +364,8 @@ body[mode='heatmap-3d'] #heatmap-container {
   bottom: 20px;
   left: 20px;
   right: 20px;
-  //outline: 1px solid red;
+
+  display: none;
 }
 #map-checkbox-overlay input {
   width: 20px;
@@ -336,6 +374,9 @@ body[mode='heatmap-3d'] #heatmap-container {
   margin-left: -10px;
   margin-top: -10px;
   cursor: pointer;
+}
+body[tab="subscribe"] #map-checkbox-overlay {
+  display: block;
 }
 
 #temp-texture-container {
@@ -443,15 +484,15 @@ body[mode='heatmap-3d'] #google-maps-overlay {
 #map .q7 { fill: @heatMapRealColour7; }
 #map .q8 { fill: @heatMapRealColour8; }
 
-#legend .q0, body > nav .list > li > .chart.q0 { background: @heatMapRealColour0; }
-#legend .q1, body > nav .list > li > .chart.q1 { background: @heatMapRealColour1; }
-#legend .q2, body > nav .list > li > .chart.q2 { background: @heatMapRealColour2; }
-#legend .q3, body > nav .list > li > .chart.q3 { background: @heatMapRealColour3; }
-#legend .q4, body > nav .list > li > .chart.q4 { background: @heatMapRealColour4; }
-#legend .q5, body > nav .list > li > .chart.q5 { background: @heatMapRealColour5; }
-#legend .q6, body > nav .list > li > .chart.q6 { background: @heatMapRealColour6; }
-#legend .q7, body > nav .list > li > .chart.q7 { background: @heatMapRealColour7; }
-#legend .q8, body > nav .list > li > .chart.q8 { background: @heatMapRealColour8; }
+#legend .q0, body > nav.sidebar .list > li > .chart.q0 { background: @heatMapRealColour0; }
+#legend .q1, body > nav.sidebar .list > li > .chart.q1 { background: @heatMapRealColour1; }
+#legend .q2, body > nav.sidebar .list > li > .chart.q2 { background: @heatMapRealColour2; }
+#legend .q3, body > nav.sidebar .list > li > .chart.q3 { background: @heatMapRealColour3; }
+#legend .q4, body > nav.sidebar .list > li > .chart.q4 { background: @heatMapRealColour4; }
+#legend .q5, body > nav.sidebar .list > li > .chart.q5 { background: @heatMapRealColour5; }
+#legend .q6, body > nav.sidebar .list > li > .chart.q6 { background: @heatMapRealColour6; }
+#legend .q7, body > nav.sidebar .list > li > .chart.q7 { background: @heatMapRealColour7; }
+#legend .q8, body > nav.sidebar .list > li > .chart.q8 { background: @heatMapRealColour8; }
 
 #legend {
   position: absolute;

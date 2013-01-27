@@ -68,12 +68,12 @@ var filters = [];
 var heatmap3dPrepared = false;
 var mapReady = false;
 
-function createNav() {
-  createViewNav();
-  createSubscribeNav();
+function createSidebar() {
+  createViewSidebar();
+  createSubscribeSidebar();
 }
 
-function createViewNav() {
+function createViewSidebar() {
   for (var i in filters) {
     var filter = filters[i];
 
@@ -109,16 +109,14 @@ function createViewNav() {
       el.appendChild(liEl);
     }
 
-    document.querySelector('body > nav > section[tab="view"]').appendChild(el);
+    document.querySelector('body > nav.sidebar > section[tab="view"]').appendChild(el);
   }
 }
 
 function updateNeighborhoodSubscriptions() {
   var subscriptionCount = document.querySelectorAll('#map-checkbox-overlay input:checked').length;
 
-  //console.log(subscriptionCount);
-
-  document.querySelector('nav > [tab="subscribe"] .subscribe').disabled = 
+  document.querySelector('nav.sidebar > [tab="subscribe"] .subscribe').disabled = 
       (subscriptionCount == 0);
 }
 
@@ -140,12 +138,12 @@ function onNeighborhoodSubscribeClick(event) {
 
   document.querySelector('#map-checkbox-overlay input[name="' + name + '"]').checked = checked;
 
-  var navEl = document.querySelector('nav > [tab="subscribe"] input[name="' + name + '"]');
-  navEl.checked = checked;
+  var sidebarEl = document.querySelector('nav.sidebar > [tab="subscribe"] input[name="' + name + '"]');
+  sidebarEl.checked = checked;
   if (checked) {
-    navEl.parentNode.classList.add('selected');
+    sidebarEl.parentNode.classList.add('selected');
   } else {
-    navEl.parentNode.classList.remove('selected');
+    sidebarEl.parentNode.classList.remove('selected');
   }
 
   var mapEl = document.querySelector('#svg-container .neighborhood[name="' + name + '"]');
@@ -160,7 +158,7 @@ function onNeighborhoodSubscribeClick(event) {
   updateNeighborhoodSubscriptions();
 }
 
-function makeAjaxRequest(type, url, data) {
+function makeAjaxRequest(type, url, data, responseFunc) {
   if (window.XMLHttpRequest) {
     var httpRequest = new XMLHttpRequest();
   } else if (window.ActiveXObject) {
@@ -173,16 +171,26 @@ function makeAjaxRequest(type, url, data) {
   httpRequest.onreadystatechange = function() {
     if (httpRequest.readyState === 4) {
       if (httpRequest.status === 200) { 
-        console.log('OKAY!');
+        responseFunc(true, httpRequest);
       } else {
-        console.log('Error: ' + httpRequest.status);
+        responseFunc(false, httpRequest);
       }
     }
   };
 } 
 
+function receiveSubscriptionRequest(success, httpRequest) {
+  if (success) {
+    alert('You are now subscribed to our weekly email.')
+    //console.log('OKAY!');
+  } else {
+    alert('We’re sorry, but something went wrong with your subscription. Please try again!');
+    //console.log('Error: ' + httpRequest.status);
+  }
+}
+
 function sendSubscriptionRequest() {
-  var email = document.querySelector('nav > [tab="subscribe"] .email').value;
+  var email = document.querySelector('sidebar > [tab="subscribe"] .email').value;
 
   // TEMPORARY
   if (!email) {
@@ -196,23 +204,19 @@ function sendSubscriptionRequest() {
   };
 
   for (var i = 0; el = els[i]; i++) {
-    console.log('a');
     data.neighborhoods.push(el.name);
   }
 
-  //console.log(data);
+  console.log(JSON.stringify(data));
 
-  makeAjaxRequest('POST', '/api/v1/user/' + email + '/subscriptions', data);
-
-/*  POST /v1/user/shaunak@codeforamerica.org/subscriptions
-{
-  "neighborhoods": [ "Prestonia", "Central Business District" ]
-}*/
-
-  //alert(email);
+  makeAjaxRequest(
+      'POST', 
+      '/api/v1/user/' + email + '/subscriptions', 
+      JSON.stringify(data),
+      receiveSubscriptionRequest);
 }
 
-function createSubscribeNav() {
+function createSubscribeSidebar() {
   var el = document.createElement('ul');
   el.classList.add('list');
 
@@ -244,7 +248,7 @@ function createSubscribeNav() {
     el.appendChild(liEl);
   }
 
-  document.querySelector('body > nav > section[tab="subscribe"] .subscriptions').appendChild(el);
+  document.querySelector('body > nav.sidebar > section[tab="subscribe"] .subscriptions').appendChild(el);
 }
 
 
@@ -277,22 +281,22 @@ function formatNumber(number) {
   }
 }
 
-function cleanUpNav() {
-  var els = document.querySelectorAll('body > nav > [tab="view"] li');
+function cleanUpSidebar() {
+  var els = document.querySelectorAll('body > nav.sidebar > [tab="view"] li');
   for (var i = 0, el; el = els[i]; i++) {
     el.classList.remove('selected');
     el.classList.remove('active');
   }
 }
 
-function updateNav() {
-  cleanUpNav();
+function updateSidebar() {
+  cleanUpSidebar();
 
   for (var i in filters) {
     // Gray out things
 
     var el = document.querySelector(
-        'body > nav > [tab="view"] .list[filterNumber="' + 
+        'body > nav.sidebar > [tab="view"] .list[filterNumber="' + 
         (parseInt(i)) + '"] > li[choiceNumber="' + 
         (filters[i].selected) + '"]');
     el.classList.add('selected');
@@ -310,7 +314,7 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > [tab="view"] .list[filterNumber="' + 
+          'body > nav.sidebar > [tab="view"] .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .value');
 
@@ -332,7 +336,7 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > [tab="view"] .list[filterNumber="' + 
+          'body > nav.sidebar > [tab="view"] .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .chart');
 
@@ -347,7 +351,7 @@ function updateNav() {
 
       for (var j in filters[i].choices) {
         var el = document.querySelector(
-            'body > nav > [tab="view"] .list[filterNumber="' + 
+            'body > nav.sidebar > [tab="view"] .list[filterNumber="' + 
             (parseInt(i)) + '"] > li[choiceNumber="' + 
             (filters[i].choices[j].choiceNumber) + '"]');
 
@@ -359,7 +363,7 @@ function updateNav() {
       for (var j in els) {
         var el = els[j];
         document.querySelector(
-            'body > nav > [tab="view"] .list[filterNumber="' + 
+            'body > nav.sidebar > [tab="view"] .list[filterNumber="' + 
             (parseInt(i)) + '"]').appendChild(el);
       }
     }
@@ -627,7 +631,7 @@ function updateMap() {
 
   for (var i = 1; i < filters[1].choices.length; i++) {
     var el = document.querySelector(
-      'body > nav .list[filterNumber="' + 
+      'body > nav.sidebar .list[filterNumber="' + 
       1 + '"] > li[choiceNumber="' + 
       (filters[1].choices[i].choiceNumber) + '"] > .chart');
 
@@ -686,7 +690,7 @@ function incidentsLoaded(error) {
     processData(crime, neighborhood, data);
   }
 
-  updateNav();
+  updateSidebar();
 
   window.setTimeout(function() {
     updateCaption();
@@ -993,7 +997,7 @@ function initialDataLoaded(error, mapDataLoaded) {
   addNeighborhoodsToFilters(mapDataLoaded);
   prepareFilters();
 
-  createNav();
+  createSidebar();
 
   updateData();
 
@@ -1186,19 +1190,34 @@ function loadInitialData() {
       .await(initialDataLoaded);
 }
 
+function switchToTab(name) {
+  tab = name;
+  document.body.setAttribute('tab', tab);
+
+  updateMap();
+}
+
+function onTabClick(event) {
+  switchToTab(event.target.getAttribute('name'));
+}
+
 function prepareUI() {
   for (var i = 0; i < 9; i++) {
     var el = document.createElement('div');
     el.classList.add('q' + i);
     document.querySelector('#legend-graph').appendChild(el);
   }
+
+  var els = document.querySelectorAll('body > nav.tabs > div');
+  for (var i = 0, el; el = els[i]; i++) {
+    el.addEventListener('click', onTabClick, false);
+  }
+
+  document.querySelector('nav.sidebar > [tab="subscribe"] button.subscribe').addEventListener('click', sendSubscriptionRequest, false);
 }
 
 function main() {
-
-  // TEMPORARY
-  tab = TAB_SUBSCRIBE;
-  document.body.setAttribute('tab', tab);
+  switchToTab('view');
 
   if (location.href.indexOf('heatmap-3d') != -1) {
     mode = MODE_HEATMAP_3D;
