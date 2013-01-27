@@ -42,13 +42,20 @@ var FILTERS = [
   }
 ];
 
-var HEATMAP_3D_TEXTURE_SIZE = 256;
+var HEATMAP_3D_BUMP_TEXTURE_SIZE = 256;
+
+var HEATMAP_3D_TEXTURE_SIZE = 512;
+//var HEATMAP_3D_MARGIN = 20;
 
 var MODE_NORMAL = 1;
 var MODE_HEATMAP = 2;
 var MODE_HEATMAP_3D = 3;
 
+var TAB_VIEW = 'view';
+var TAB_SUBSCRIBE = 'subscribe';
+
 var mode = MODE_NORMAL;
+var tab = TAB_VIEW;
 
 // data without any filters
 var unfilteredData = [];
@@ -62,6 +69,11 @@ var heatmap3dPrepared = false;
 var mapReady = false;
 
 function createNav() {
+  createViewNav();
+  createSubscribeNav();
+}
+
+function createViewNav() {
   for (var i in filters) {
     var filter = filters[i];
 
@@ -97,9 +109,144 @@ function createNav() {
       el.appendChild(liEl);
     }
 
-    document.querySelector('body > nav').appendChild(el);
+    document.querySelector('body > nav > section[tab="view"]').appendChild(el);
   }
 }
+
+function updateNeighborhoodSubscriptions() {
+  var subscriptionCount = document.querySelectorAll('#map-checkbox-overlay input:checked').length;
+
+  //console.log(subscriptionCount);
+
+  document.querySelector('nav > [tab="subscribe"] .subscribe').disabled = 
+      (subscriptionCount == 0);
+}
+
+function onNeighborhoodSubscribeMouseDown(event) {
+  event.preventDefault();
+}
+
+function onNeighborhoodSubscribeClick(event) {
+  var el = event.target;
+
+  if (el.tagName != 'INPUT') {
+    el = el.parentNode.querySelector('input[type="checkbox"]');
+    el.checked = !el.checked;
+  }
+
+  var checked = el.checked;
+
+  var name = el.getAttribute('name');
+
+  document.querySelector('#map-checkbox-overlay input[name="' + name + '"]').checked = checked;
+
+  var navEl = document.querySelector('nav > [tab="subscribe"] input[name="' + name + '"]');
+  navEl.checked = checked;
+  if (checked) {
+    navEl.parentNode.classList.add('selected');
+  } else {
+    navEl.parentNode.classList.remove('selected');
+  }
+
+  var mapEl = document.querySelector('#svg-container .neighborhood[name="' + name + '"]');
+  if (checked) {
+    mapEl.classList.add('subscribed');
+    mapEl.classList.remove('unsubscribed');
+  } else {
+    mapEl.classList.add('unsubscribed');
+    mapEl.classList.remove('subscribed');
+  }
+
+  updateNeighborhoodSubscriptions();
+}
+
+function makeAjaxRequest(type, url, data) {
+  if (window.XMLHttpRequest) {
+    var httpRequest = new XMLHttpRequest();
+  } else if (window.ActiveXObject) {
+    var httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+
+  httpRequest.open(type, url, true);
+  httpRequest.send(data);
+
+  httpRequest.onreadystatechange = function() {
+    if (httpRequest.readyState === 4) {
+      if (httpRequest.status === 200) { 
+        console.log('OKAY!');
+      } else {
+        console.log('Error: ' + httpRequest.status);
+      }
+    }
+  };
+} 
+
+function sendSubscriptionRequest() {
+  var email = document.querySelector('nav > [tab="subscribe"] .email').value;
+
+  // TEMPORARY
+  if (!email) {
+    email = 'mwichary@gmail.com';
+  }
+
+  var els = document.querySelectorAll('#map-checkbox-overlay input:checked');
+
+  var data = {
+    neighborhoods: []
+  };
+
+  for (var i = 0; el = els[i]; i++) {
+    console.log('a');
+    data.neighborhoods.push(el.name);
+  }
+
+  //console.log(data);
+
+  makeAjaxRequest('POST', '/api/v1/user/' + email + '/subscriptions', data);
+
+/*  POST /v1/user/shaunak@codeforamerica.org/subscriptions
+{
+  "neighborhoods": [ "Prestonia", "Central Business District" ]
+}*/
+
+  //alert(email);
+}
+
+function createSubscribeNav() {
+  var el = document.createElement('ul');
+  el.classList.add('list');
+
+  var filter = filters[1];
+
+  for (var j in filter.choices) {
+    if (j == '0') {
+      continue;
+    }
+
+    var liEl = document.createElement('li');
+    liEl.innerHTML = 
+        '<input type="checkbox">' +
+        '<span class="name">' + filter.choices[j].title + '</span>';
+
+    liEl.classList.add('active');
+    liEl.setAttribute('level', filter.choices[j].level);
+
+    liEl.querySelector('input').setAttribute('name', filter.choices[j].title);
+
+    liEl.addEventListener('click', onNeighborhoodSubscribeClick, false);
+    liEl.addEventListener('mousedown', onNeighborhoodSubscribeMouseDown, false);
+
+    //liEl.setAttribute('choiceNumber', filter.choices[j].choiceNumber);
+
+    //liEl.addEventListener('click', onFilterClick, false);
+    //liEl.addEventListener('mousedown', onFilterMouseDown, false);
+
+    el.appendChild(liEl);
+  }
+
+  document.querySelector('body > nav > section[tab="subscribe"] .subscriptions').appendChild(el);
+}
+
 
 function onFilterMouseDown(event) {
   event.preventDefault();
@@ -131,7 +278,7 @@ function formatNumber(number) {
 }
 
 function cleanUpNav() {
-  var els = document.querySelectorAll('body > nav li');
+  var els = document.querySelectorAll('body > nav > [tab="view"] li');
   for (var i = 0, el; el = els[i]; i++) {
     el.classList.remove('selected');
     el.classList.remove('active');
@@ -145,7 +292,7 @@ function updateNav() {
     // Gray out things
 
     var el = document.querySelector(
-        'body > nav > .list[filterNumber="' + 
+        'body > nav > [tab="view"] .list[filterNumber="' + 
         (parseInt(i)) + '"] > li[choiceNumber="' + 
         (filters[i].selected) + '"]');
     el.classList.add('selected');
@@ -163,7 +310,7 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > .list[filterNumber="' + 
+          'body > nav > [tab="view"] .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .value');
 
@@ -185,7 +332,7 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > .list[filterNumber="' + 
+          'body > nav > [tab="view"] .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .chart');
 
@@ -200,7 +347,7 @@ function updateNav() {
 
       for (var j in filters[i].choices) {
         var el = document.querySelector(
-            'body > nav > .list[filterNumber="' + 
+            'body > nav > [tab="view"] .list[filterNumber="' + 
             (parseInt(i)) + '"] > li[choiceNumber="' + 
             (filters[i].choices[j].choiceNumber) + '"]');
 
@@ -212,7 +359,7 @@ function updateNav() {
       for (var j in els) {
         var el = els[j];
         document.querySelector(
-            'body > nav > .list[filterNumber="' + 
+            'body > nav > [tab="view"] .list[filterNumber="' + 
             (parseInt(i)) + '"]').appendChild(el);
       }
     }
@@ -330,9 +477,19 @@ function calculateMapSize() {
   var mapWidth = 1507 / 2500000;
   var mapHeight = 1196 / 2500000;
 
-  // TODO better const
-  canvasWidth = document.querySelector('#svg-container').offsetWidth;
-  canvasHeight = document.querySelector('#svg-container').offsetHeight;
+
+  switch (mode) {
+    case MODE_NORMAL:
+    case MODE_HEATMAP:
+      // TODO better const
+      canvasWidth = document.querySelector('#svg-container').offsetWidth;
+      canvasHeight = document.querySelector('#svg-container').offsetHeight;
+      break;
+    case MODE_HEATMAP_3D:
+      canvasWidth = HEATMAP_3D_BUMP_TEXTURE_SIZE;
+      canvasHeight = HEATMAP_3D_BUMP_TEXTURE_SIZE;
+      break;
+  }
 
   desiredWidth = canvasWidth;
   desiredHeight = canvasWidth / mapWidth * mapHeight;
@@ -341,6 +498,7 @@ function calculateMapSize() {
     desiredHeight = canvasHeight;
     desiredWidth = canvasHeight / mapHeight * mapWidth;
   }
+
 
   // TODO const
   var scale = desiredWidth / mapWidth;// * .95;
@@ -361,21 +519,20 @@ function prepareMap() {
       .attr('height', canvasHeight);    
 }
 
-// TODO stupid name
-function switchToState(stateName) {
-  var state = 0;
+function switchToNeighborhood(newName) {
+  var neighborhood = 0;
 
   for (var i = 1; i < filters[1].choices.length; i++) {
-    if (filters[1].choices[i].title == stateName) {
-      state = i;
+    if (filters[1].choices[i].title == newName) {
+      neighborhood = i;
       break;
     }
   }
 
-  if (filters[1].selected == state) {
+  if (filters[1].selected == neighborhood) {
     filters[1].selected = 0;
   } else {
-    filters[1].selected = state;
+    filters[1].selected = neighborhood;
   }
 
   updateData();  
@@ -384,15 +541,20 @@ function switchToState(stateName) {
 function mapIsReady(error, us) {
   mapReady = true;
 
+  if (mode == MODE_HEATMAP_3D) {
+    return;
+  }
+
   mapSvg
     .selectAll('path')
     .data(mapData.features)
     .enter()
     .append('path')
     .attr('d', mapPath)
-    .attr('state', function(d) { return d.properties.name; })
+    .attr('class', 'neighborhood')
+    .attr('name', function(d) { return d.properties.name; })
     .on('click', function() {
-      switchToState(this.getAttribute('state'));
+      switchToNeighborhood(this.getAttribute('name'));
     })
     .on('mouseover', function(d) {
       // TODO make a function
@@ -440,11 +602,24 @@ function updateMap() {
     .domain([0, max])
     .range(d3.range(9).map(function(i) { return 'q' + i; }));
 
-  if (mode == MODE_NORMAL) {
-    mapSvg.selectAll('path')
-      .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
-  } else {
-    mapSvg.selectAll('path').attr('class', 'state hollow');
+  switch (mode) {
+    case MODE_NORMAL:
+      switch (tab) {
+        case TAB_VIEW:
+          mapSvg.selectAll('path')
+              .attr('class', function(d) { return 'neighborhood ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
+          break;
+        case TAB_SUBSCRIBE:
+          mapSvg.selectAll('path').attr('class', 'neighborhood unsubscribed');
+          break;
+      }
+      break;
+    case MODE_HEATMAP:
+      mapSvg.selectAll('path').attr('class', 'neighborhood hollow');
+      break;
+    case MODE_HEATMAP_3D:
+      return;
+      break;
   }
 
   mapSvg.selectAll('path')
@@ -452,7 +627,7 @@ function updateMap() {
 
   for (var i = 1; i < filters[1].choices.length; i++) {
     var el = document.querySelector(
-      'body > nav > .list[filterNumber="' + 
+      'body > nav .list[filterNumber="' + 
       1 + '"] > li[choiceNumber="' + 
       (filters[1].choices[i].choiceNumber) + '"] > .chart');
 
@@ -631,6 +806,47 @@ function loadIncidents() {
   q.await(incidentsLoaded);
 }
 
+function prepareMapCheckboxes() {
+  for (var j in filters[1].choices) {
+    if (j == '0') { // Skip all neighborhoods
+      continue;
+    }
+
+    var name = filters[1].choices[j].title;
+
+    var el = document.createElement('input');
+    el.setAttribute('type', 'checkbox');
+    el.setAttribute('name', name);
+    document.querySelector('#map-checkbox-overlay').appendChild(el);
+
+    el.addEventListener('click', onNeighborhoodSubscribeClick, false);
+  }
+}
+
+function resizeMapCheckboxes() {
+  for (var j in filters[1].choices) {
+    if (j == '0') { // Skip all neighborhoods
+      continue;
+    }
+
+    var name = filters[1].choices[j].title;
+
+    var el = document.querySelector('#map-checkbox-overlay input[name="' + name + '"]');
+    //el.style.outline = '1px solid red';
+
+    var svgEl = document.querySelector('#svg-container .neighborhood[name="' + name + '"]');
+    //console.log(name);
+    //console.log(svgEl);
+
+    var boundingBox = svgEl.getBBox();
+    var x = boundingBox.x + boundingBox.width / 2;
+    var y = boundingBox.y + boundingBox.height / 2;
+
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+  }
+}
+
 function getGoogleMapsUrl(lat, lon, zoom, scale, type) {
   var url = 'http://maps.googleapis.com/maps/api/staticmap' +
       '?center=' + lat + ',' + lon +
@@ -671,14 +887,28 @@ function prepareMapOverlay() {
 }
 
 function resizeMapOverlay() {
-  var canvasWidth = document.querySelector('#map').offsetWidth;
-  var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
-
   var size = globalScale * 0.0012238683395795992;
   size = size * 0.995 / 2;
 
-  var offsetX = canvasWidth / 2 - size;
-  var offsetY = canvasHeight / 2 - size + 80;
+  switch (mode) {
+    case MODE_NORMAL:
+    case MODE_HEATMAP:
+      var canvasWidth = document.querySelector('#map').offsetWidth;
+      var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+
+      var offsetX = canvasWidth / 2 - size;
+      var offsetY = canvasHeight / 2 - size + 80;
+
+      break;
+    case MODE_HEATMAP_3D:
+      var canvasWidth = HEATMAP_3D_BUMP_TEXTURE_SIZE;
+      var canvasHeight = HEATMAP_3D_BUMP_TEXTURE_SIZE;
+      
+      var offsetX = canvasWidth / 2 - size;
+      var offsetY = canvasHeight / 2 - size;
+
+      break;
+  }
 
   var els = document.querySelectorAll('#google-maps-overlay img');
 
@@ -697,9 +927,53 @@ function resizeMapOverlay() {
   }
 }
 
+function copyMapOverlayToHeatmap3D() {
+  //var canvasWidth = document.querySelector('#map').offsetWidth;
+  //var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+
+  var canvasWidth = HEATMAP_3D_BUMP_TEXTURE_SIZE;
+  var canvasHeight = HEATMAP_3D_BUMP_TEXTURE_SIZE;
+
+  var size = globalScale * 0.0012238683395795992;
+  size = size * 0.995 / 2;
+
+  var offsetX = canvasWidth / 2 - size;
+  var offsetY = canvasHeight / 2 - size;
+
+  //var moveX = 0;
+  //var moveY = 0;
+  
+  var el = document.createElement('canvas');
+  el.width = HEATMAP_3D_TEXTURE_SIZE;
+  el.height = HEATMAP_3D_TEXTURE_SIZE;
+  var ctx = el.getContext('2d');
+
+  var scale = HEATMAP_3D_TEXTURE_SIZE / HEATMAP_3D_BUMP_TEXTURE_SIZE;
+
+  globalCanvas = el;
+  document.querySelector('#temp-texture-container').appendChild(el);
+
+  var elCount = 0;
+  var els = document.querySelectorAll('#google-maps-overlay img');
+  for (var x = 0; x < MAP_OVERLAY_TILES_COUNT_X; x++) {
+    for (var y = 0; y < MAP_OVERLAY_TILES_COUNT_Y; y++) {
+      var el = els[elCount];
+      elCount++;
+
+      ctx.drawImage(el, 
+          (offsetX + size * x * MAP_OVERLAY_OVERLAP_RATIO) * scale, 
+          (offsetY + size * y * MAP_OVERLAY_OVERLAP_RATIO) * scale,
+          size * scale, 
+          size * scale);
+    }
+  }
+}
+
 function onResize() {
   calculateMapSize();
   resizeMapOverlay();
+
+  resizeMapCheckboxes();
 
   mapSvg.attr('width', canvasWidth);
   mapSvg.attr('height', canvasHeight);
@@ -727,6 +1001,10 @@ function initialDataLoaded(error, mapDataLoaded) {
   prepareMap();
   mapIsReady();
 
+  prepareMapCheckboxes();
+  resizeMapCheckboxes();
+  updateNeighborhoodSubscriptions();
+
   prepareMapOverlay();
   resizeMapOverlay();  
 
@@ -741,17 +1019,17 @@ function prepareHeatmap() {
   el.innerHTML = '';
 
   if (mode == MODE_HEATMAP_3D) {
-    el.style.width = HEATMAP_3D_TEXTURE_SIZE + 'px';
-    el.style.height = HEATMAP_3D_TEXTURE_SIZE + 'px';
+    el.style.width = HEATMAP_3D_BUMP_TEXTURE_SIZE + 'px';
+    el.style.height = HEATMAP_3D_BUMP_TEXTURE_SIZE + 'px';
   }
   
   var config = {
-      element: el,
-      radius: desiredWidth / 50
+      element: el
   };
 
   switch (mode) {
     case MODE_HEATMAP:
+      config.radius = desiredWidth / 50;
       config.opacity = 80;
       config.gradient = { 
           0.45: "rgb(0, 0, 255)", 
@@ -762,6 +1040,7 @@ function prepareHeatmap() {
       };
       break; 
     case MODE_HEATMAP_3D:
+      config.radius = HEATMAP_3D_BUMP_TEXTURE_SIZE / 50;
       config.opacity = 100;
       config.gradient = { 
           0.00: "black", 
@@ -805,7 +1084,7 @@ function heatmapDataLoaded(error, heatmapData) {
   var offsetX = 0;
   var offsetY = 0;
 
-  if (mode == MODE_HEATMAP) {
+  //if (mode == MODE_HEATMAP) {
     if (desiredHeight == canvasHeight) {
       var offsetX = (canvasWidth - desiredWidth) / 2;
     } else {
@@ -814,10 +1093,29 @@ function heatmapDataLoaded(error, heatmapData) {
 
     var width = desiredWidth;
     var height = desiredHeight;
-  } else if (mode == MODE_HEATMAP_3D) {
-    var width = HEATMAP_3D_TEXTURE_SIZE;
-    var height = HEATMAP_3D_TEXTURE_SIZE;
-  }
+  /*} else if (mode == MODE_HEATMAP_3D) {
+    if (desiredWidth > desiredHeight) {
+      var width = HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2;
+      var height = (HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2) / desiredWidth * desiredHeight;
+
+      offsetX = HEATMAP_3D_MARGIN;
+      offsetY = HEATMAP_3D_MARGIN + (HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2 - height) / 2;
+    } else {
+      var height = HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2;
+      var width = (HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2) / desiredHeight * desiredWidth; 
+
+      offsetX = HEATMAP_3D_MARGIN + (HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2 - width) / 2;
+      offsetY = HEATMAP_3D_MARGIN;
+    }
+
+    //console.log(desiredWidth, desiredHeight);
+
+    //var width = HEATMAP_3D_TEXTURE_SIZE;
+    //var height = HEATMAP_3D_TEXTURE_SIZE;
+  }*/
+
+  //heatmapWidth = width;
+  //heatmapHeight = height;
 
   for (var i in heatmapData.incidents.features) {
     var feature = heatmapData.incidents.features[i];
@@ -835,6 +1133,7 @@ function heatmapDataLoaded(error, heatmapData) {
   heatmap.store.setDataSet(data);
 
   if (mode == MODE_HEATMAP_3D) {
+    copyMapOverlayToHeatmap3D();
     prepareHeatmap3d();
   }
 }
@@ -848,19 +1147,19 @@ function prepareHeatmap3d() {
     var el = document.querySelector('#heatmap-container > canvas');
     var ctx = el.getContext('2d');
     var imageData = ctx.getImageData(0, 0, 
-        HEATMAP_3D_TEXTURE_SIZE, HEATMAP_3D_TEXTURE_SIZE);
+        HEATMAP_3D_BUMP_TEXTURE_SIZE, HEATMAP_3D_BUMP_TEXTURE_SIZE);
 
     //var heightData = [];
-    var heightData = new Float32Array(HEATMAP_3D_TEXTURE_SIZE * HEATMAP_3D_TEXTURE_SIZE);
+    var heightData = new Float32Array(HEATMAP_3D_BUMP_TEXTURE_SIZE * HEATMAP_3D_BUMP_TEXTURE_SIZE);
 
-    for (var x = 0; x < HEATMAP_3D_TEXTURE_SIZE; x++) {
-      for (var y = 0; y < HEATMAP_3D_TEXTURE_SIZE; y++) {
-        var pos = ((HEATMAP_3D_TEXTURE_SIZE - y - 1) * HEATMAP_3D_TEXTURE_SIZE + x) * 4;
+    for (var x = 0; x < HEATMAP_3D_BUMP_TEXTURE_SIZE; x++) {
+      for (var y = 0; y < HEATMAP_3D_BUMP_TEXTURE_SIZE; y++) {
+        var pos = ((HEATMAP_3D_BUMP_TEXTURE_SIZE - y - 1) * HEATMAP_3D_BUMP_TEXTURE_SIZE + x) * 4;
 
         // include opacity
         var val = imageData.data[pos] * imageData.data[pos + 3];
 
-        heightData[y * HEATMAP_3D_TEXTURE_SIZE + x] = //Math.random() * 10;//x / 50;
+        heightData[y * HEATMAP_3D_BUMP_TEXTURE_SIZE + x] = //Math.random() * 10;//x / 50;
           parseFloat(val) / 1000;
       }
     }
@@ -896,6 +1195,11 @@ function prepareUI() {
 }
 
 function main() {
+
+  // TEMPORARY
+  tab = TAB_SUBSCRIBE;
+  document.body.setAttribute('tab', tab);
+
   if (location.href.indexOf('heatmap-3d') != -1) {
     mode = MODE_HEATMAP_3D;
     document.body.setAttribute('mode', 'heatmap-3d');

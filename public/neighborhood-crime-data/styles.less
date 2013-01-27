@@ -43,14 +43,17 @@
 @heatMapRealColour7: mix(@heatMapColour2, @heatMapColour3, 25%);
 @heatMapRealColour8: mix(@heatMapColour2, @heatMapColour3, 0%);
 
+@fontFamily: 'Open Sans', Arial, Helvetica, sans-serif;
+@fontSize: 14px;
+
 body {
   background: @mainBackgroundColour;
   padding: 0;
   margin: 0;
   overflow: hidden;
 
-  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
-  font-size: 14px;
+  font-family: @fontFamily;
+  font-size: @fontSize;
 }
 
 body > header {
@@ -123,17 +126,31 @@ body > nav {
   border-radius: @borderRadius;
 }
 
-body > nav > .list {
+body > nav > section {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+body[tab='view'] > nav > [tab='view'],
+body[tab='subscribe'] > nav > [tab='subscribe'] {
+  display: block;
+}
+
+body > nav .list {
   padding: 0;
   margin: 0;
-
+}
+body > nav .list:not(:last-child) {
   margin-bottom: 25px;
 }
 
-body > nav > ul.list > li {
+body > nav ul.list > li {
   list-style: none;  
 }
-body > nav > .list > li {
+body > nav .list > li {
   margin: 0;
 
   padding: 0 @navPadding;
@@ -147,51 +164,51 @@ body > nav > .list > li {
 
   border-top: 1px solid rgb(230, 230, 230);
 }
-body > nav > .list > li:hover {
+body > nav .list > li:hover {
   background: @hoverFilterColour;
 }
 
-body > nav > .list > li > .name {
+body > nav .list > li > .name {
   position: absolute;
   display: block;
   text-align: left;
   top: 0;
   right: @navValueWidth + @navPadding;
 }
-body > nav > .list > li[level="0"] {
+body > nav .list > li[level="0"] {
   font-weight: 600;
 }
-body > nav > .list > li[level="0"] > .name {
+body > nav .list > li[level="0"] > .name {
   left: @navLeftPadding + @navPadding;
 }
-body > nav > .list > li[level="1"] {
+body > nav .list > li[level="1"] {
   font-weight: 400;
 }
-body > nav > .list[filterNumber="0"] > li[level="1"] {
+body > nav .list[filterNumber="0"] > li[level="1"] {
   //border-top: 1px solid rgb(180, 180, 180);
 }
-body > nav > .list > li[level="1"] > .name {
+body > nav .list > li[level="1"] > .name {
   left: @navLeftPadding + @navPadding + @navLevelPadding;
 }
-body > nav > .list[filterNumber="1"] > li[level="1"],
-body > nav > .list[filterNumber="0"] > li[level="2"] {
+body > nav .list[filterNumber="1"] > li[level="1"],
+body > nav .list[filterNumber="0"] > li[level="2"] {
   font-weight: 300;
 }
-body > nav > .list[filterNumber="1"] > li[level="1"] > .name,
-body > nav > .list[filterNumber="0"] > li[level="2"] > .name {
+body > nav .list[filterNumber="1"] > li[level="1"] > .name,
+body > nav .list[filterNumber="0"] > li[level="2"] > .name {
   left: @navLeftPadding + @navPadding + @navLevelPadding * 2;
 }
-body > nav > .list > li.selected {
+body > nav .list > li.selected {
   background: @selectedFilterColour;
 }
-body > nav > .list > li.active {
+body > nav .list > li.active {
   color: black;
 }
 
-body > nav > ol {
+body > nav ol {
   counter-reset: neighborhood;
 }
-body > nav > ol > li[level="1"]::before {
+body > nav ol > li[level="1"]::before {
   counter-increment: neighborhood;
   content: counter(neighborhood) '.';
   text-align: right;
@@ -200,7 +217,7 @@ body > nav > ol > li[level="1"]::before {
   font-size: 80%;
 }
 
-body > nav > .list > li > .value {
+body > nav .list > li > .value {
   position: absolute;
   display: block;
   width: @navValueWidth;
@@ -209,7 +226,7 @@ body > nav > .list > li > .value {
   left: @navWidth - @chartWidth - @navPadding * 4 - @navValueWidth;
 }
 
-body > nav > .list > li > .chart {
+body > nav .list > li > .chart {
   position: absolute;
   display: block;
   width: @chartWidth;
@@ -222,10 +239,37 @@ body > nav > .list > li > .chart {
 
   -webkit-transition: width @dataTransitionDelay;
 }
-body > nav > .list > li.active > .chart {
+body > nav .list > li.active > .chart {
   opacity: 1;
 }
 
+body > nav > [tab='subscribe'] .instructions {
+  display: block;
+  background: white;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 115px;
+  background: @highlightColour;
+  padding: 0 30px;
+  z-index: 100;
+}
+body > nav > [tab='subscribe'] .instructions * {
+  font-family: @fontFamily;
+  font-size: @fontSize;
+}
+
+body > nav > [tab='subscribe'] .subscriptions {
+  display: block;
+  z-index: 80;
+  position: absolute;
+  top: 115px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
+}
 .zero {
   color: rgb(128, 128, 128);
 }
@@ -256,6 +300,11 @@ body > nav > .list > li.active > .chart {
   right: 0;
   bottom: 0;
 }
+body[mode='heatmap-3d'] #svg-container {
+  display: none;
+}
+
+
 #heatmap-container {
   z-index: 60;
   position: absolute;
@@ -263,15 +312,71 @@ body > nav > .list > li.active > .chart {
   bottom: 20px;
   left: 20px;
   right: 20px;
+  //outline: 1px solid red;
 }
+body[mode='heatmap-3d'] #heatmap-container {
+  display: none;
+}
+
+#map-checkbox-overlay {
+  z-index: 1000;
+
+  position: absolute;
+
+  top: 80px;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  //outline: 1px solid red;
+}
+#map-checkbox-overlay input {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  margin-left: -10px;
+  margin-top: -10px;
+  cursor: pointer;
+}
+
+#temp-texture-container {
+  /*left: 35px;
+  top: 180px;
+  width: 256px;
+  height: 256px;
+  opacity: .8;*/
+  right: 0;
+  top: 0;
+  width: 256px;
+  height: 256px;
+
+  position: absolute;
+  z-index: 1000;
+  background: black;
+
+  display: none;
+}
+#temp-texture-container canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
 
 #heatmap-3d-container {
   z-index: 1000;
   position: absolute;
-  left: 400px;
+/*  left: 400px;
   bottom: 20px;
   width: 600px;
-  height: 400px;
+  height: 400px;*/
+
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
 
   background: black;
 }
@@ -292,11 +397,14 @@ body > nav > .list > li.active > .chart {
 #google-maps-overlay img {
   position: absolute;
 }
+body[mode='heatmap-3d'] #google-maps-overlay {
+  display: none;
+}
 
 
 /* Map */
 
-#map .state {
+#map .neighborhood {
   stroke: white;
   stroke-width: .5;
   stroke-linejoin: round;
@@ -308,12 +416,21 @@ body > nav > .list > li.active > .chart {
   &:hover {
     stroke-width: 3;
   }
-}
-
-#map .state.hollow {
-  stroke-width: 2;
-  stroke: black;
-  fill: transparent;
+  &.hollow {
+    stroke-width: 2;
+    stroke: black;
+    fill: transparent;
+  }
+  &.unsubscribed {
+    stroke-width: 1;
+    stroke: black;
+    fill: rgba(0, 0, 0, .5);
+  }
+  &.subscribed {
+    stroke-width: 1;
+    stroke: black;
+    fill: fadeout(@selectedFilterColour, 20);
+  }
 }
 
 #map .q0 { fill: @heatMapRealColour0; }
@@ -326,15 +443,15 @@ body > nav > .list > li.active > .chart {
 #map .q7 { fill: @heatMapRealColour7; }
 #map .q8 { fill: @heatMapRealColour8; }
 
-#legend .q0, body > nav > .list > li > .chart.q0 { background: @heatMapRealColour0; }
-#legend .q1, body > nav > .list > li > .chart.q1 { background: @heatMapRealColour1; }
-#legend .q2, body > nav > .list > li > .chart.q2 { background: @heatMapRealColour2; }
-#legend .q3, body > nav > .list > li > .chart.q3 { background: @heatMapRealColour3; }
-#legend .q4, body > nav > .list > li > .chart.q4 { background: @heatMapRealColour4; }
-#legend .q5, body > nav > .list > li > .chart.q5 { background: @heatMapRealColour5; }
-#legend .q6, body > nav > .list > li > .chart.q6 { background: @heatMapRealColour6; }
-#legend .q7, body > nav > .list > li > .chart.q7 { background: @heatMapRealColour7; }
-#legend .q8, body > nav > .list > li > .chart.q8 { background: @heatMapRealColour8; }
+#legend .q0, body > nav .list > li > .chart.q0 { background: @heatMapRealColour0; }
+#legend .q1, body > nav .list > li > .chart.q1 { background: @heatMapRealColour1; }
+#legend .q2, body > nav .list > li > .chart.q2 { background: @heatMapRealColour2; }
+#legend .q3, body > nav .list > li > .chart.q3 { background: @heatMapRealColour3; }
+#legend .q4, body > nav .list > li > .chart.q4 { background: @heatMapRealColour4; }
+#legend .q5, body > nav .list > li > .chart.q5 { background: @heatMapRealColour5; }
+#legend .q6, body > nav .list > li > .chart.q6 { background: @heatMapRealColour6; }
+#legend .q7, body > nav .list > li > .chart.q7 { background: @heatMapRealColour7; }
+#legend .q8, body > nav .list > li > .chart.q8 { background: @heatMapRealColour8; }
 
 #legend {
   position: absolute;
@@ -410,7 +527,17 @@ body > nav > .list > li.active > .chart {
   display: block;
 }
 
+body:not([mode='heatmap-3d']) {
+  #temp-texture-container,
+  #heatmap-3d-container {
+    display: none;
+  }
+}
+
 body[mode='heatmap'] #legend,
-body[mode='heatmap-3d'] #legend {
+body[mode='heatmap-3d'] #legend,
+body[tab='subscribe'] #legend {
   display: none;
 }
+
+
