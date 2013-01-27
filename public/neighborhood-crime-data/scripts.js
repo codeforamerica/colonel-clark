@@ -44,8 +44,8 @@ var FILTERS = [
 
 var HEATMAP_3D_BUMP_TEXTURE_SIZE = 256;
 
-var HEATMAP_3D_TEXTURE_SIZE = 512;
-var HEATMAP_3D_MARGIN = 20;
+var HEATMAP_3D_TEXTURE_SIZE = 256;
+//var HEATMAP_3D_MARGIN = 20;
 
 var MODE_NORMAL = 1;
 var MODE_HEATMAP = 2;
@@ -333,9 +333,19 @@ function calculateMapSize() {
   var mapWidth = 1507 / 2500000;
   var mapHeight = 1196 / 2500000;
 
-  // TODO better const
-  canvasWidth = document.querySelector('#svg-container').offsetWidth;
-  canvasHeight = document.querySelector('#svg-container').offsetHeight;
+
+  switch (mode) {
+    case MODE_NORMAL:
+    case MODE_HEATMAP:
+      // TODO better const
+      canvasWidth = document.querySelector('#svg-container').offsetWidth;
+      canvasHeight = document.querySelector('#svg-container').offsetHeight;
+      break;
+    case MODE_HEATMAP_3D:
+      canvasWidth = HEATMAP_3D_TEXTURE_SIZE;
+      canvasHeight = HEATMAP_3D_TEXTURE_SIZE;
+      break;
+  }
 
   desiredWidth = canvasWidth;
   desiredHeight = canvasWidth / mapWidth * mapHeight;
@@ -344,6 +354,7 @@ function calculateMapSize() {
     desiredHeight = canvasHeight;
     desiredWidth = canvasHeight / mapHeight * mapWidth;
   }
+
 
   // TODO const
   var scale = desiredWidth / mapWidth;// * .95;
@@ -674,14 +685,28 @@ function prepareMapOverlay() {
 }
 
 function resizeMapOverlay() {
-  var canvasWidth = document.querySelector('#map').offsetWidth;
-  var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
-
   var size = globalScale * 0.0012238683395795992;
   size = size * 0.995 / 2;
 
-  var offsetX = canvasWidth / 2 - size;
-  var offsetY = canvasHeight / 2 - size + 80;
+  switch (mode) {
+    case MODE_NORMAL:
+    case MODE_HEATMAP:
+      var canvasWidth = document.querySelector('#map').offsetWidth;
+      var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+
+      var offsetX = canvasWidth / 2 - size;
+      var offsetY = canvasHeight / 2 - size + 80;
+
+      break;
+    case MODE_HEATMAP_3D:
+      var canvasWidth = HEATMAP_3D_TEXTURE_SIZE;
+      var canvasHeight = HEATMAP_3D_TEXTURE_SIZE;
+      
+      var offsetX = canvasWidth / 2 - size;
+      var offsetY = canvasHeight / 2 - size;
+
+      break;
+  }
 
   var els = document.querySelectorAll('#google-maps-overlay img');
 
@@ -701,52 +726,21 @@ function resizeMapOverlay() {
 }
 
 function copyMapOverlayToHeatmap3D() {
-  var canvasWidth = document.querySelector('#map').offsetWidth;
-  var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+  //var canvasWidth = document.querySelector('#map').offsetWidth;
+  //var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
+
+  var canvasWidth = HEATMAP_3D_TEXTURE_SIZE;
+  var canvasHeight = HEATMAP_3D_TEXTURE_SIZE;
 
   var size = globalScale * 0.0012238683395795992;
   size = size * 0.995 / 2;
 
   var offsetX = canvasWidth / 2 - size;
-  var offsetY = canvasHeight / 2 - size + 80;
+  var offsetY = canvasHeight / 2 - size;
 
-  var moveX = 0;
-  var moveY = 0;
-
-  var heatmapSize = HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 4;
-
-  /*
-
-      if (desiredWidth > desiredHeight) {
-      width = HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2;
-      height = (HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2) / desiredWidth * desiredHeight;
-
-      offsetX = HEATMAP_3D_MARGIN;
-      offsetY = HEATMAP_3D_MARGIN + (HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2 - height) / 2;
-    } else {
-      height = HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2;
-      width = (HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2) / desiredHeight * desiredWidth; 
-
-      offsetX = HEATMAP_3D_MARGIN + (HEATMAP_3D_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2 - width) / 2;
-      offsetY = HEATMAP_3D_MARGIN;
-    }
-*/
-
-  //console.log(heatmapWidth);
-  //console.log(desiredWidth);
-  var canvasScale = heatmapHeight / desiredHeight * HEATMAP_3D_TEXTURE_SIZE / HEATMAP_3D_BUMP_TEXTURE_SIZE;//desiredWidth;
+  //var moveX = 0;
+  //var moveY = 0;
   
-  //console.log(canvasScale);
-  if (canvasWidth > canvasHeight) {
-    //moveX = (size * MAP_OVERLAY_OVERLAP_RATIO / 2) * canvasScale;
-    //moveX = HEATMAP_3D_TEXTURE_SIZE / 2;
-  } else {
-    //var canvasScale = heatmapSize / canvasWidth;    
-    //moveY = ((canvasHeight - canvasWidth) / 2);
-  }
-
-  //console.log(moveX, moveY);
-
   var el = document.createElement('canvas');
   el.width = HEATMAP_3D_TEXTURE_SIZE;
   el.height = HEATMAP_3D_TEXTURE_SIZE;
@@ -762,18 +756,18 @@ function copyMapOverlayToHeatmap3D() {
       var el = els[elCount];
       elCount++;
 
-      console.log((offsetX + size * x * MAP_OVERLAY_OVERLAP_RATIO) * canvasScale,
-                  (offsetY + size * y * MAP_OVERLAY_OVERLAP_RATIO) * canvasScale,
-                  size * canvasScale);
+      console.log((offsetX + size * x * MAP_OVERLAY_OVERLAP_RATIO),
+                  (offsetY + size * y * MAP_OVERLAY_OVERLAP_RATIO),
+                  size);
 
-      if (elCount == 2) { continue; }
-      if (elCount == 3) { continue; }
+      //if (elCount == 2) { continue; }
+      //if (elCount == 3) { continue; }
 
       ctx.drawImage(el, 
-          (HEATMAP_3D_TEXTURE_SIZE * MAP_OVERLAY_OVERLAP_RATIO) / 2 + (/*offsetX*/ + size * (x - 1) * MAP_OVERLAY_OVERLAP_RATIO) * canvasScale - moveX, 
-          (HEATMAP_3D_TEXTURE_SIZE * MAP_OVERLAY_OVERLAP_RATIO) / 2 + (/*offsetY*/ + size * (y - 1) * MAP_OVERLAY_OVERLAP_RATIO) * canvasScale - moveY, 
-          size * canvasScale, 
-          size * canvasScale);
+          offsetX + size * x * MAP_OVERLAY_OVERLAP_RATIO, 
+          offsetY + size * y * MAP_OVERLAY_OVERLAP_RATIO,
+          size, 
+          size);
     }
   }
 }
@@ -887,7 +881,7 @@ function heatmapDataLoaded(error, heatmapData) {
   var offsetX = 0;
   var offsetY = 0;
 
-  if (mode == MODE_HEATMAP) {
+  //if (mode == MODE_HEATMAP) {
     if (desiredHeight == canvasHeight) {
       var offsetX = (canvasWidth - desiredWidth) / 2;
     } else {
@@ -896,7 +890,7 @@ function heatmapDataLoaded(error, heatmapData) {
 
     var width = desiredWidth;
     var height = desiredHeight;
-  } else if (mode == MODE_HEATMAP_3D) {
+  /*} else if (mode == MODE_HEATMAP_3D) {
     if (desiredWidth > desiredHeight) {
       var width = HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2;
       var height = (HEATMAP_3D_BUMP_TEXTURE_SIZE - HEATMAP_3D_MARGIN * 2) / desiredWidth * desiredHeight;
@@ -915,10 +909,10 @@ function heatmapDataLoaded(error, heatmapData) {
 
     //var width = HEATMAP_3D_TEXTURE_SIZE;
     //var height = HEATMAP_3D_TEXTURE_SIZE;
-  }
+  }*/
 
-  heatmapWidth = width;
-  heatmapHeight = height;
+  //heatmapWidth = width;
+  //heatmapHeight = height;
 
   for (var i in heatmapData.incidents.features) {
     var feature = heatmapData.incidents.features[i];
