@@ -48,6 +48,21 @@
   </footer>
 
   <nav>
+    <section tab='view'></section>
+    <section tab='subscribe'>
+      <section class='instructions'>
+        <p>
+          Subscribe to a weekly email summarizing crime incidents in selected
+          neighborhood(s):
+        </p>
+        <p>
+          Email: <input type='email' placeholder='e.g. john@gmail.com'>
+          <button class='subscribe'>Subscribe</button>
+        </p>
+      </section>
+      <section class='subscriptions'>
+      </section>
+    </section>
   </nav>
 
   <div id='map'>
@@ -61,10 +76,13 @@
       </span>
       <span id='legend-max'></span>
     </div>
+    
     <div id='svg-container'></div>
     <div id='heatmap-container'></div>
     <div id='heatmap-3d-container'></div>
-    <div id='google-maps-overlay'></div>  
+    <div id='google-maps-overlay'></div> 
+
+    <div id='map-checkbox-overlay'></div> 
 
   </div>
 
