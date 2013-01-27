@@ -51,7 +51,11 @@ var MODE_NORMAL = 1;
 var MODE_HEATMAP = 2;
 var MODE_HEATMAP_3D = 3;
 
+var TAB_VIEW = 'view';
+var TAB_SUBSCRIBE = 'subscribe';
+
 var mode = MODE_NORMAL;
+var tab = TAB_VIEW;
 
 // data without any filters
 var unfilteredData = [];
@@ -65,6 +69,11 @@ var heatmap3dPrepared = false;
 var mapReady = false;
 
 function createNav() {
+  createViewNav();
+  createSubscribeNav();
+}
+
+function createViewNav() {
   for (var i in filters) {
     var filter = filters[i];
 
@@ -100,9 +109,92 @@ function createNav() {
       el.appendChild(liEl);
     }
 
-    document.querySelector('body > nav').appendChild(el);
+    document.querySelector('body > nav > section[tab="view"]').appendChild(el);
   }
 }
+
+function updateNeighborhoodSubscriptions() {
+  var subscriptionCount = document.querySelectorAll('#map-checkbox-overlay input:checked').length;
+
+  //console.log(subscriptionCount);
+
+  document.querySelector('nav > [tab="subscribe"] .subscribe').disabled = 
+      (subscriptionCount == 0);
+}
+
+function onNeighborhoodSubscribeMouseDown(event) {
+  event.preventDefault();
+}
+
+function onNeighborhoodSubscribeClick(event) {
+  var el = event.target;
+
+  if (el.tagName != 'INPUT') {
+    el = el.parentNode.querySelector('input[type="checkbox"]');
+    el.checked = !el.checked;
+  }
+
+  var checked = el.checked;
+
+  var name = el.getAttribute('name');
+
+  document.querySelector('#map-checkbox-overlay input[name="' + name + '"]').checked = checked;
+
+  var navEl = document.querySelector('nav > [tab="subscribe"] input[name="' + name + '"]');
+  navEl.checked = checked;
+  if (checked) {
+    navEl.parentNode.classList.add('selected');
+  } else {
+    navEl.parentNode.classList.remove('selected');
+  }
+
+  var mapEl = document.querySelector('#svg-container .neighborhood[name="' + name + '"]');
+  if (checked) {
+    mapEl.classList.add('subscribed');
+    mapEl.classList.remove('unsubscribed');
+  } else {
+    mapEl.classList.add('unsubscribed');
+    mapEl.classList.remove('subscribed');
+  }
+
+  updateNeighborhoodSubscriptions();
+}
+
+function createSubscribeNav() {
+  var el = document.createElement('ul');
+  el.classList.add('list');
+
+  var filter = filters[1];
+
+  for (var j in filter.choices) {
+    if (j == '0') {
+      continue;
+    }
+
+    var liEl = document.createElement('li');
+    liEl.innerHTML = 
+        '<input type="checkbox">' +
+        '<span class="name">' + filter.choices[j].title + '</span>';
+
+    liEl.classList.add('active');
+    liEl.setAttribute('level', filter.choices[j].level);
+
+    liEl.querySelector('input').setAttribute('name', filter.choices[j].title);
+
+    liEl.addEventListener('click', onNeighborhoodSubscribeClick, false);
+    liEl.addEventListener('mousedown', onNeighborhoodSubscribeMouseDown, false);
+
+    //liEl.setAttribute('choiceNumber', filter.choices[j].choiceNumber);
+
+    //liEl.addEventListener('click', onFilterClick, false);
+    //liEl.addEventListener('mousedown', onFilterMouseDown, false);
+
+    el.appendChild(liEl);
+  }
+
+  document.querySelector('body > nav > section[tab="subscribe"] .subscriptions').appendChild(el);
+}
+
 
 function onFilterMouseDown(event) {
   event.preventDefault();
@@ -134,7 +226,7 @@ function formatNumber(number) {
 }
 
 function cleanUpNav() {
-  var els = document.querySelectorAll('body > nav li');
+  var els = document.querySelectorAll('body > nav > [tab="view"] li');
   for (var i = 0, el; el = els[i]; i++) {
     el.classList.remove('selected');
     el.classList.remove('active');
@@ -148,7 +240,7 @@ function updateNav() {
     // Gray out things
 
     var el = document.querySelector(
-        'body > nav > .list[filterNumber="' + 
+        'body > nav > [tab="view"] .list[filterNumber="' + 
         (parseInt(i)) + '"] > li[choiceNumber="' + 
         (filters[i].selected) + '"]');
     el.classList.add('selected');
@@ -166,7 +258,7 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > .list[filterNumber="' + 
+          'body > nav > [tab="view"] .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .value');
 
@@ -188,7 +280,7 @@ function updateNav() {
 
     for (var j in filters[i].choices) {
       var el = document.querySelector(
-          'body > nav > .list[filterNumber="' + 
+          'body > nav > [tab="view"] .list[filterNumber="' + 
           (parseInt(i)) + '"] > li[choiceNumber="' + 
           (filters[i].choices[j].choiceNumber) + '"] > .chart');
 
@@ -203,7 +295,7 @@ function updateNav() {
 
       for (var j in filters[i].choices) {
         var el = document.querySelector(
-            'body > nav > .list[filterNumber="' + 
+            'body > nav > [tab="view"] .list[filterNumber="' + 
             (parseInt(i)) + '"] > li[choiceNumber="' + 
             (filters[i].choices[j].choiceNumber) + '"]');
 
@@ -215,7 +307,7 @@ function updateNav() {
       for (var j in els) {
         var el = els[j];
         document.querySelector(
-            'body > nav > .list[filterNumber="' + 
+            'body > nav > [tab="view"] .list[filterNumber="' + 
             (parseInt(i)) + '"]').appendChild(el);
       }
     }
@@ -375,21 +467,20 @@ function prepareMap() {
       .attr('height', canvasHeight);    
 }
 
-// TODO stupid name
-function switchToState(stateName) {
-  var state = 0;
+function switchToNeighborhood(newName) {
+  var neighborhood = 0;
 
   for (var i = 1; i < filters[1].choices.length; i++) {
-    if (filters[1].choices[i].title == stateName) {
-      state = i;
+    if (filters[1].choices[i].title == newName) {
+      neighborhood = i;
       break;
     }
   }
 
-  if (filters[1].selected == state) {
+  if (filters[1].selected == neighborhood) {
     filters[1].selected = 0;
   } else {
-    filters[1].selected = state;
+    filters[1].selected = neighborhood;
   }
 
   updateData();  
@@ -408,9 +499,10 @@ function mapIsReady(error, us) {
     .enter()
     .append('path')
     .attr('d', mapPath)
-    .attr('state', function(d) { return d.properties.name; })
+    .attr('class', 'neighborhood')
+    .attr('name', function(d) { return d.properties.name; })
     .on('click', function() {
-      switchToState(this.getAttribute('state'));
+      switchToNeighborhood(this.getAttribute('name'));
     })
     .on('mouseover', function(d) {
       // TODO make a function
@@ -460,11 +552,18 @@ function updateMap() {
 
   switch (mode) {
     case MODE_NORMAL:
-      mapSvg.selectAll('path')
-          .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
+      switch (tab) {
+        case TAB_VIEW:
+          mapSvg.selectAll('path')
+              .attr('class', function(d) { return 'neighborhood ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
+          break;
+        case TAB_SUBSCRIBE:
+          mapSvg.selectAll('path').attr('class', 'neighborhood unsubscribed');
+          break;
+      }
       break;
     case MODE_HEATMAP:
-      mapSvg.selectAll('path').attr('class', 'state hollow');
+      mapSvg.selectAll('path').attr('class', 'neighborhood hollow');
       break;
     case MODE_HEATMAP_3D:
       return;
@@ -476,7 +575,7 @@ function updateMap() {
 
   for (var i = 1; i < filters[1].choices.length; i++) {
     var el = document.querySelector(
-      'body > nav > .list[filterNumber="' + 
+      'body > nav .list[filterNumber="' + 
       1 + '"] > li[choiceNumber="' + 
       (filters[1].choices[i].choiceNumber) + '"] > .chart');
 
@@ -655,6 +754,47 @@ function loadIncidents() {
   q.await(incidentsLoaded);
 }
 
+function prepareMapCheckboxes() {
+  for (var j in filters[1].choices) {
+    if (j == '0') { // Skip all neighborhoods
+      continue;
+    }
+
+    var name = filters[1].choices[j].title;
+
+    var el = document.createElement('input');
+    el.setAttribute('type', 'checkbox');
+    el.setAttribute('name', name);
+    document.querySelector('#map-checkbox-overlay').appendChild(el);
+
+    el.addEventListener('click', onNeighborhoodSubscribeClick, false);
+  }
+}
+
+function resizeMapCheckboxes() {
+  for (var j in filters[1].choices) {
+    if (j == '0') { // Skip all neighborhoods
+      continue;
+    }
+
+    var name = filters[1].choices[j].title;
+
+    var el = document.querySelector('#map-checkbox-overlay input[name="' + name + '"]');
+    //el.style.outline = '1px solid red';
+
+    var svgEl = document.querySelector('#svg-container .neighborhood[name="' + name + '"]');
+    //console.log(name);
+    //console.log(svgEl);
+
+    var boundingBox = svgEl.getBBox();
+    var x = boundingBox.x + boundingBox.width / 2;
+    var y = boundingBox.y + boundingBox.height / 2;
+
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+  }
+}
+
 function getGoogleMapsUrl(lat, lon, zoom, scale, type) {
   var url = 'http://maps.googleapis.com/maps/api/staticmap' +
       '?center=' + lat + ',' + lon +
@@ -781,6 +921,8 @@ function onResize() {
   calculateMapSize();
   resizeMapOverlay();
 
+  resizeMapCheckboxes();
+
   mapSvg.attr('width', canvasWidth);
   mapSvg.attr('height', canvasHeight);
 
@@ -806,6 +948,10 @@ function initialDataLoaded(error, mapDataLoaded) {
   // TODO consolidate
   prepareMap();
   mapIsReady();
+
+  prepareMapCheckboxes();
+  resizeMapCheckboxes();
+  updateNeighborhoodSubscriptions();
 
   prepareMapOverlay();
   resizeMapOverlay();  
@@ -997,6 +1143,11 @@ function prepareUI() {
 }
 
 function main() {
+
+  // TEMPORARY
+  tab = TAB_SUBSCRIBE;
+  document.body.setAttribute('tab', tab);
+
   if (location.href.indexOf('heatmap-3d') != -1) {
     mode = MODE_HEATMAP_3D;
     document.body.setAttribute('mode', 'heatmap-3d');
