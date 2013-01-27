@@ -114,48 +114,84 @@ function createViewSidebar() {
 }
 
 function updateNeighborhoodSubscriptions() {
+  var els = document.querySelectorAll('nav.sidebar > [tab="subscribe"] input:checked');
+
+  if (els.length) {
+    for (var i = 0, el; el = els[i]; i++) {
+      highlightSubscribeNeighborhood(el.getAttribute('name'), true);
+    }
+  } else {
+    // Pre-select a neighborhood for subscription if no subscriptions have been
+    // previously selected, and a neighborhood was selected in the view tab.
+
+    if (filters[1].selected > 0) {
+      var name = filters[1].choices[filters[1].selected].title;
+
+      highlightSubscribeNeighborhood(name, true);
+    }
+  }
+}
+
+function updateNeighborhoodSubscriptionNav() {
   var subscriptionCount = document.querySelectorAll('#map-checkbox-overlay input:checked').length;
 
+  var readyToGo = true;
+
+  if (subscriptionCount == 0) {
+    readyToGo = false;
+  } else if (document.querySelectorAll('nav.sidebar > [tab="subscribe"] :invalid').length > 0) {
+    readyToGo = false;
+  }
+
+  console.log(readyToGo);
+
   document.querySelector('nav.sidebar > [tab="subscribe"] .subscribe').disabled = 
-      (subscriptionCount == 0);
+      !readyToGo;
 }
 
 function onNeighborhoodSubscribeMouseDown(event) {
   event.preventDefault();
 }
 
-function onNeighborhoodSubscribeClick(event) {
-  var el = event.target;
-
-  if (el.tagName != 'INPUT') {
-    el = el.parentNode.querySelector('input[type="checkbox"]');
-    el.checked = !el.checked;
-  }
-
-  var checked = el.checked;
-
-  var name = el.getAttribute('name');
-
-  document.querySelector('#map-checkbox-overlay input[name="' + name + '"]').checked = checked;
+function highlightSubscribeNeighborhood(name, subscribed) {
+  document.querySelector('#map-checkbox-overlay input[name="' + name + '"]').checked = subscribed;
 
   var sidebarEl = document.querySelector('nav.sidebar > [tab="subscribe"] input[name="' + name + '"]');
-  sidebarEl.checked = checked;
-  if (checked) {
+  sidebarEl.checked = subscribed;
+  if (subscribed) {
     sidebarEl.parentNode.classList.add('selected');
   } else {
     sidebarEl.parentNode.classList.remove('selected');
   }
 
   var mapEl = document.querySelector('#svg-container .neighborhood[name="' + name + '"]');
-  if (checked) {
+  if (subscribed) {
     mapEl.classList.add('subscribed');
     mapEl.classList.remove('unsubscribed');
   } else {
     mapEl.classList.add('unsubscribed');
     mapEl.classList.remove('subscribed');
   }
+}
 
-  updateNeighborhoodSubscriptions();
+function onNeighborhoodSubscribeClick(event) {
+  var el = event.target;
+
+  if (el.tagName == 'LI') {
+    el = el.querySelector('input[type="checkbox"]');
+    el.checked = !el.checked;
+  } else if (el.tagName != 'INPUT') {
+    el = el.parentNode.querySelector('input[type="checkbox"]');
+    el.checked = !el.checked;
+  }
+
+  var subscribed = el.checked;
+
+  var name = el.getAttribute('name');
+
+  highlightSubscribeNeighborhood(name, subscribed);
+
+  updateNeighborhoodSubscriptionNav();
 }
 
 function makeAjaxRequest(type, url, data, responseFunc) {
@@ -166,6 +202,7 @@ function makeAjaxRequest(type, url, data, responseFunc) {
   }
 
   httpRequest.open(type, url, true);
+  httpRequest.setRequestHeader('Content-Type', 'application/json');
   httpRequest.send(data);
 
   httpRequest.onreadystatechange = function() {
@@ -191,11 +228,6 @@ function receiveSubscriptionRequest(success, httpRequest) {
 
 function sendSubscriptionRequest() {
   var email = document.querySelector('nav.sidebar > [tab="subscribe"] .email').value;
-
-  // TEMPORARY
-  if (!email) {
-    email = 'mwichary@gmail.com';
-  }
 
   var els = document.querySelectorAll('#map-checkbox-overlay input:checked');
 
@@ -1007,7 +1039,7 @@ function initialDataLoaded(error, mapDataLoaded) {
 
   prepareMapCheckboxes();
   resizeMapCheckboxes();
-  updateNeighborhoodSubscriptions();
+  updateNeighborhoodSubscriptionNav();
 
   prepareMapOverlay();
   resizeMapOverlay();  
@@ -1195,6 +1227,15 @@ function switchToTab(name) {
   document.body.setAttribute('tab', tab);
 
   updateMap();
+
+  switch (tab) {
+    case 'subscribe':
+      document.querySelector('nav.sidebar > [tab="subscribe"] .email').focus();
+
+      updateNeighborhoodSubscriptions();
+      updateNeighborhoodSubscriptionNav();
+      break;
+  }
 }
 
 function onTabClick(event) {
@@ -1213,7 +1254,11 @@ function prepareUI() {
     el.addEventListener('click', onTabClick, false);
   }
 
-  document.querySelector('nav.sidebar > [tab="subscribe"] button.subscribe').addEventListener('click', sendSubscriptionRequest, false);
+  document.querySelector('nav.sidebar > [tab="subscribe"] button.subscribe').
+      addEventListener('click', sendSubscriptionRequest, false);
+
+  document.querySelector('nav.sidebar > [tab="subscribe"] .email').
+      addEventListener('input', updateNeighborhoodSubscriptionNav, false);
 }
 
 function main() {
