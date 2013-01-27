@@ -160,6 +160,58 @@ function onNeighborhoodSubscribeClick(event) {
   updateNeighborhoodSubscriptions();
 }
 
+function makeAjaxRequest(type, url, data) {
+  if (window.XMLHttpRequest) {
+    var httpRequest = new XMLHttpRequest();
+  } else if (window.ActiveXObject) {
+    var httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+
+  httpRequest.open(type, url, true);
+  httpRequest.send(data);
+
+  httpRequest.onreadystatechange = function() {
+    if (httpRequest.readyState === 4) {
+      if (httpRequest.status === 200) { 
+        console.log('OKAY!');
+      } else {
+        console.log('Error: ' + httpRequest.status);
+      }
+    }
+  };
+} 
+
+function sendSubscriptionRequest() {
+  var email = document.querySelector('nav > [tab="subscribe"] .email').value;
+
+  // TEMPORARY
+  if (!email) {
+    email = 'mwichary@gmail.com';
+  }
+
+  var els = document.querySelectorAll('#map-checkbox-overlay input:checked');
+
+  var data = {
+    neighborhoods: []
+  };
+
+  for (var i = 0; el = els[i]; i++) {
+    console.log('a');
+    data.neighborhoods.push(el.name);
+  }
+
+  //console.log(data);
+
+  makeAjaxRequest('POST', '/api/v1/user/' + email + '/subscriptions', data);
+
+/*  POST /v1/user/shaunak@codeforamerica.org/subscriptions
+{
+  "neighborhoods": [ "Prestonia", "Central Business District" ]
+}*/
+
+  //alert(email);
+}
+
 function createSubscribeNav() {
   var el = document.createElement('ul');
   el.classList.add('list');
