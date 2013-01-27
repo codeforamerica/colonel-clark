@@ -44,7 +44,7 @@ var FILTERS = [
 
 var HEATMAP_3D_BUMP_TEXTURE_SIZE = 256;
 
-var HEATMAP_3D_TEXTURE_SIZE = 256;
+var HEATMAP_3D_TEXTURE_SIZE = 512;
 //var HEATMAP_3D_MARGIN = 20;
 
 var MODE_NORMAL = 1;
@@ -342,8 +342,8 @@ function calculateMapSize() {
       canvasHeight = document.querySelector('#svg-container').offsetHeight;
       break;
     case MODE_HEATMAP_3D:
-      canvasWidth = HEATMAP_3D_TEXTURE_SIZE;
-      canvasHeight = HEATMAP_3D_TEXTURE_SIZE;
+      canvasWidth = HEATMAP_3D_BUMP_TEXTURE_SIZE;
+      canvasHeight = HEATMAP_3D_BUMP_TEXTURE_SIZE;
       break;
   }
 
@@ -397,6 +397,10 @@ function switchToState(stateName) {
 
 function mapIsReady(error, us) {
   mapReady = true;
+
+  if (mode == MODE_HEATMAP_3D) {
+    return;
+  }
 
   mapSvg
     .selectAll('path')
@@ -454,11 +458,17 @@ function updateMap() {
     .domain([0, max])
     .range(d3.range(9).map(function(i) { return 'q' + i; }));
 
-  if (mode == MODE_NORMAL) {
-    mapSvg.selectAll('path')
-      .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
-  } else {
-    mapSvg.selectAll('path').attr('class', 'state hollow');
+  switch (mode) {
+    case MODE_NORMAL:
+      mapSvg.selectAll('path')
+          .attr('class', function(d) { return 'state ' + quantize(unfilteredData[1][1][map[d.properties.name]]); })
+      break;
+    case MODE_HEATMAP:
+      mapSvg.selectAll('path').attr('class', 'state hollow');
+      break;
+    case MODE_HEATMAP_3D:
+      return;
+      break;
   }
 
   mapSvg.selectAll('path')
@@ -699,8 +709,8 @@ function resizeMapOverlay() {
 
       break;
     case MODE_HEATMAP_3D:
-      var canvasWidth = HEATMAP_3D_TEXTURE_SIZE;
-      var canvasHeight = HEATMAP_3D_TEXTURE_SIZE;
+      var canvasWidth = HEATMAP_3D_BUMP_TEXTURE_SIZE;
+      var canvasHeight = HEATMAP_3D_BUMP_TEXTURE_SIZE;
       
       var offsetX = canvasWidth / 2 - size;
       var offsetY = canvasHeight / 2 - size;
@@ -729,8 +739,8 @@ function copyMapOverlayToHeatmap3D() {
   //var canvasWidth = document.querySelector('#map').offsetWidth;
   //var canvasHeight = document.querySelector('#map').offsetHeight - MAP_VERT_PADDING * 2;
 
-  var canvasWidth = HEATMAP_3D_TEXTURE_SIZE;
-  var canvasHeight = HEATMAP_3D_TEXTURE_SIZE;
+  var canvasWidth = HEATMAP_3D_BUMP_TEXTURE_SIZE;
+  var canvasHeight = HEATMAP_3D_BUMP_TEXTURE_SIZE;
 
   var size = globalScale * 0.0012238683395795992;
   size = size * 0.995 / 2;
@@ -746,6 +756,8 @@ function copyMapOverlayToHeatmap3D() {
   el.height = HEATMAP_3D_TEXTURE_SIZE;
   var ctx = el.getContext('2d');
 
+  var scale = HEATMAP_3D_TEXTURE_SIZE / HEATMAP_3D_BUMP_TEXTURE_SIZE;
+
   globalCanvas = el;
   document.querySelector('#temp-texture-container').appendChild(el);
 
@@ -756,18 +768,11 @@ function copyMapOverlayToHeatmap3D() {
       var el = els[elCount];
       elCount++;
 
-      console.log((offsetX + size * x * MAP_OVERLAY_OVERLAP_RATIO),
-                  (offsetY + size * y * MAP_OVERLAY_OVERLAP_RATIO),
-                  size);
-
-      //if (elCount == 2) { continue; }
-      //if (elCount == 3) { continue; }
-
       ctx.drawImage(el, 
-          offsetX + size * x * MAP_OVERLAY_OVERLAP_RATIO, 
-          offsetY + size * y * MAP_OVERLAY_OVERLAP_RATIO,
-          size, 
-          size);
+          (offsetX + size * x * MAP_OVERLAY_OVERLAP_RATIO) * scale, 
+          (offsetY + size * y * MAP_OVERLAY_OVERLAP_RATIO) * scale,
+          size * scale, 
+          size * scale);
     }
   }
 }

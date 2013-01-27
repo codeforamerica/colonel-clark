@@ -51,7 +51,7 @@ var heatmap3d = (function(){
       parentEl.appendChild(renderer.domElement);
 
       // camera
-      var camera = new THREE.PerspectiveCamera(10, width / height, 1, 10000);
+      var camera = new THREE.PerspectiveCamera(12, width / height, 1, 10000);
      
       camera.position.x = -1000 * 2; 
       camera.position.y = -1000 * 2;
@@ -213,13 +213,13 @@ var heatmap3d = (function(){
       directionalLight.cameraVisible = true;
       scene.add(directionalLight);*/
 
-      var light = new THREE.SpotLight( 0xdddddd, 3 );
-      light.position.set( 800, -800, 1200 );
-      light.target.position.set( 0, 0, 600 );
+      var light = new THREE.SpotLight(0xdddddd, 2.5);
+      light.position.set(800, -800, 1200);
+      light.target.position.set(0, 0, 600);
       light.castShadow    = true;
       light.shadowCameraFov = 40;
       light.shadowCameraNear    = 100;   
-      light.shadowCameraFar = 1600;
+      light.shadowCameraFar = 2400;
       light.shadowDarkness    = 0.8;
       //light.shadowCameraVisible = true;
       scene.add(light);
