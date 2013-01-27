@@ -127,6 +127,8 @@ body > nav.tabs > div {
   background: white;
   position: relative;
 
+  -webkit-user-select: none;
+
   border-radius: 5px 5px 0 0;
 
   -webkit-transition: background 150ms, top 150ms;
@@ -296,6 +298,9 @@ body > nav.sidebar > [tab='subscribe'] .instructions * {
   font-family: @fontFamily;
   font-size: @fontSize;
 }
+body > nav.sidebar > [tab='subscribe'] .instructions :invalid {
+}
+
 
 body > nav.sidebar > [tab='subscribe'] .subscriptions {
   display: block;
@@ -470,7 +475,7 @@ body[mode='heatmap-3d'] #google-maps-overlay {
   &.subscribed {
     stroke-width: 1;
     stroke: black;
-    fill: fadeout(@selectedFilterColour, 20);
+    fill: fadeout(@selectedFilterColour, 10);
   }
 }
 
@@ -581,4 +586,8 @@ body[tab='subscribe'] #legend {
   display: none;
 }
 
+body[mode='heatmap'] nav.tabs,
+body[mode='heatmap-3d'] nav.tabs {
+  display: none;
+}
 
