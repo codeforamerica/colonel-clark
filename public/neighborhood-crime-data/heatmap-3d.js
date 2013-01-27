@@ -52,17 +52,17 @@ var heatmap3d = (function(){
 
       // camera
       var camera = new THREE.PerspectiveCamera(10, width / height, 1, 10000);
-     /*
+     
       camera.position.x = -1000 * 2; 
       camera.position.y = -1000 * 2;
       camera.position.z = 900 * 2;
 
       camera.rotation.x = 1;
-      camera.rotation.y = -0.7;*/
+      camera.rotation.y = -0.7;
 
-      camera.position.x = 0;
+      /*camera.position.x = 0;
       camera.position.y = 0;
-      camera.position.z = 4500;
+      camera.position.z = 4500;*/
       //camera.rotation.z = 3.1415;
 
       // scene
