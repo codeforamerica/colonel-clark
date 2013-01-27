@@ -34,7 +34,14 @@
   <header>
     <img id='logo' src='images/logo-retina.png'>
     <h3>
-      <span id='caption-crime'></span> · <span id='caption-neighborhood'></span> · October 4, 2012–January 4, 2013
+      <section tab='view'>
+        <span id='caption-crime'></span> · 
+        <span id='caption-neighborhood'></span> · 
+        October 4, 2012–January 4, 2013
+      </section>
+      <section tab='subscribe'>
+        Weekly summary email subscription
+      </section>
     </h3>
   </header>
 
@@ -47,7 +54,12 @@
     Map imagery &copy; 2013 Google and TerraMetrics.
   </footer>
 
-  <nav>
+  <nav class='tabs'>
+    <div name='view'>View</div>
+    <div name='subscribe'>Get by email</div>
+  </nav>
+
+  <nav class='sidebar'>
     <section tab='view'></section>
     <section tab='subscribe'>
       <section class='instructions'>
@@ -57,7 +69,7 @@
         </p>
         <p>
           Email: <input class='email' type='email' placeholder='e.g. john@gmail.com'>
-          <button class='subscribe' onclick='sendSubscriptionRequest()'>Subscribe</button>
+          <button class='subscribe'>Subscribe</button>
         </p>
       </section>
       <section class='subscriptions'>
@@ -81,9 +93,7 @@
     <div id='heatmap-container'></div>
     <div id='heatmap-3d-container'></div>
     <div id='google-maps-overlay'></div> 
-
     <div id='map-checkbox-overlay'></div> 
-
   </div>
 
   <div id='temp-texture-container'></div>
