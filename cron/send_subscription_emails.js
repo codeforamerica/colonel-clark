@@ -3,6 +3,13 @@ var pg = require('pg'),
     async = require('async'),
     SendGrid = require('sendgrid').SendGrid;
 
+// Proceed if today is the day to send emails (default = Saturday)
+var today = new Date();
+if (today.getDay() != (process.env.EMAIL_DAY_INDEX || 6)) {
+    console.log("Today is not a good day to send emails. Quitting without sending any emails.");
+    process.exit(0);
+}
+
 pg.connect(process.env.DATABASE_URL || config.db_connection_string, function(err, client) {
     
     // Get all subscriptions with associated user info
@@ -31,7 +38,6 @@ pg.connect(process.env.DATABASE_URL || config.db_connection_string, function(err
 
 var getIncidents = function(client, subscriptions) {
 
-    var today = new Date();
     var oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
     var oneWeekAgo = new Date(today.getTime() - oneWeekInMilliseconds);
 
