@@ -143,7 +143,7 @@ function updateNeighborhoodSubscriptionNav() {
     readyToGo = false;
   }
 
-  console.log(readyToGo);
+  //console.log(readyToGo);
 
   document.querySelector('nav.sidebar > [tab="subscribe"] .subscribe').disabled = 
       !readyToGo;
@@ -222,7 +222,7 @@ function receiveSubscriptionRequest(success, httpRequest) {
     //console.log('OKAY!');
   } else {
     alert('We’re sorry, but something went wrong with your subscription. Please try again!');
-    console.log('Error: ' + httpRequest.status);
+    //console.log('Error: ' + httpRequest.status);
   }
 }
 
@@ -1009,7 +1009,9 @@ function onResize() {
   calculateMapSize();
   resizeMapOverlay();
 
-  resizeMapCheckboxes();
+  if (mode == MODE_NORMAL) {
+    resizeMapCheckboxes();
+  }
 
   mapSvg.attr('width', canvasWidth);
   mapSvg.attr('height', canvasHeight);
@@ -1037,9 +1039,11 @@ function initialDataLoaded(error, mapDataLoaded) {
   prepareMap();
   mapIsReady();
 
-  prepareMapCheckboxes();
-  resizeMapCheckboxes();
-  updateNeighborhoodSubscriptionNav();
+  if (mode == MODE_NORMAL) {
+    prepareMapCheckboxes();
+    resizeMapCheckboxes();
+    updateNeighborhoodSubscriptionNav();
+  }
 
   prepareMapOverlay();
   resizeMapOverlay();  
