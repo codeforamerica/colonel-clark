@@ -1,0 +1,4 @@
+{
+    "app_base_uri": "http://cfa-louisville-staging.herokuapp.com/neighborhood-crime-data/",
+    "extractor_source_url": "http://api.louisvilleky.gov/api/File/DownloadFile?fileName=CrimeData.txt"
+}
