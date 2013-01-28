@@ -21,7 +21,10 @@ var checkSubscriptionExists = function(client, req, res, next) {
     var subscriptionId = req.params.id;
 
     var query = client.query({
-        text: 'SELECT * FROM user_subscriptions WHERE uuid = $1',
+        text: 'SELECT us._key, us.neighborhood, u.uuid AS user_uuid '
+            + 'FROM user_subscriptions AS us '
+            + 'INNER JOIN users AS u ON us.user__key = u._key '
+            + 'WHERE us.uuid = $1',
         values: [ subscriptionId ]
     });
 
@@ -60,7 +63,11 @@ var updateSubscriptionStatus = function(client, subscription, req, res, next) {
     });
 
     query.on('end', function(result) {
-        res.send({ message: "Subscription status updated."});
+        res.send({
+            message: "Subscription status updated.",
+            neighborhood: subscription.neighborhood,
+            userId: subscription.user_uuid
+        });
     });
     
 }
