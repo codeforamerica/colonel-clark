@@ -5,11 +5,16 @@
 
 @mainBackgroundColour: rgb(235, 240, 220);
 
+@menuColour: rgb(200, 210, 190);
+@headerColour: darken(@menuColour, 20%);
+
 body {
   background: @mainBackgroundColour;
   padding: 20px;
-  margin: 0;
   overflow: hidden;
+
+  margin: 20px auto;
+  width: 740px;
 
   font-family: @fontFamily;
   font-size: @fontSize;
@@ -21,12 +26,36 @@ body {
   display: none;
 }
 #success.visible,
-#error.visible
+#error.visible,
 #loading.visible {
   display: block;
+}
+
+.invisible {
+  display: none;
+}
+
+h3 {
+  font-weight: 600;
+  font-size: 24px;
+  margin: 20px 0;
+  padding: 0;
+
+  color: @headerColour;
 }
 
 #logo {
   width: 740px;
   max-width: 100%;  
+  margin-bottom: 25px;
+}
+
+footer {
+  margin-top: 150px;
+  font-size: 12px;
+
+  opacity: .75;  
+}
+footer a {
+  color: inherit;
 }
