@@ -144,7 +144,7 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
                 + '<p>Thank you,</p>'
                 + '<p>Bourbon Planners</p>'
 
-            var sendgrid = new SendGrid(config.sendgrid.user, process.env.SENDGRID_PASS);
+            var sendgrid = new SendGrid(process.env.SENDGRID_USERNAME || config.sendgrid.user, process.env.SENDGRID_PASSWORD);
             sendgrid.send({
                 to: user.email_address,
                 from: 'bourbonplanners@codeforamerica.com',
