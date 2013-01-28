@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<title>Email confirmation – Neighborhood crime data alerts</title>
+<meta charset='utf-8'>
+<script src='/neighborhood-crime-data/ajax.js'></script>
+<link href='/neighborhood-crime-data/email-pages/styles.less' rel='stylesheet/less' type='text/css'>
+<script src='/less-1.3.0.min.js'></script>
+
+<script>
+  function showError() {
+    document.querySelector('#loading').classList.remove('visible');
+    document.querySelector('#error').classList.add('visible');
+  }
+
+  function showSuccess() {
+    document.querySelector('#loading').classList.remove('visible');
+    document.querySelector('#success').classList.add('visible');
+  }
+
+  function ajaxConfirmation(success, httpRequest) {
+    if (success) {
+      showSuccess();
+    } else {
+      showError();
+    }
+  }
+
+  function main() {
+    var url = location.href;
+
+    var idMatch = url.match(/\/subscription\/([a-z0-9\-]*)\//);
+
+    if (!idMatch || !idMatch[1]) {
+      showError();
+      return;
+    }
+
+    var id = idMatch[1];
+
+    var data = { status: 'VERIFIED' };
+
+    makeAjaxRequest(
+        'PUT', 
+        '/api/v1/subscription/' + id + '/status', 
+        JSON.stringify(data),
+        ajaxConfirmation);
+  }
+</script>
+
+<body>
+  <header>
+    <img alt='Neighborhood crime data' id='logo' src='/neighborhood-crime-data/images/logo-retina.png'>
+  </header>
+  <div id='loading' class='visible'>
+    <h3>
+      Loading…
+    </h3>
+  </div>
+  <div id='error'>
+    <h3>
+      Verification failed.
+    </h3>
+    <p>
+      Something went wrong. You can try to refresh the page to try again.
+    </p>
+  </div>
+  <div id='success'>
+    <h3>
+      You are now subscribed to Neighborhood Crime Alerts.
+    </h3>
+    <p>
+      Your email address has been verified. You will receive a weekly summary
+      for <span class='neighborhood-name'>Blah blah blah</span> every Saturday
+      evening. We will also send you last week’s email right now.
+    </p>
+  </div>
+
+  <footer>
+    <a href='mailto:louisville@codeforamerica.org'>Contact us</a> 
+    · 
+    <a href=''>Unsubscribe from all emails</a>
+  </footer>
+
+  <noscript>
+    Please enable JavaScript to finish the verification process.
+  </noscript>
+
+  <script>
+    main();
+  </script>
+</body>
