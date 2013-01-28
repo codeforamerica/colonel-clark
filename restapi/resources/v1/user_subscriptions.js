@@ -135,7 +135,7 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
 
         var sendSubscriptionConfirmationEmail = function(neighborhood, callback) {
             
-            var subscriptionLink = config.app_base_uri + 'subscription/' + subscriptionIds[neighborhood] + '/confirmation';
+            var subscriptionLink = config.app_base_uri + 'email-pages/subscribe.html?s=' + subscriptionIds[neighborhood];
             var emailHtml = '<p>Hi,</p>'
                 + '<p>You have been subscribed to neighborhood crime alerts for '
                 + '<strong>' + neighborhood + '</strong>.</p>'
