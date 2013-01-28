@@ -109,7 +109,7 @@ var appendCrimeTotalsByNeighborhood = function(client, data, req, res, next) {
 var appendDateRange = function(client, data, req, res, next) {
 
   // Get date range for crime incidents
-  var queryText = "SELECT MIN(incident_timestamp) AS start_date, MAX(incident_timestamp) AS end_date FROM crimes WHERE neighborhood IS NOT NULL";
+  var queryText = "SELECT DATE_PART('epoch', MIN(incident_timestamp)) AS start_date, DATE_PART('epoch', MAX(incident_timestamp)) AS end_date FROM crimes WHERE neighborhood IS NOT NULL";
   if (req.query.crime && req.query.neighborhood) {
     var crimes = convertArrayToInList(req.query.crime.split(','));
     var neighborhoods = convertArrayToInList(req.query.neighborhood.split(','));
