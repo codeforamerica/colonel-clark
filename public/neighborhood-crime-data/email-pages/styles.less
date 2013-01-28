@@ -1,0 +1,32 @@
+@import 'http://fonts.googleapis.com/css?family=Open+Sans:400,300,600';
+
+@fontFamily: 'Open Sans', Arial, Helvetica, sans-serif;
+@fontSize: 14px;
+
+@mainBackgroundColour: rgb(235, 240, 220);
+
+body {
+  background: @mainBackgroundColour;
+  padding: 20px;
+  margin: 0;
+  overflow: hidden;
+
+  font-family: @fontFamily;
+  font-size: @fontSize;
+}
+
+#success,
+#error,
+#loading {
+  display: none;
+}
+#success.visible,
+#error.visible
+#loading.visible {
+  display: block;
+}
+
+#logo {
+  width: 740px;
+  max-width: 100%;  
+}
