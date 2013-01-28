@@ -1,3 +1,14 @@
+/*
+ * Click That ’Hood
+ *
+ * Front-end written (mostly) by Marcin Wichary, Code for America fellow 
+ * in the year 2013.
+ *
+ * Note: This code is really gnarly. It’s been done under a lot of time 
+ * pressure and there’s a lot of shortcut and tech debt. It might be improved
+ * later if there’s time later.
+ */
+
 var HIGHLIGHT_DELAY = 1500;
 var NEXT_GUESS_DELAY = 1000;
 
