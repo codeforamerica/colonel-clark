@@ -26,14 +26,20 @@ body {
   display: none;
 }
 #success.visible,
-#error.visible
+#error.visible,
 #loading.visible {
   display: block;
+}
+
+.invisible {
+  display: none;
 }
 
 h3 {
   font-weight: 600;
   font-size: 24px;
+  margin: 20px 0;
+  padding: 0;
 
   color: @headerColour;
 }
@@ -41,4 +47,15 @@ h3 {
 #logo {
   width: 740px;
   max-width: 100%;  
+  margin-bottom: 25px;
+}
+
+footer {
+  margin-top: 150px;
+  font-size: 12px;
+
+  opacity: .75;  
+}
+footer a {
+  color: inherit;
 }

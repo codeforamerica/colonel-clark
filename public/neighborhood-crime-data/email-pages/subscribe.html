@@ -12,14 +12,20 @@
     document.querySelector('#error').classList.add('visible');
   }
 
-  function showSuccess() {
+  function showSuccess(data) {
+    document.querySelector('.neighborhood-name').innerHTML = data.neighborhood;
+
+    document.querySelector('.unsubscribe a').setAttribute('href', 'unsubscribe.html?u=' + data.userId);
+
+    document.querySelector('.unsubscribe').classList.remove('invisible');
+
     document.querySelector('#loading').classList.remove('visible');
     document.querySelector('#success').classList.add('visible');
   }
 
   function ajaxConfirmation(success, httpRequest) {
     if (success) {
-      showSuccess();
+      showSuccess(JSON.parse(httpRequest.response));
     } else {
       showError();
     }
@@ -28,7 +34,7 @@
   function main() {
     var url = location.href;
 
-    var idMatch = url.match(/\/subscription\/([a-z0-9\-]*)\//);
+    var idMatch = url.match(/\?s=([a-z0-9\-]*)/);
 
     if (!idMatch || !idMatch[1]) {
       showError();
@@ -47,6 +53,12 @@
   }
 </script>
 
+<style>
+  .neighborhood-name {
+    font-weight: 600;
+  }
+</style>
+
 <body>
   <header>
     <img alt='Neighborhood crime data' id='logo' src='/neighborhood-crime-data/images/logo-retina.png'>
@@ -61,7 +73,7 @@
       Verification failed.
     </h3>
     <p>
-      Something went wrong. You can try to refresh the page to try again.
+      Something went wrong. You can refresh the page to try again.
     </p>
   </div>
   <div id='success'>
@@ -77,8 +89,9 @@
 
   <footer>
     <a href='mailto:louisville@codeforamerica.org'>Contact us</a> 
-    · 
-    <a href=''>Unsubscribe from all emails</a>
+    <span class='unsubscribe invisible'>
+      · <a href=''>Unsubscribe from all emails</a>
+    </span>
   </footer>
 
   <noscript>
