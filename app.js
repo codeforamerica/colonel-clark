@@ -22,6 +22,16 @@ app.get('/neighborhood-crime-data/subscription/:id/confirmation', function(req, 
     req.pipe(request(redirectUrl)).pipe(res);
 });
 
+app.get('/neighborhood-crime-data/subscription/:id/removal', function(req, res) {
+    var redirectUrl = 'http://' + req.headers.host + '/neighborhood-crime-data/email-pages/unsubscribe.html?s=' + req.params.id;
+    req.pipe(request(redirectUrl)).pipe(res);
+});
+
+app.get('/neighborhood-crime-data/user/:id/subscriptions/removal', function(req, res) {
+    var redirectUrl = 'http://' + req.headers.host + '/neighborhood-crime-data/email-pages/unsubscribe.html?u=' + req.params.id;
+    req.pipe(request(redirectUrl)).pipe(res);
+});
+
 // Serve all other URIs as static files from the "public" directory.
 app.use(express.static(__dirname + '/public'));
 
