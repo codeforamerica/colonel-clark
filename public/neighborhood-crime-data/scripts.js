@@ -1,8 +1,14 @@
-var CHART_WIDTH = 50;
+// Enums
 
-var MAP_VERT_PADDING = 50;
+var MODE_NORMAL = 1;
+var MODE_HEATMAP = 2;
+var MODE_HEATMAP_3D = 3;
 
-var DATA_TRANSITION_DELAY = 150;
+var TAB_VIEW = 'view';
+var TAB_SUBSCRIBE = 'subscribe';
+
+var FILTER_CRIME = 0;
+var FILTER_NEIGHBORHOOD = 1;
 
 var FILTERS = [
   {
@@ -42,17 +48,18 @@ var FILTERS = [
   }
 ];
 
+// Constants
+
+var CHART_WIDTH = 50;
+
+var MAP_VERT_PADDING = 50;
+
+var DATA_TRANSITION_DELAY = 150;
+
 var HEATMAP_3D_BUMP_TEXTURE_SIZE = 256;
-
 var HEATMAP_3D_TEXTURE_SIZE = 512;
-//var HEATMAP_3D_MARGIN = 20;
 
-var MODE_NORMAL = 1;
-var MODE_HEATMAP = 2;
-var MODE_HEATMAP_3D = 3;
-
-var TAB_VIEW = 'view';
-var TAB_SUBSCRIBE = 'subscribe';
+// Variables
 
 var mode = MODE_NORMAL;
 var tab = TAB_VIEW;
@@ -78,7 +85,7 @@ function createViewSidebar() {
     var filter = filters[i];
 
     // TODO put elsewhere
-    if (i == '1') {
+    if (i == 1) {
       var el = document.createElement('ol');
 
       // Nasty hack
@@ -124,8 +131,8 @@ function updateNeighborhoodSubscriptions() {
     // Pre-select a neighborhood for subscription if no subscriptions have been
     // previously selected, and a neighborhood was selected in the view tab.
 
-    if (filters[1].selected > 0) {
-      var name = filters[1].choices[filters[1].selected].title;
+    if (filters[FILTER_NEIGHBORHOOD].selected > 0) {
+      var name = filters[FILTER_NEIGHBORHOOD].choices[filters[FILTER_NEIGHBORHOOD].selected].title;
 
       highlightSubscribeNeighborhood(name, true);
     }
@@ -239,8 +246,6 @@ function sendSubscriptionRequest() {
     data.neighborhoods.push(el.name);
   }
 
-  console.log(JSON.stringify(data));
-
   makeAjaxRequest(
       'POST', 
       '/api/v1/user/' + email + '/subscriptions', 
@@ -252,10 +257,10 @@ function createSubscribeSidebar() {
   var el = document.createElement('ul');
   el.classList.add('list');
 
-  var filter = filters[1];
+  var filter = filters[FILTER_NEIGHBORHOOD];
 
   for (var j in filter.choices) {
-    if (j == '0') {
+    if (j == 0) {
       continue;
     }
 
@@ -408,10 +413,10 @@ function updateData() {
 
 function updateCaption() {
   document.querySelector('#caption-crime').innerHTML =
-    filters[0].choices[filters[0].selected].title;
+    filters[FILTER_CRIME].choices[filters[FILTER_CRIME].selected].title;
 
   document.querySelector('#caption-neighborhood').innerHTML =
-    filters[1].choices[filters[1].selected].title;
+    filters[FILTER_NEIGHBORHOOD].choices[filters[FILTER_NEIGHBORHOOD].selected].title;
 }
 
 function addChoices(origData, flatData, level) {
@@ -558,17 +563,17 @@ function prepareMap() {
 function switchToNeighborhood(newName) {
   var neighborhood = 0;
 
-  for (var i = 1; i < filters[1].choices.length; i++) {
-    if (filters[1].choices[i].title == newName) {
+  for (var i = 1; i < filters[FILTER_NEIGHBORHOOD].choices.length; i++) {
+    if (filters[FILTER_NEIGHBORHOOD].choices[i].title == newName) {
       neighborhood = i;
       break;
     }
   }
 
-  if (filters[1].selected == neighborhood) {
-    filters[1].selected = 0;
+  if (filters[FILTER_NEIGHBORHOOD].selected == neighborhood) {
+    filters[FILTER_NEIGHBORHOOD].selected = 0;
   } else {
-    filters[1].selected = neighborhood;
+    filters[FILTER_NEIGHBORHOOD].selected = neighborhood;
   }
 
   updateData();  
@@ -623,12 +628,12 @@ function updateMap() {
 
   var max = 0;
   var map = {};
-  for (var i = 1; i < filters[1].choices.length; i++) {
+  for (var i = 1; i < filters[FILTER_NEIGHBORHOOD].choices.length; i++) {
     if (max < unfilteredData[1][1][i]) {
       max = unfilteredData[1][1][i];
     }
 
-    map[filters[1].choices[i].title] = i;
+    map[filters[FILTER_NEIGHBORHOOD].choices[i].title] = i;
   }
 
   document.querySelector('#legend-max').innerHTML = formatNumber(max);
@@ -661,11 +666,11 @@ function updateMap() {
   mapSvg.selectAll('path')
     .attr('value', function(d) { return unfilteredData[1][1][map[d.properties.name]]; })
 
-  for (var i = 1; i < filters[1].choices.length; i++) {
+  for (var i = 1; i < filters[FILTER_NEIGHBORHOOD].choices.length; i++) {
     var el = document.querySelector(
       'body > nav.sidebar .list[filterNumber="' + 
       1 + '"] > li[choiceNumber="' + 
-      (filters[1].choices[i].choiceNumber) + '"] > .chart');
+      (filters[FILTER_NEIGHBORHOOD].choices[i].choiceNumber) + '"] > .chart');
 
     // TODO change to do attr
     for (var j = 0; j < 9; j++) {
@@ -675,7 +680,7 @@ function updateMap() {
   } 
 
   // TODO change to a class
-  if (filters[1].selected == 0) {
+  if (filters[FILTER_NEIGHBORHOOD].selected == 0) {
     mapSvg.selectAll('path')
       .transition().duration(DATA_TRANSITION_DELAY)
       .attr('opacity', 1);
@@ -683,7 +688,7 @@ function updateMap() {
     mapSvg.selectAll('path')
       .transition().duration(DATA_TRANSITION_DELAY)
       .attr('opacity', function(d) { 
-        return (filters[1].choices[filters[1].selected].title == d.properties.name) ? 1 : .4
+        return (filters[FILTER_NEIGHBORHOOD].choices[filters[FILTER_NEIGHBORHOOD].selected].title == d.properties.name) ? 1 : .4
     });
   }
 }
@@ -700,7 +705,7 @@ function addNeighborhoodsToFilters(mapData) {
   // TODO modifying const
   // TODO hardcoded numbers
   for (var i in neighborhoods) {
-    FILTERS[1].choices[0].choices.push({ title: neighborhoods[i] });
+    FILTERS[FILTER_NEIGHBORHOOD].choices[0].choices.push({ title: neighborhoods[i] });
   }
 }
 
@@ -709,6 +714,8 @@ function incidentsLoaded(error) {
 
   for (var i = 1; i < arguments.length; i++) {
     var data = arguments[i];
+
+    console.log(data);
 
     var crime = data.query.filters.crime || '';
     var neighborhood = data.query.filters.neighborhood || '';
@@ -740,56 +747,50 @@ function processData(crime, neighborhood, loadedData) {
 
   data = [];
 
-  data[0] = [];
-  data[1] = [];  
+  data[FILTER_CRIME] = [];
+  data[FILTER_NEIGHBORHOOD] = [];  
 
-  for (var i in filters[0].choices) {
-    data[0][filters[0].choices[parseInt(i)].choiceNumber] = 0;
+  for (var i in filters[FILTER_CRIME].choices) {
+    data[FILTER_CRIME][filters[FILTER_CRIME].choices[parseInt(i)].choiceNumber] = 0;
 
-    var choice = filters[0].choices[i];
+    var choice = filters[FILTER_CRIME].choices[i];
 
     for (var ii in choice.filterList) {
-      var title = filters[0].choices[choice.filterList[ii]].title;
+      var title = filters[FILTER_CRIME].choices[choice.filterList[ii]].title;
       title = title.toUpperCase();
 
-      data[0][filters[0].choices[parseInt(i)].choiceNumber] += 
+      data[FILTER_CRIME][filters[FILTER_CRIME].choices[parseInt(i)].choiceNumber] += 
           loadedData.byCrime[title] || 0;
     }
   }
 
-  for (var j in filters[1].choices) {
-    data[1][filters[1].choices[parseInt(j)].choiceNumber] = 0;
+  for (var j in filters[FILTER_NEIGHBORHOOD].choices) {
+    data[FILTER_NEIGHBORHOOD][filters[FILTER_NEIGHBORHOOD].choices[parseInt(j)].choiceNumber] = 0;
 
-    var choice = filters[1].choices[j];
+    var choice = filters[FILTER_NEIGHBORHOOD].choices[j];
 
     for (var jj in choice.filterList) {
-      var title = filters[1].choices[choice.filterList[jj]].title;
+      var title = filters[FILTER_NEIGHBORHOOD].choices[choice.filterList[jj]].title;
       
-      data[1][filters[1].choices[parseInt(j)].choiceNumber] += 
+      data[FILTER_NEIGHBORHOOD][filters[FILTER_NEIGHBORHOOD].choices[parseInt(j)].choiceNumber] += 
           loadedData.byNeighborhood[title] || 0;
     }
   }
-
-  /*if ((filters[0].selected == 0) && (filters[1].selected == 0)) {
-    unfilteredData = currentData;
-  }*/
-
-
 
   // TODO actually compare crime and neighborhood strings to numbers
   // and allocate properly
   if (crime == '') {
     //console.log('allocated unfiltered data 0 (crime)');
-    unfilteredData[0] = data;
+    unfilteredData[FILTER_CRIME] = data;
   }
 
   if (neighborhood == '') {
     //console.log('allocated unfiltered data 1 (n)');
-    unfilteredData[1] = data;
+    unfilteredData[FILTER_NEIGHBORHOOD] = data;
   }
 
-  if ( ((crime != '') || (filters[0].selected == 0)) &&
-       ((neighborhood != '') || (filters[1].selected == 0)) ) {
+  if ( ((crime != '') || (filters[FILTER_CRIME].selected == 0)) &&
+       ((neighborhood != '') || (filters[FILTER_NEIGHBORHOOD].selected == 0)) ) {
     //console.log('allocated proper data');
     currentData = data;
   }
@@ -799,26 +800,17 @@ function getIncidentDataUrl(crimeId, neighborhoodId) {
   if (crimeId == 0) {
     var crime = '';
   } else {
-    //console.log(crimeId);
-
-    //console.log(filters[0].choices[crimeId].filterList);
-
     var crimeList = [];
-    for (var i in filters[0].choices[crimeId].filterList) {
-      crimeList.push(filters[0].choices[filters[0].choices[crimeId].filterList[i]].title);
+    for (var i in filters[FILTER_CRIME].choices[crimeId].filterList) {
+      crimeList.push(filters[FILTER_CRIME].choices[filters[FILTER_CRIME].choices[crimeId].filterList[i]].title);
     }
     var crime = crimeList.join(',').toUpperCase();
-
-    //filters[1].choices[filters[1].selected]
-
-    //var crime = filters[0].choices[crimeId].title.toUpperCase();
-    //console.log(crime);
   }
 
   if (neighborhoodId == 0) {
     var neighborhood = '';
   } else {
-    var neighborhood = filters[1].choices[neighborhoodId].title;
+    var neighborhood = filters[FILTER_NEIGHBORHOOD].choices[neighborhoodId].title;
   }
 
   // TODO remove random when you do caching properly
@@ -830,9 +822,9 @@ function getIncidentDataUrl(crimeId, neighborhoodId) {
 
 function loadIncidents() {
   var urls = [];
-  urls.push(getIncidentDataUrl(filters[0].selected, filters[1].selected));
-  urls.push(getIncidentDataUrl(0, filters[1].selected));
-  urls.push(getIncidentDataUrl(filters[0].selected, 0));
+  urls.push(getIncidentDataUrl(filters[FILTER_CRIME].selected, filters[FILTER_NEIGHBORHOOD].selected));
+  urls.push(getIncidentDataUrl(0, filters[FILTER_NEIGHBORHOOD].selected));
+  urls.push(getIncidentDataUrl(filters[FILTER_CRIME].selected, 0));
 
   var q = queue();
   for (var i in urls) {
@@ -843,12 +835,12 @@ function loadIncidents() {
 }
 
 function prepareMapCheckboxes() {
-  for (var j in filters[1].choices) {
-    if (j == '0') { // Skip all neighborhoods
+  for (var j in filters[FILTER_NEIGHBORHOOD].choices) {
+    if (j == 0) { // Skip all neighborhoods
       continue;
     }
 
-    var name = filters[1].choices[j].title;
+    var name = filters[FILTER_NEIGHBORHOOD].choices[j].title;
 
     var el = document.createElement('input');
     el.setAttribute('type', 'checkbox');
@@ -860,12 +852,12 @@ function prepareMapCheckboxes() {
 }
 
 function resizeMapCheckboxes() {
-  for (var j in filters[1].choices) {
-    if (j == '0') { // Skip all neighborhoods
+  for (var j in filters[FILTER_NEIGHBORHOOD].choices) {
+    if (j == 0) { // Skip all neighborhoods
       continue;
     }
 
-    var name = filters[1].choices[j].title;
+    var name = filters[FILTER_NEIGHBORHOOD].choices[j].title;
 
     var el = document.querySelector('#map-checkbox-overlay input[name="' + name + '"]');
     //el.style.outline = '1px solid red';
@@ -1096,14 +1088,14 @@ function updateHeatmap() {
     return;
   }
 
-  var crimeId = filters[0].selected;
+  var crimeId = filters[FILTER_CRIME].selected;
 
   if (crimeId == 0) {
     var crime = '';
   } else {
     var crimeList = [];
-    for (var i in filters[0].choices[crimeId].filterList) {
-      crimeList.push(filters[0].choices[filters[0].choices[crimeId].filterList[i]].title);
+    for (var i in filters[FILTER_CRIME].choices[crimeId].filterList) {
+      crimeList.push(filters[FILTER_CRIME].choices[filters[FILTER_CRIME].choices[crimeId].filterList[i]].title);
     }
     var crime = crimeList.join(',').toUpperCase();
   }
