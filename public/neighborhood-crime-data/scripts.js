@@ -48,6 +48,10 @@ var FILTERS = [
   }
 ];
 
+var MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 
+    'August', 'September', 'October', 'November', 'December'];
+    
 // Constants
 
 var CHART_WIDTH = 50;
@@ -709,13 +713,23 @@ function addNeighborhoodsToFilters(mapData) {
   }
 }
 
+function formatDateAsString(date) {
+  return MONTHS[date.getMonth()] + ' ' + date.getDate();
+}
+
+function updateDateRange(dateRange) {
+  var dateStart = new Date(dateRange.start * 1000);
+  var dateEnd = new Date(dateRange.end * 1000);
+
+  document.querySelector('#caption-daterange').innerHTML = 
+      formatDateAsString(dateStart) + '–' + formatDateAsString(dateEnd);
+}
+
 function incidentsLoaded(error) {
   console.log('Incidents loaded…');
 
   for (var i = 1; i < arguments.length; i++) {
     var data = arguments[i];
-
-    console.log(data);
 
     var crime = data.query.filters.crime || '';
     var neighborhood = data.query.filters.neighborhood || '';
@@ -727,6 +741,8 @@ function incidentsLoaded(error) {
     cachedRawData[crime][neighborhood] = data;
 
     processData(crime, neighborhood, data);
+
+    updateDateRange(data.dateRange);
   }
 
   updateSidebar();
