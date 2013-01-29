@@ -92,6 +92,8 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
 
     var sendEmail = function(subscription, callback) {
 
+        console.log("Sending email for subscription ID = " + subscription.uuid);
+
         var unsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?s=' + subscription.subscription_uuid;
         var userUnsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?u=' + subscription.user_uuid;
 
