@@ -13,18 +13,28 @@
   }
 
   function showSuccess(data) {
-    document.querySelector('.neighborhood-name').innerHTML = data.neighborhood;
-
-    document.querySelector('.unsubscribe a').setAttribute('href', 'unsubscribe.html?u=' + data.userId);
-
-    document.querySelector('.unsubscribe').classList.remove('invisible');
 
     document.querySelector('#loading').classList.remove('visible');
 
     if (data.neighborhood) {
+      document.querySelector('.neighborhood-name').innerHTML = data.neighborhood;
+      document.querySelector('#success_existing_subscription').classList.add('visible');
+      document.querySelector('.unsubscribe a').setAttribute('href', 'unsubscribe.html?u=' + data.userId);
+      document.querySelector('.unsubscribe').classList.remove('invisible');
+    } else if (data.neighborhoods && data.neighborhoods.length) {
+      var tail = data.neighborhoods.pop();
+      if (data.neighborhoods.length > 0) {
+        var neighborhoodsMsg = data.neighborhoods.join(", ") + " and " + tail;
+      } else {
+        var neighborhoodsMsg = tail;
+      }
+
+      document.querySelector('.neighborhood-name').innerHTML = neighborhoodsMsg;
       document.querySelector('#success_existing_subscription').classList.add('visible');
     } else {
       document.querySelector('#success_no_subscription').classList.add('visible');
+      document.querySelector('.unsubscribe a').setAttribute('href', 'unsubscribe.html?u=' + data.userId);
+      document.querySelector('.unsubscribe').classList.remove('invisible');
     }
 
   }
@@ -40,20 +50,37 @@
   function main() {
     var url = location.href;
 
-    var idMatch = url.match(/\?s=([a-z0-9\-]*)/);
+    var idMatch = url.match(/\?(s|u)=([a-z0-9\-]*)/);
 
-    if (!idMatch || !idMatch[1]) {
+    if (!idMatch || !idMatch[1] || !idMatch[2]) {
+
       showError();
       return;
     }
 
-    var id = idMatch[1];
+    var mode = idMatch[1];
+    var id = idMatch[2];
 
-    makeAjaxRequest(
-        'DELETE', 
-        '/api/v1/subscription/' + id,
-        null,
-        ajaxConfirmation);
+    switch (mode) {
+
+      case 's':
+        makeAjaxRequest(
+          'DELETE', 
+          '/api/v1/subscription/' + id,
+          null,
+          ajaxConfirmation);
+        break;
+
+      case 'u':
+        makeAjaxRequest(
+          'DELETE', 
+          '/api/v1/user/' + id + '/subscriptions',
+          null,
+          ajaxConfirmation);
+        break;
+
+    }
+
   }
 </script>
 

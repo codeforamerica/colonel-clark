@@ -233,17 +233,39 @@ var checkUserByUuidExists = function(client, req, res, next) {
 var deleteAllUserSubscriptions = function(client, user, req, res, next) {
 
     var query = client.query({
-        text: 'DELETE FROM user_subscriptions WHERE user__key = $1',
+        text: 'SELECT * FROM user_subscriptions WHERE user__key = $1',
         values: [ user._key ]
     });
 
     query.on('error', function(err) {
-        console.error("user subscriptions delete query error = " + err);
+        console.error("user subscriptions select query error = " + err);
         res.send(500, { message: "query error = " + String(err) });
     });
 
-    query.on('end', function(result) {
-        res.send({ message: "All subscriptions for " + user.email_address + " deleted."});
+    var neighborhoods = [];
+    query.on('row', function(row) {
+        neighborhoods.push(row.neighborhood);
     });
+
+    query.on('end', function(result) {
+
+        var query = client.query({
+            text: 'DELETE FROM user_subscriptions WHERE user__key = $1',
+            values: [ user._key ]
+        });
+        
+        query.on('error', function(err) {
+            console.error("user subscriptions delete query error = " + err);
+            res.send(500, { message: "query error = " + String(err) });
+        });
+        
+        query.on('end', function(result) {
+            res.send({
+                message: "All subscriptions for " + user.email_address + " deleted.",
+                neighborhoods: neighborhoods
+            });
+        });
     
+    });
+
 }
