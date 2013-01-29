@@ -100,8 +100,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
         
         if (incidents.length > 0) {
             
-            emailHtml += '<h4>Incidents this week:</h4>'
-                + '<table>'
+            emailHtml += '<table>'
                 + '<thead>'
                 + '  <tr>'
                 + '    <th>Crime</th><th>Date/Time</th><th>Address</th>'
