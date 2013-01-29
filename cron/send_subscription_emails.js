@@ -179,12 +179,11 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
 
         }
          
-        emailHtml += '<p>'
-            + '<a href="' + config.app_base_uri + '">Visit Louisville Crime Mapper</a> '
-            + '| <a href="' + unsubscriptionLink + '">Unsubscribe to email alerts for ' + neighborhood + '</a> '
-            + '| <a href="' + userUnsubscriptionLink + '">Unsubscribe to email alerts for all neighborhoods</a></p>'
-            + '<p>Thank you,</p>'
-            + '<p>Louisville Neighborhood Crime Data</p>'
+        emailHtml += '<p>Louisville Neighborhood Crime Data</p>'
+            + '<p><a href="mailto:louisville@codeforamerica.org">Contact Us</a> '
+            + '· <a href="' + config.app_base_uri + '">Visit our website</a> '
+            + '· <a href="' + unsubscriptionLink + '">Unsubscribe from ' + neighborhood + ' emails</a> '
+            + '· <a href="' + userUnsubscriptionLink + '">Unsubscribe from all emails</a></p>';
 
         // Send the email
         var sendgrid = new SendGrid(process.env.SENDGRID_USERNAME || config.sendgrid.user, process.env.SENDGRID_PASSWORD);
