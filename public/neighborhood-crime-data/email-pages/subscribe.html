@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<title>Email confirmation – Neighborhood crime data alerts</title>
+<title>Subscription confirmation – Neighborhood crime data alerts</title>
 <meta charset='utf-8'>
 <script src='/neighborhood-crime-data/ajax.js'></script>
 <link href='/neighborhood-crime-data/email-pages/styles.less' rel='stylesheet/less' type='text/css'>
@@ -33,18 +33,14 @@
 
   function main() {
     var url = location.href;
-
     var idMatch = url.match(/\?s=([a-z0-9\-]*)/);
-
     if (!idMatch || !idMatch[1]) {
       showError();
       return;
     }
 
     var id = idMatch[1];
-
     var data = { status: 'VERIFIED' };
-
     makeAjaxRequest(
         'PUT', 
         '/api/v1/subscription/' + id + '/status', 
