@@ -68,6 +68,7 @@ var getIncidents = function(client, subscriptions) {
             });
             
             query.on('end', function(results) {
+                console.log("# of incidents for neighborhood = " + neighborhood + " = " + neighborhoodIncidents[neighborhood].length);
                 callback();
             });
         }
@@ -78,6 +79,7 @@ var getIncidents = function(client, subscriptions) {
         
         if (err) {
             console.error('get neighborhood incidents error = ' + err);
+            process.exit(3);
         }
 
         console.log("# of neighborhoods in neighborhood-incidents map: " + Object.keys(neighborhoodIncidents).length);
@@ -176,7 +178,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
     async.forEach(subscriptions, sendEmail, function(err) {
         if (err) {
             console.error("send emails error = " + err);
-            process.exit(2);
+            process.exit(4);
         }
     });
     
