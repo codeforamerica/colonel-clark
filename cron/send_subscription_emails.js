@@ -95,12 +95,24 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
         var userUnsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?u=' + subscription.user_uuid;
 
         var neighborhood = subscription.neighborhood;
-        var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740px" />'
-            + '<h2>During ' + dateRange + '</h2>'
-            + '<h3>' +  neighborhood + '</h3>'
 
         var incidents = neighborhoodIncidents[neighborhood];
         
+        // Generate map, if necessary
+        if (incidents.length > 0) {
+            var mapHtml = '<img width="740" height="300" src="http://maps.googleapis.com/maps/api/staticmap?size=740x300&maptype=roadmap&markers=size:mid%7Ccolor:red'
+            for (index in incidents) {
+                var incident = incidents[index];
+                mapHtml += '%7C' + incident.lat + ',' + incident.lon;
+            }
+            mapHtml += '&sensor=false">'
+        }
+
+        var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740px" />'
+            + '<h2>During ' + dateRange + '</h2>'
+            + '<h3>' +  neighborhood + '</h3>'
+            + mapHtml
+
         if (incidents.length > 0) {
             
             emailHtml += '<table>'
