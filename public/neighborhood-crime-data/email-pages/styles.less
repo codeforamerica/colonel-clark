@@ -20,12 +20,15 @@ body {
   font-size: @fontSize;
 }
 
-#success,
+#success_existing_subscription,
+#success_no_subscription,
 #error,
 #loading {
   display: none;
 }
-#success.visible,
+
+#success_existing_subscription.visible,
+#success_no_subscription.visible,
 #error.visible,
 #loading.visible {
   display: block;

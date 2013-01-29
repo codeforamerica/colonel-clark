@@ -39,7 +39,7 @@ var checkSubscriptionExists = function(client, req, res, next) {
         if (subscription) {
             deleteSubscription(client, subscription, req, res, next);
         } else {
-            res.send(404, { message: "Could not find subscription." });
+            res.send(200, { message: "Could not find subscription. Nothing to delete." });
         }
     });
 
@@ -58,7 +58,10 @@ var deleteSubscription = function(client, subscription, req, res, next) {
     });
 
     query.on('end', function(result) {
-        res.send({ message: "Subscription to " + subscription.neighborhood + " deleted."});
+        res.send({
+            message: "Subscription to " + subscription.neighborhood + " deleted.",
+            neighborhood: subscription.neighborhood
+        });
     });
     
 }

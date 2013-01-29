@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<title>Louisville Neighborhood Crime Data - Verify Subscription</title>
+<title>Louisville Neighborhood Crime Data - Unsubscribe</title>
 <meta charset='utf-8'>
 <script src='/neighborhood-crime-data/ajax.js'></script>
 <link href='/neighborhood-crime-data/email-pages/styles.less' rel='stylesheet/less' type='text/css'>
@@ -20,7 +20,13 @@
     document.querySelector('.unsubscribe').classList.remove('invisible');
 
     document.querySelector('#loading').classList.remove('visible');
-    document.querySelector('#success').classList.add('visible');
+
+    if (data.neighborhood) {
+      document.querySelector('#success_existing_subscription').classList.add('visible');
+    } else {
+      document.querySelector('#success_no_subscription').classList.add('visible');
+    }
+
   }
 
   function ajaxConfirmation(success, httpRequest) {
@@ -43,12 +49,10 @@
 
     var id = idMatch[1];
 
-    var data = { status: 'VERIFIED' };
-
     makeAjaxRequest(
-        'PUT', 
-        '/api/v1/subscription/' + id + '/status', 
-        JSON.stringify(data),
+        'DELETE', 
+        '/api/v1/subscription/' + id,
+        null,
         ajaxConfirmation);
   }
 </script>
@@ -70,20 +74,21 @@
   </div>
   <div id='error'>
     <h3>
-      Verification failed.
+      Unsubscribe failed.
     </h3>
     <p>
       Something went wrong. You can refresh the page to try again.
     </p>
   </div>
-  <div id='success'>
+  <div id='success_existing_subscription'>
     <p>
-      Your email subscription has been verified. You will receive a weekly summary
-      for <span class='neighborhood-name'>Blah blah blah</span> every Saturday
-      evening.
+      You have been unsubscribed. You will no longer receive weekly summary emails
+      for <span class='neighborhood-name'>Blah blah blah</span>.
     </p>
+  </div>
+  <div id='success_no_subscription'>
     <p>
-      We will also send you last week’s email right now.
+      Looks like you were already unsubscribed. You are all set!
     </p>
   </div>
 
