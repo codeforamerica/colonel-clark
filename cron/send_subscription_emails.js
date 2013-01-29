@@ -79,6 +79,8 @@ var getIncidents = function(client, subscriptions) {
             console.error('get neighborhood incidents error = ' + err);
         }
 
+        console.log("neighborhood incidents:" + neighborhoodIncidents);
+
         sendEmails(subscriptions, oneWeekAgo, neighborhoodIncidents)
         ;
     });
