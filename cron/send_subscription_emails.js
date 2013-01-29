@@ -7,7 +7,7 @@ var pg = require('pg'),
 // Proceed if today is the day to send emails (default = Saturday)
 var today = new Date();
 if (today.getDay() != (process.env.EMAIL_DAY_INDEX || 6)) {
-    console.log("Today is not a good day to send emails. Quitting without sending any emails.");
+    console.warn("Today is not a good day to send emails. Quitting without sending any emails.");
     process.exit(0);
 }
 
@@ -32,7 +32,6 @@ pg.connect(process.env.DATABASE_URL || config.db_connection_string, function(err
     });
 
     query.on('end', function(results) {
-        console.log('# of subscriptions returned from db = ' + subscriptions.length);
         getIncidents(client, subscriptions);
     });
 
@@ -47,7 +46,6 @@ var getIncidents = function(client, subscriptions) {
     var getNeighborhoodIncidents = function(subscription, callback) {
        
         var neighborhood = subscription.neighborhood;
-        console.log("Getting incidents for neighborhood = " + neighborhood);
         if (!neighborhoodIncidents[neighborhood]) {
             
             var query = client.query({
@@ -68,9 +66,10 @@ var getIncidents = function(client, subscriptions) {
             });
             
             query.on('end', function(results) {
-                console.log("# of incidents for neighborhood = " + neighborhood + " = " + neighborhoodIncidents[neighborhood].length);
                 callback();
             });
+        } else {
+            callback();
         }
         
     };
@@ -81,8 +80,6 @@ var getIncidents = function(client, subscriptions) {
             console.error('get neighborhood incidents error = ' + err);
             process.exit(3);
         }
-
-        console.log("# of neighborhoods in neighborhood-incidents map: " + Object.keys(neighborhoodIncidents).length);
 
         sendEmails(subscriptions, oneWeekAgo, neighborhoodIncidents);
     });
@@ -95,8 +92,6 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
     var dateRange = oneWeekAgo.toFormat(format) + ' - ' + today.toFormat(format);
 
     var sendEmail = function(subscription, callback) {
-
-        console.log("Sending email for subscription ID = " + subscription.subscription_uuid);
 
         var unsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?s=' + subscription.subscription_uuid;
         var userUnsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?u=' + subscription.user_uuid;
@@ -167,7 +162,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
                 console.error('subscription email error = ' + message);
                 callback(message);
             } else {
-                console.log("Sent email for " + subscription.neighborhood + " to " + subscription.email_address);
+                console.info("Sent email for " + subscription.neighborhood + " to " + subscription.email_address);
                 callback();
             }
         });
