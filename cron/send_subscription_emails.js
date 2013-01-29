@@ -1,7 +1,8 @@
 var pg = require('pg'),
     config = require('config'),
     async = require('async'),
-    SendGrid = require('sendgrid').SendGrid;
+    SendGrid = require('sendgrid').SendGrid,
+    du = require('date-utils');
 
 // Proceed if today is the day to send emails (default = Saturday)
 var today = new Date();
@@ -38,8 +39,10 @@ pg.connect(process.env.DATABASE_URL || config.db_connection_string, function(err
 
 var getIncidents = function(client, subscriptions) {
 
-    var oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
-    var oneWeekAgo = new Date(today.getTime() - oneWeekInMilliseconds);
+    var oneWeekAgo = today.clone().addWeeks(-1);
+
+    var format = 'DDDD, MMM D';
+    var dateRange = oneWeekAgo.toFormat(format) + ' - ' + today.toFormat(format);
 
     var neighborhoodIncidents = {};
 
