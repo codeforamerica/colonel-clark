@@ -1,5 +1,6 @@
 var pg = require('pg'),
-    config = require('config');
+    config = require('config'),
+    subscriptions = require(__dirname + '/../../../lib/subscriptions');
 
 exports.put = function(req, res, next) {
 
@@ -63,11 +64,24 @@ var updateSubscriptionStatus = function(client, subscription, req, res, next) {
     });
 
     query.on('end', function(result) {
-        res.send({
-            message: "Subscription status updated.",
-            neighborhood: subscription.neighborhood,
-            userId: subscription.user_uuid
+        
+        subscriptions.sendEmails(subscription, function(err) {
+
+            var message = "Subscription status updated.";
+
+            if (err) {
+                console.log("subscription send emails error = " + err);
+            } else {
+                message += " Last week's email sent.";
+            }
+
+            res.send({
+                message: message,
+                neighborhood: subscription.neighborhood,
+                userId: subscription.user_uuid
+            });
         });
+        
     });
     
 }
