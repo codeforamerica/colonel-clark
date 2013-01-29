@@ -100,6 +100,10 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
 
         var incidents = neighborhoodIncidents[neighborhood];
         
+        var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740px" />'
+            + '<h2>During ' + dateRange + '</h2>'
+            + '<h3>' +  neighborhood + '</h3>'
+
         // Generate map, if necessary
         if (incidents.length > 0) {
             var mapHtml = '<img width="740" height="300" src="http://maps.googleapis.com/maps/api/staticmap?size=740x300&maptype=roadmap&markers=size:mid%7Ccolor:red'
@@ -107,17 +111,10 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
                 var incident = incidents[index];
                 mapHtml += '%7C' + incident.lat + ',' + incident.lon;
             }
-            mapHtml += '&sensor=false">'
-        }
+            mapHtml += '&sensor=false">';
 
-        var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740px" />'
-            + '<h2>During ' + dateRange + '</h2>'
-            + '<h3>' +  neighborhood + '</h3>'
-            + mapHtml
-
-        if (incidents.length > 0) {
-            
-            emailHtml += '<table>'
+            emailHtml += mapHtml
+                + '<table>'
                 + '<thead>'
                 + '  <tr>'
                 + '    <th>Crime</th><th>Date/Time</th><th>Address</th>'
