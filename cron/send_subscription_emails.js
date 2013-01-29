@@ -190,7 +190,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
         var sendgrid = new SendGrid(process.env.SENDGRID_USERNAME || config.sendgrid.user, process.env.SENDGRID_PASSWORD);
         sendgrid.send({
             to: subscription.email_address,
-            from: 'bourbonplanners@codeforamerica.com',
+            from: 'Louisville Neighborhood Crime Data <no-reply@codeforamerica.org>',
             subject: 'Louisville Neighborhood Crime Mapper Weekly Update',
             html: emailHtml
         }, function(success, message) {

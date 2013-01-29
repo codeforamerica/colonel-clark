@@ -147,7 +147,7 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
             var sendgrid = new SendGrid(process.env.SENDGRID_USERNAME || config.sendgrid.user, process.env.SENDGRID_PASSWORD);
             sendgrid.send({
                 to: user.email_address,
-                from: 'bourbonplanners@codeforamerica.com',
+                from: 'Louisville Neighborhood Crime Data <no-reply@codeforamerica.org>',
                 subject: 'Welcome to neighborhood crime alerts!',
                 html: emailHtml
             }, function(success, message) {
