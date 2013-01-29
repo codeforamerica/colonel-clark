@@ -133,11 +133,11 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
 
     async.forEach(newSubscriptions, insertNewSubscription, function(err) {
 
-        var sendSubscriptionConfirmationEmail = function(neighborhood, callback) {
+        var sendSubscriptionVerification = function(neighborhood, callback) {
             
             var subscriptionLink = config.app_base_uri + 'email-pages/subscribe.html?s=' + subscriptionIds[neighborhood];
             var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740px" />'
-                + '<p>Confirm your subscription to Louisville Neighborhood Crime Data weekly emails for ' + neighborhood + ' by visiting:</p>'
+                + '<p>Verify your subscription to Louisville Neighborhood Crime Data weekly emails for ' + neighborhood + ' by visiting:</p>'
                 + '<p><a href="' + subscriptionLink + '">' + subscriptionLink + '</a></p>'
                 + '<p>If you never intended to subscribe to our weekly crime email, please ignore this message.'
                 + '<p>NOTE: This is an experimental project and it might be suspended at any point.</p>'
@@ -149,7 +149,7 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
                 to: user.email_address,
                 from: 'no-reply@codeforamerica.org',
                 fromname: 'Louisville Neighborhood Crime Data',
-                subject: 'Confirm your subscription for ' + neighborhood,
+                subject: 'Verify your subscription for ' + neighborhood,
                 html: emailHtml
             }, function(success, message) {
                 if (!success) {
@@ -161,7 +161,7 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
 
         };
 
-        async.forEach(newSubscriptions, sendSubscriptionConfirmationEmail, function(err) {
+        async.forEach(newSubscriptions, sendSubscriptionVerification, function(err) {
             res.send({
                 message: newSubscriptions.length + " new subscriptions added."
             });
