@@ -136,13 +136,12 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
         var sendSubscriptionConfirmationEmail = function(neighborhood, callback) {
             
             var subscriptionLink = config.app_base_uri + 'email-pages/subscribe.html?s=' + subscriptionIds[neighborhood];
-            var emailHtml = '<p>Hi,</p>'
-                + '<p>You have been subscribed to neighborhood crime alerts for '
-                + '<strong>' + neighborhood + '</strong>.</p>'
-                + '<p>To confirm your subscription, please click this link: '
-                + '<a href="' + subscriptionLink + '">' + subscriptionLink + '</a></p>'
-                + '<p>Thank you,</p>'
+            var emailHtml = '<p>Confirm your subscription to Louisville Neighborhood Crime Data weekly emails for ' + neighborhood + ' by visiting:</p>'
+                + '<p><a href="' + subscriptionLink + '">' + subscriptionLink + '</a></p>'
+                + '<p>If you never intended to subscribe to our weekly crime email, please ignore this message.'
+                + '<p>NOTE: This is an experimental project and it might be suspended at any point.</p>'
                 + '<p>Louisville Neighborhood Crime Data</p>'
+                + '<p><a href="mailto:louisville@codeforamerica.org">Contact Us</a></p>'
 
             var sendgrid = new SendGrid(process.env.SENDGRID_USERNAME || config.sendgrid.user, process.env.SENDGRID_PASSWORD);
             sendgrid.send({
