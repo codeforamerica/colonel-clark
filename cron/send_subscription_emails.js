@@ -97,9 +97,9 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
             + '<h3>' +  neighborhood + '</h3>'
 
         var incidents = neighborhoodIncidents[neighborhood];
-
+        
         if (incidents.length > 0) {
-
+            
             emailHtml += '<h4>Incidents this week:</h4>'
                 + '<table>'
                 + '<thead>'
@@ -109,12 +109,6 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
                 + '</thead>'
                 + '<tbody>';
             
-            var totalCrimes = 0;
-            var totalPropertyCrimes = 0;
-            var totalViolentCrimes = 0;
-            var propertyCrimes = {};
-            var violentCrimes = {};
-
             for (index in incidents) {
                 var incident = incidents[index];
                 emailHtml += '  <tr>'
@@ -122,57 +116,11 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
                     + '    <td>' + incident.incident_timestamp + '</td>'
                     + '    <td>' + incident.street_address + '</td>'
                     + '  </tr>'
-
-                // Add to stats
-                ++totalCrimes;
-                switch (incident.crime) {
-                    case 'AUTO THEFT':
-                    case 'THEFT':
-                    case 'VANDALISM':
-                        ++totalPropertyCrimes;
-                        if (!propertyCrimes[incident.crime]) {
-                            propertyCrimes[incident.crime] = 0;
-                        }
-                        ++propertyCrimes[incident.crime];
-                        break;
-                    case 'AGGRAVATED ASSAULT':
-                    case 'BURGLARY':
-                    case 'HOMICIDE':
-                    case 'ROBBERY':
-                    case 'SIMPLE ASSAULT':
-                        ++totalViolentCrimes;
-                        if (!violentCrimes[incident.crime]) {
-                            violentCrimes[incident.crime] = 0;
-                        }
-                        ++violentCrimes[incident.crime];
-                        break;
-                }
             }
 
             emailHtml += '</tbody>'
                 + '</table>'
-                + '<h4>Crime totals:</h4>'
-                + '<ul>'
-                + '  <li>Total Crime: ' + totalCrimes + '</li>'
-                + '  <li>Property Crime: ' + totalPropertyCrimes + '</li>'
-                + '  <ul>';
             
-            for (crime in propertyCrimes) {
-                emailHtml += '    <li>' + crime + ': ' + propertyCrimes[crime] + '</li>';
-            }
-
-            emailHtml += '  </ul>'
-                + '  <li>Violent Crime: ' + totalViolentCrimes + '</li>'
-                + '  <ul>'
-
-            for (crime in violentCrimes) {
-                emailHtml += '    <li>' + crime + ': ' + violentCrimes[crime] + '</li>';
-            }
-            
-            emailHtml += '  </ul>'
-                + '</ul>';
-
-
         } else {
 
             emailHtml += '<h4>There were no crime incidents this week!</h4>'
