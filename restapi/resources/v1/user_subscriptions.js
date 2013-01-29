@@ -136,7 +136,8 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
         var sendSubscriptionConfirmationEmail = function(neighborhood, callback) {
             
             var subscriptionLink = config.app_base_uri + 'email-pages/subscribe.html?s=' + subscriptionIds[neighborhood];
-            var emailHtml = '<p>Confirm your subscription to Louisville Neighborhood Crime Data weekly emails for ' + neighborhood + ' by visiting:</p>'
+            var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740px" />'
+                + '<p>Confirm your subscription to Louisville Neighborhood Crime Data weekly emails for ' + neighborhood + ' by visiting:</p>'
                 + '<p><a href="' + subscriptionLink + '">' + subscriptionLink + '</a></p>'
                 + '<p>If you never intended to subscribe to our weekly crime email, please ignore this message.'
                 + '<p>NOTE: This is an experimental project and it might be suspended at any point.</p>'

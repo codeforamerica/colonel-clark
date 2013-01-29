@@ -92,7 +92,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
         var userUnsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?u=' + subscription.user_uuid;
 
         var neighborhood = subscription.neighborhood;
-        var emailHtml = '<h1>Louisville Neighborhood Crime Data</h1>'
+        var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740px" />'
             + '<h2>For the week starting ' + oneWeekAgo + '</h2>'
             + '<h3>' +  neighborhood + '</h3>'
 
