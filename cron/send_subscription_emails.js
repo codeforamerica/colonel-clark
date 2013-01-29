@@ -47,6 +47,7 @@ var getIncidents = function(client, subscriptions) {
     var getNeighborhoodIncidents = function(subscription, callback) {
        
         var neighborhood = subscription.neighborhood;
+        console.log("Getting incidents for neighborhood = " + neighborhood);
         if (!neighborhoodIncidents[neighborhood]) {
             
             var query = client.query({
@@ -79,10 +80,9 @@ var getIncidents = function(client, subscriptions) {
             console.error('get neighborhood incidents error = ' + err);
         }
 
-        console.log("neighborhood incidents:" + neighborhoodIncidents);
+        console.log("# of neighborhoods in neighborhood-incidents map: " + Object.keys(neighborhoodIncidents).length);
 
-        sendEmails(subscriptions, oneWeekAgo, neighborhoodIncidents)
-        ;
+        sendEmails(subscriptions, oneWeekAgo, neighborhoodIncidents);
     });
 
 }
@@ -94,7 +94,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
 
     var sendEmail = function(subscription, callback) {
 
-        console.log("Sending email for subscription ID = " + subscription.uuid);
+        console.log("Sending email for subscription ID = " + subscription.subscription_uuid);
 
         var unsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?s=' + subscription.subscription_uuid;
         var userUnsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?u=' + subscription.user_uuid;
