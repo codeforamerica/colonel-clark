@@ -115,7 +115,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
                 var incident = incidents[index];
                 emailHtml += '  <tr>'
                     + '    <td>' + incident.crime + '</td>'
-                    + '    <td>' + incident.incident_timestamp + '</td>'
+                    + '    <td>' + incident.incident_timestamp.toFormat(format) + '</td>'
                     + '    <td>' + incident.street_address + '</td>'
                     + '  </tr>'
             }
