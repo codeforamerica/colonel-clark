@@ -41,9 +41,6 @@ var getIncidents = function(client, subscriptions) {
 
     var oneWeekAgo = today.clone().addWeeks(-1);
 
-    var format = 'DDDD, MMM D';
-    var dateRange = oneWeekAgo.toFormat(format) + ' - ' + today.toFormat(format);
-
     var neighborhoodIncidents = {};
 
     var getNeighborhoodIncidents = function(subscription, callback) {
@@ -89,6 +86,9 @@ var getIncidents = function(client, subscriptions) {
 
 var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
 
+    var format = 'DDDD, MMM D';
+    var dateRange = oneWeekAgo.toFormat(format) + ' - ' + today.toFormat(format);
+
     var sendEmail = function(subscription, callback) {
 
         var unsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?s=' + subscription.subscription_uuid;
@@ -96,7 +96,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
 
         var neighborhood = subscription.neighborhood;
         var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740px" />'
-            + '<h2>For the week starting ' + oneWeekAgo + '</h2>'
+            + '<h2>During ' + dateRange + '</h2>'
             + '<h3>' +  neighborhood + '</h3>'
 
         var incidents = neighborhoodIncidents[neighborhood];
