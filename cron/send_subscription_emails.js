@@ -32,6 +32,7 @@ pg.connect(process.env.DATABASE_URL || config.db_connection_string, function(err
     });
 
     query.on('end', function(results) {
+        console.log('# of subscriptions returned from db = ' + subscriptions.length);
         getIncidents(client, subscriptions);
     });
 
