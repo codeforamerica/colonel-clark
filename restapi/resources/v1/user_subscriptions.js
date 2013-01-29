@@ -139,9 +139,9 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
             var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740" height="31" />'
                 + '<p>Verify your subscription to Louisville Neighborhood Crime Data weekly emails for ' + neighborhood + ' by visiting:</p>'
                 + '<p><a href="' + subscriptionLink + '">' + subscriptionLink + '</a></p>'
-                + '<p>If you never intended to subscribe to our weekly crime email, please ignore this message.'
+                + '<br><br><p>If you never intended to subscribe to our weekly crime email, please ignore this message.'
                 + '<p>NOTE: This is an experimental project and it might be suspended at any point.</p>'
-                + '<p style="color: gray">-- <br>'
+                + '<p style="color: gray"><br><br>'
                 + 'Louisville Neighborhood Crime Data<br>'
                 + '<a style="color: gray" href="mailto:louisville@codeforamerica.org">Contact us</a></p>'
 
