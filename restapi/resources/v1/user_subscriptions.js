@@ -141,8 +141,9 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
                 + '<p><a href="' + subscriptionLink + '">' + subscriptionLink + '</a></p>'
                 + '<p>If you never intended to subscribe to our weekly crime email, please ignore this message.'
                 + '<p>NOTE: This is an experimental project and it might be suspended at any point.</p>'
-                + '<p>Louisville Neighborhood Crime Data</p>'
-                + '<p><a href="mailto:louisville@codeforamerica.org">Contact Us</a></p>'
+                + '<p>-- <br>'
+                + 'Louisville Neighborhood Crime Data<br>'
+                + '<a href="mailto:louisville@codeforamerica.org">Contact us</a></p>'
 
             var sendgrid = new SendGrid(process.env.SENDGRID_USERNAME || config.sendgrid.user, process.env.SENDGRID_PASSWORD);
             sendgrid.send({
