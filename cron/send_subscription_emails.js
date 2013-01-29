@@ -92,7 +92,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
         var userUnsubscriptionLink = config.app_base_uri + 'email-pages/unsubscribe.html?u=' + subscription.user_uuid;
 
         var neighborhood = subscription.neighborhood;
-        var emailHtml = '<h1>Louisville Neighborhood Crime Mapper</h1>'
+        var emailHtml = '<h1>Louisville Neighborhood Crime Data</h1>'
             + '<h2>For the week starting ' + oneWeekAgo + '</h2>'
             + '<h3>' +  neighborhood + '</h3>'
 
@@ -184,7 +184,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
             + '| <a href="' + unsubscriptionLink + '">Unsubscribe to email alerts for ' + neighborhood + '</a> '
             + '| <a href="' + userUnsubscriptionLink + '">Unsubscribe to email alerts for all neighborhoods</a></p>'
             + '<p>Thank you,</p>'
-            + '<p>Bourbon Planners</p>'
+            + '<p>Louisville Neighborhood Crime Data</p>'
 
         // Send the email
         var sendgrid = new SendGrid(process.env.SENDGRID_USERNAME || config.sendgrid.user, process.env.SENDGRID_PASSWORD);

@@ -142,7 +142,7 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
                 + '<p>To confirm your subscription, please click this link: '
                 + '<a href="' + subscriptionLink + '">' + subscriptionLink + '</a></p>'
                 + '<p>Thank you,</p>'
-                + '<p>Bourbon Planners</p>'
+                + '<p>Louisville Neighborhood Crime Data</p>'
 
             var sendgrid = new SendGrid(process.env.SENDGRID_USERNAME || config.sendgrid.user, process.env.SENDGRID_PASSWORD);
             sendgrid.send({
