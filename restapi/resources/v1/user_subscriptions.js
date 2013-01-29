@@ -136,18 +136,19 @@ var insertNewSubscriptions = function(client, user, newSubscriptions, req, res, 
         var sendSubscriptionVerification = function(neighborhood, callback) {
             
             var subscriptionLink = config.app_base_uri + 'email-pages/subscribe.html?s=' + subscriptionIds[neighborhood];
-            var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740px" />'
+            var emailHtml = '<img src="' + config.app_base_uri + 'images/logo-retina.png" width="740" height="31" />'
                 + '<p>Verify your subscription to Louisville Neighborhood Crime Data weekly emails for ' + neighborhood + ' by visiting:</p>'
                 + '<p><a href="' + subscriptionLink + '">' + subscriptionLink + '</a></p>'
                 + '<p>If you never intended to subscribe to our weekly crime email, please ignore this message.'
                 + '<p>NOTE: This is an experimental project and it might be suspended at any point.</p>'
-                + '<p>Louisville Neighborhood Crime Data</p>'
-                + '<p><a href="mailto:louisville@codeforamerica.org">Contact Us</a></p>'
+                + '<p style="color: gray">-- <br>'
+                + 'Louisville Neighborhood Crime Data<br>'
+                + '<a style="color: gray" href="mailto:louisville@codeforamerica.org">Contact us</a></p>'
 
             var sendgrid = new SendGrid(process.env.SENDGRID_USERNAME || config.sendgrid.user, process.env.SENDGRID_PASSWORD);
             sendgrid.send({
                 to: user.email_address,
-                from: 'no-reply@codeforamerica.org',
+                from: 'NO-REPLY@codeforamerica.org',
                 fromname: 'Louisville Neighborhood Crime Data',
                 subject: 'Verify your subscription for ' + neighborhood,
                 html: emailHtml
