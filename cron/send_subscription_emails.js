@@ -191,7 +191,7 @@ var sendEmails = function(subscriptions, oneWeekAgo, neighborhoodIncidents) {
         sendgrid.send({
             to: subscription.email_address,
             from: 'Louisville Neighborhood Crime Data <no-reply@codeforamerica.org>',
-            subject: 'Louisville Neighborhood Crime Mapper Weekly Update',
+            subject: 'Weekly update for ' + neighborhood,
             html: emailHtml
         }, function(success, message) {
             if (!success) {
