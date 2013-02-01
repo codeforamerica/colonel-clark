@@ -17,13 +17,18 @@ var MAP_VERT_PADDING = 50;
 var LAT_STEP = -.1725;
 var LONG_STEP = .2195;
 
+var EASY_MODE_COUNT = 20;
+
 var startTime = 0;
 var timerIntervalId;
 
+var totalNeighborhoodsCount;
 var neighborhoodsToBeGuessed = [];
 var neighborhoodsGuessed = [];
 
 var mapClickable = false;
+
+var easyMode = false;
 
 // TODO unhardcode this
 var CITY_DATA = {
@@ -162,6 +167,18 @@ function removeSmallNeighborhoods() {
   }
 }
 
+function updateCount() {
+  var els = document.querySelectorAll('.easy-mode-count');
+  for (var i = 0, el; el = els[i]; i++) {
+    el.innerHTML = EASY_MODE_COUNT;
+  }
+
+  var els = document.querySelectorAll('.hard-mode-count');
+  for (var i = 0, el; el = els[i]; i++) {
+    el.innerHTML = totalNeighborhoodsCount;
+  }
+}
+
 function mapIsReady(error, data) {
   mapData = data;
 
@@ -171,6 +188,7 @@ function mapIsReady(error, data) {
   resizeMapOverlay();
 
   prepareNeighborhoods();
+  updateCount();
   createMap();
 
   removeSmallNeighborhoods();
@@ -186,6 +204,8 @@ function prepareNeighborhoods() {
   }
 
   neighborhoodsToBeGuessed.sort();
+
+  totalNeighborhoodsCount = neighborhoodsToBeGuessed.length;
 }
 
 function createMap() {
@@ -199,26 +219,30 @@ function createMap() {
     .attr('name', function(d) { return d.properties.name; })
     .on('click', function(d) {
       var el = d3.event.target || d3.event.toElement;
-      handleNeighborhoodClick(el, d.properties.name);
+
+      if (!el.getAttribute('inactive')) {      
+        handleNeighborhoodClick(el, d.properties.name);
+      }
     })
     .on('mousedown', function(d) {
       d3.event.preventDefault();
     })
     .on('mouseover', function(d) {
       // TODO make a function
-
       var el = d3.event.target || d3.event.toElement;
 
-      var boundingBox = el.getBBox();
+      if (!el.getAttribute('inactive')) {
+        var boundingBox = el.getBBox();
 
-      var hoverEl = document.querySelector('#neighborhood-hover');
+        var hoverEl = document.querySelector('#neighborhood-hover');
 
-      hoverEl.innerHTML = d.properties.name;  
+        hoverEl.innerHTML = d.properties.name;  
 
-      hoverEl.style.left = (boundingBox.x + boundingBox.width / 2 - hoverEl.offsetWidth / 2) + 'px';
-      hoverEl.style.top = (boundingBox.y + boundingBox.height) + 'px';
+        hoverEl.style.left = (boundingBox.x + boundingBox.width / 2 - hoverEl.offsetWidth / 2) + 'px';
+        hoverEl.style.top = (boundingBox.y + boundingBox.height) + 'px';
 
-      hoverEl.classList.add('visible');  
+        hoverEl.classList.add('visible');  
+      }
     })
     .on('mouseout', function(d) {
       // TODO use target
@@ -267,7 +291,7 @@ function handleNeighborhoodClick(el, name) {
 
     neighborhoodsToBeGuessed.splice(no, 1);
 
-    updateCount();
+    updateGameProgress();
 
     if (neighborhoodsToBeGuessed.length == 0) {
       gameOver();
@@ -304,7 +328,7 @@ function handleNeighborhoodClick(el, name) {
   updateNeighborhoodDisplay();
 }
 
-function updateCount() {
+function updateGameProgress() {
   document.querySelector('#count').innerHTML = 
       neighborhoodsGuessed.length + ' of ' + 
       (neighborhoodsGuessed.length + neighborhoodsToBeGuessed.length);
@@ -368,12 +392,33 @@ function playAgain() {
   location.reload();
 }
 
-function startGame() {
+function removeNeighborhoodsForEasyMode() {
+  while (neighborhoodsToBeGuessed.length > EASY_MODE_COUNT) {
+    var pos = Math.floor(Math.random() * neighborhoodsToBeGuessed.length);
+
+    var name = neighborhoodsToBeGuessed[pos];
+
+    var el = document.querySelector('#map svg [name="' + name + '"]');
+    //el.parentNode.removeChild(el);
+    el.setAttribute('inactive', true);
+
+    neighborhoodsToBeGuessed.splice(pos, 1);
+  }
+
+}
+
+function startGame(useEasyMode) {
   document.querySelector('#intro').classList.remove('visible');  
   document.querySelector('#cover').classList.remove('visible');
   window.setTimeout(nextGuess, NEXT_GUESS_DELAY);
 
-  updateCount();
+  easyMode = useEasyMode;
+
+  if (easyMode) {
+    removeNeighborhoodsForEasyMode();
+  }
+
+  updateGameProgress();
 
   startTime = new Date().getTime();
   timerIntervalId = window.setInterval(updateTimer, 100);
@@ -383,7 +428,7 @@ function gameOver() {
   window.clearInterval(timerIntervalId);
 
   document.querySelector('#cover').classList.add('visible');
-  document.querySelector('#congrats').classList.add('visible');  
+  document.querySelector(easyMode ? '#congrats-easy' : '#congrats-hard').classList.add('visible');  
 }
 
 function updateTimer() {

@@ -26,6 +26,7 @@
 @hoverNeighborhoodFillColour: fadeout(@highlightColour, 50%);
 @guessedNeighborhoodFillColour: rgba(0, 255, 0, .25);
 @unguessedNeighborhoodFillColour: rgba(0, 0, 0, .6);
+@inactiveNeighborhoodFillColour: rgba(128, 128, 128, .75);
 
 body {
   background: @mainBackgroundColour;
@@ -235,17 +236,18 @@ body.no-hover #neighborhood-hover {
 }
 
 #map .neighborhood {
-  cursor: pointer;
-
   &.unguessed {
     stroke-width: 1;
     stroke: white;
 
     fill: @unguessedNeighborhoodFillColour;
   }
-  &:hover {
-    // Important is only necessary for the Safari 6 bug hack
+  &[inactive] {
+    fill: @inactiveNeighborhoodFillColour;
+  }
+  &:not([inactive]):hover {
     fill: fadeout(@highlightColour, 50%);
+    cursor: pointer;
   }
   &.guessed {
     stroke: transparent;
@@ -260,6 +262,10 @@ body.no-hover #neighborhood-hover {
     -webkit-animation-name: blink;
     -webkit-animation-duration: 500ms;
     -webkit-animation-iteration-count: infinite;
+
+    -moz-animation-name: blink;
+    -moz-animation-duration: 500ms;
+    -moz-animation-iteration-count: infinite;
   }
   &.wrong-guess {
     fill: rgba(255, 0, 0, .7);
@@ -269,6 +275,10 @@ body.no-hover #neighborhood-hover {
 }
 
 @-webkit-keyframes blink {
+  0%, 49.99% { fill: rgba(0, 255, 0, .25); }
+  50%, 100% { fill: rgba(0, 0, 0, .6); }
+}
+@keyframes blink {
   0%, 49.99% { fill: rgba(0, 255, 0, .25); }
   50%, 100% { fill: rgba(0, 0, 0, .6); }
 }
@@ -302,8 +312,8 @@ body.no-hover #neighborhood-hover {
 }
 #cover button {
   font-size: @fontSize * 2;
-  font-weight: 400;
-  padding: 5px 50px;
+  font-weight: 600;
+  padding: 10px 50px;
 
   font-family: 'Open Sans', Arial, Helvetica, sans-serif;
 
@@ -311,6 +321,16 @@ body.no-hover #neighborhood-hover {
 
   cursor: pointer;
 }
+#cover button.not(.smaller) > span {
+  font-size: 70%;
+  display: block;
+}
+#cover button.smaller {
+  font-weight: 400;
+  padding: 10px 20px;
+  font-size: 60%;
+}
+
 
 #cover > div {
   display: none;
