@@ -136,7 +136,7 @@ function prepareMap() {
       .attr('width', canvasWidth)
       .attr('height', canvasHeight);    
 
-  var query = "SELECT * FROM neighborhoods WHERE " + CITY_DATA[city].cartoDbQueryWhereClause;
+  var query = "SELECT * FROM neighborhoods WHERE " + CITY_DATA[cityId].cartoDbQueryWhereClause;
 
   queue()  
       .defer(d3.json, 'http://cfa.cartodb.com/api/v2/sql?q=' + 
