@@ -3,10 +3,13 @@ var whatIsThis = (function(){
 
   var infoEl;
   var teaserEl;
+  var shieldEl;
 
   var LOCAL_STORAGE_NAME = 'what-is-this-hidden-';
 
   var INFO_DELAY = 500;
+
+  var SHIELD_OPACITY_DELAY = 200;
 
   function _addCssCode(cssCode) {
     var styleElement = document.createElement('style');
@@ -44,6 +47,25 @@ var whatIsThis = (function(){
     cssCode.push('  transition: background 250ms;');
     cssCode.push('}');
     _addCssCode(cssCode.join('\n'));
+
+    cssCode = [];
+    cssCode.push('#what-is-this-shield {');
+    cssCode.push('  z-index: 999998;');
+    cssCode.push('  position: fixed;');
+    cssCode.push('  left: 0;');
+    cssCode.push('  right: 0;');
+    cssCode.push('  top: 0;');
+    cssCode.push('  bottom: 0;');
+    cssCode.push('  cursor: pointer;');
+    cssCode.push('  opacity: 0;');
+    cssCode.push('  background: white;');
+    cssCode.push('  display: none;');
+    cssCode.push('  -webkit-transition: opacity 200ms;');
+    cssCode.push('  -moz-transition: opacity 200ms;');
+    cssCode.push('  transition: opacity 200ms;');
+    cssCode.push('}');
+    _addCssCode(cssCode.join('\n'));
+
 
     cssCode = [];
     cssCode.push('#what-is-this-info {');
@@ -190,6 +212,11 @@ var whatIsThis = (function(){
     teaserEl.id = 'what-is-this-teaser';
     teaserEl.innerHTML = 'What is this?';
     document.body.appendChild(teaserEl);
+
+    shieldEl = document.createElement('div');  
+    shieldEl.id = 'what-is-this-shield';
+    document.body.appendChild(shieldEl);
+    shieldEl.addEventListener('click', whatIsThis.hideInfo, false);
     
     teaserEl.addEventListener('click', _showInfo, false);
   }
@@ -205,11 +232,14 @@ var whatIsThis = (function(){
   function _showInfoPart2() {
     // TODO: Remove from here into CSS
     infoEl.style.webkitTransition = 'opacity 750ms, top 750ms';
+    infoEl.style.MozTransition = 'opacity 750ms, top 750ms';
     infoEl.style.top = '-10px';
     infoEl.style.opacity = 1;
+
+    shieldEl.style.display = 'block';
+    window.setTimeout(function() { shieldEl.style.opacity = '.5'; }, 0);
     
     _hideTeaser();
-    localStorage[LOCAL_STORAGE_NAME + location.href] = false;
   }
 
   function _showInfoWithDelay() {
@@ -219,13 +249,15 @@ var whatIsThis = (function(){
   whatIsThis.hideInfo = function() {
     // TODO: Remove from here into CSS
     infoEl.style.webkitTransition = 'opacity 250ms, top 250ms';  
+    infoEl.style.MozTransition = 'opacity 250ms, top 250ms';  
     var height = infoEl.offsetHeight;
     infoEl.style.top = -(height + 50) + 'px';
     infoEl.style.opacity = .5;
-    
+
+    shieldEl.style.opacity = 0;
+    window.setTimeout(function() { shieldEl.style.display = 'none'; }, SHIELD_OPACITY_DELAY);
+
     _showTeaser();
-    
-    localStorage[LOCAL_STORAGE_NAME + location.href] = true;
     
     return false;
   }
@@ -233,6 +265,7 @@ var whatIsThis = (function(){
   function _showTeaser() {
     // TODO: Remove from here into CSS
     teaserEl.style.webkitTransition = 'opacity 750ms, top 750ms';
+    teaserEl.style.MozTransition = 'opacity 750ms, top 750ms';
     teaserEl.style.top = '-10px';
     teaserEl.style.opacity = 1;  
   }
@@ -240,6 +273,7 @@ var whatIsThis = (function(){
   function _hideTeaser() {
     // TODO: Remove from here into CSS
     teaserEl.style.webkitTransition = 'opacity 250ms, top 250ms';  
+    teaserEl.style.MozTransition = 'opacity 250ms, top 250ms';  
     teaserEl.style.top = '-50px';
     teaserEl.style.opacity = .5;  
   }
@@ -253,6 +287,8 @@ var whatIsThis = (function(){
     } else {
       _showInfoWithDelay();
     }
+    
+    localStorage[LOCAL_STORAGE_NAME + location.href] = true;
   }
 
   whatIsThis.init = function() {

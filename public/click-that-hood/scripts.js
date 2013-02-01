@@ -17,20 +17,39 @@ var MAP_VERT_PADDING = 50;
 var LAT_STEP = -.1725;
 var LONG_STEP = .2195;
 
+var EASY_MODE_COUNT = 20;
+
 var startTime = 0;
 var timerIntervalId;
 
+var totalNeighborhoodsCount;
 var neighborhoodsToBeGuessed = [];
 var neighborhoodsGuessed = [];
 
 var mapClickable = false;
 
-var SUPPORTED_CITIES = ['louisville', 'lexington'];
+var easyMode = false;
 
 // TODO unhardcode this
-var CITY_SIZES = {
-  'louisville': [ 1507, 1196 ],
-  'lexington': [ 1507, 1507 ]
+var CITY_DATA = {
+  'louisville': { 
+    mapSize: [ 1507, 1196 ],
+    query: "SELECT * FROM neighborhoods WHERE city = 'Louisville'",
+    dataUrl: 'http://www.zillow.com/howto/api/neighborhood-boundaries.htm',
+    dataTitle: 'Zillow'
+  },
+  'lexington': { 
+    mapSize: [ 1507, 1507 ],
+    query: "SELECT * FROM neighborhoods WHERE city = 'Lexington'",
+    dataUrl: 'http://www.zillow.com/howto/api/neighborhood-boundaries.htm',
+    dataTitle: 'Zillow'
+  },
+  'oakland': { 
+    mapSize: [ 1507, 1796 ],
+    query: "SELECT * FROM cth_oakland",
+    dataUrl: 'http://data.openoakland.org/dataset/zillow-neighborhoods',
+    dataTitle: 'OpenOakland'
+  },
 };
 
 var SMALL_NEIGHBORHOOD_THRESHOLD = 4;
@@ -86,8 +105,8 @@ function calculateMapSize() {
   latSpread = maxLat - minLat;
   lonSpread = maxLon - minLon;
 
-  var mapWidth = CITY_SIZES[cityId][0] / 2500000;
-  var mapHeight = CITY_SIZES[cityId][1] / 2500000;
+  var mapWidth = CITY_DATA[cityId].mapSize[0] / 2500000;
+  var mapHeight = CITY_DATA[cityId].mapSize[1] / 2500000;
 
   var mapRatio = mapWidth / mapHeight;
 
@@ -117,7 +136,7 @@ function prepareMap() {
       .attr('width', canvasWidth)
       .attr('height', canvasHeight);    
 
-  var query = "SELECT * FROM neighborhoods WHERE city = '" + cityName + "'";
+  var query = CITY_DATA[cityId].query;
 
   queue()  
       .defer(d3.json, 'http://cfa.cartodb.com/api/v2/sql?q=' + 
@@ -148,6 +167,18 @@ function removeSmallNeighborhoods() {
   }
 }
 
+function updateCount() {
+  var els = document.querySelectorAll('.easy-mode-count');
+  for (var i = 0, el; el = els[i]; i++) {
+    el.innerHTML = EASY_MODE_COUNT;
+  }
+
+  var els = document.querySelectorAll('.hard-mode-count');
+  for (var i = 0, el; el = els[i]; i++) {
+    el.innerHTML = totalNeighborhoodsCount;
+  }
+}
+
 function mapIsReady(error, data) {
   mapData = data;
 
@@ -157,6 +188,7 @@ function mapIsReady(error, data) {
   resizeMapOverlay();
 
   prepareNeighborhoods();
+  updateCount();
   createMap();
 
   removeSmallNeighborhoods();
@@ -172,6 +204,8 @@ function prepareNeighborhoods() {
   }
 
   neighborhoodsToBeGuessed.sort();
+
+  totalNeighborhoodsCount = neighborhoodsToBeGuessed.length;
 }
 
 function createMap() {
@@ -185,26 +219,30 @@ function createMap() {
     .attr('name', function(d) { return d.properties.name; })
     .on('click', function(d) {
       var el = d3.event.target || d3.event.toElement;
-      handleNeighborhoodClick(el, d.properties.name);
+
+      if (!el.getAttribute('inactive')) {      
+        handleNeighborhoodClick(el, d.properties.name);
+      }
     })
     .on('mousedown', function(d) {
       d3.event.preventDefault();
     })
     .on('mouseover', function(d) {
       // TODO make a function
-
       var el = d3.event.target || d3.event.toElement;
 
-      var boundingBox = el.getBBox();
+      if (!el.getAttribute('inactive')) {
+        var boundingBox = el.getBBox();
 
-      var hoverEl = document.querySelector('#neighborhood-hover');
+        var hoverEl = document.querySelector('#neighborhood-hover');
 
-      hoverEl.innerHTML = d.properties.name;  
+        hoverEl.innerHTML = d.properties.name;  
 
-      hoverEl.style.left = (boundingBox.x + boundingBox.width / 2 - hoverEl.offsetWidth / 2) + 'px';
-      hoverEl.style.top = (boundingBox.y + boundingBox.height) + 'px';
+        hoverEl.style.left = (boundingBox.x + boundingBox.width / 2 - hoverEl.offsetWidth / 2) + 'px';
+        hoverEl.style.top = (boundingBox.y + boundingBox.height) + 'px';
 
-      hoverEl.classList.add('visible');  
+        hoverEl.classList.add('visible');  
+      }
     })
     .on('mouseout', function(d) {
       // TODO use target
@@ -253,7 +291,7 @@ function handleNeighborhoodClick(el, name) {
 
     neighborhoodsToBeGuessed.splice(no, 1);
 
-    updateCount();
+    updateGameProgress();
 
     if (neighborhoodsToBeGuessed.length == 0) {
       gameOver();
@@ -290,7 +328,7 @@ function handleNeighborhoodClick(el, name) {
   updateNeighborhoodDisplay();
 }
 
-function updateCount() {
+function updateGameProgress() {
   document.querySelector('#count').innerHTML = 
       neighborhoodsGuessed.length + ' of ' + 
       (neighborhoodsGuessed.length + neighborhoodsToBeGuessed.length);
@@ -354,12 +392,33 @@ function playAgain() {
   location.reload();
 }
 
-function startGame() {
+function removeNeighborhoodsForEasyMode() {
+  while (neighborhoodsToBeGuessed.length > EASY_MODE_COUNT) {
+    var pos = Math.floor(Math.random() * neighborhoodsToBeGuessed.length);
+
+    var name = neighborhoodsToBeGuessed[pos];
+
+    var el = document.querySelector('#map svg [name="' + name + '"]');
+    //el.parentNode.removeChild(el);
+    el.setAttribute('inactive', true);
+
+    neighborhoodsToBeGuessed.splice(pos, 1);
+  }
+
+}
+
+function startGame(useEasyMode) {
   document.querySelector('#intro').classList.remove('visible');  
   document.querySelector('#cover').classList.remove('visible');
   window.setTimeout(nextGuess, NEXT_GUESS_DELAY);
 
-  updateCount();
+  easyMode = useEasyMode;
+
+  if (easyMode) {
+    removeNeighborhoodsForEasyMode();
+  }
+
+  updateGameProgress();
 
   startTime = new Date().getTime();
   timerIntervalId = window.setInterval(updateTimer, 100);
@@ -369,7 +428,7 @@ function gameOver() {
   window.clearInterval(timerIntervalId);
 
   document.querySelector('#cover').classList.add('visible');
-  document.querySelector('#congrats').classList.add('visible');  
+  document.querySelector(easyMode ? '#congrats-easy' : '#congrats-hard').classList.add('visible');  
 }
 
 function updateTimer() {
@@ -469,12 +528,18 @@ function getCityName() {
   var cityMatch = location.href.match(/[\?\&]city=([^&]*)/);
 
   if (cityMatch && cityMatch[1]) {
-    if (SUPPORTED_CITIES.indexOf(cityMatch[1]) != -1) {
+    if (CITY_DATA[cityMatch[1]]) {
       cityId = cityMatch[1];
     }
   }      
 
   cityName = cityId.charAt(0).toUpperCase() + cityId.slice(1);
+}
+
+function updateFooter() {
+  document.querySelector('#data-source').href = CITY_DATA[cityId].dataUrl;
+  document.querySelector('#data-source').innerHTML = 
+      CITY_DATA[cityId].dataTitle;
 }
 
 function prepareLogo() {
@@ -488,6 +553,7 @@ function prepareLogo() {
 
 function main() {
   getCityName();
+  updateFooter();
 
   prepareLogo();
 
