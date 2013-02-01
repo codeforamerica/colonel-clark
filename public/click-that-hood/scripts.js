@@ -25,12 +25,26 @@ var neighborhoodsGuessed = [];
 
 var mapClickable = false;
 
-var SUPPORTED_CITIES = ['louisville', 'lexington'];
-
 // TODO unhardcode this
-var CITY_SIZES = {
-  'louisville': [ 1507, 1196 ],
-  'lexington': [ 1507, 1507 ]
+var CITY_DATA = {
+  'louisville': { 
+    mapSize: [ 1507, 1196 ],
+    query: "SELECT * FROM neighborhoods WHERE city = 'Louisville'",
+    dataUrl: 'http://www.zillow.com/howto/api/neighborhood-boundaries.htm',
+    dataTitle: 'Zillow'
+  },
+  'lexington': { 
+    mapSize: [ 1507, 1507 ],
+    query: "SELECT * FROM neighborhoods WHERE city = 'Lexington'",
+    dataUrl: 'http://www.zillow.com/howto/api/neighborhood-boundaries.htm',
+    dataTitle: 'Zillow'
+  },
+  'oakland': { 
+    mapSize: [ 1507, 1796 ],
+    query: "SELECT * FROM cth_oakland",
+    dataUrl: 'http://data.openoakland.org/dataset/zillow-neighborhoods',
+    dataTitle: 'OpenOakland'
+  },
 };
 
 var SMALL_NEIGHBORHOOD_THRESHOLD = 4;
@@ -86,8 +100,8 @@ function calculateMapSize() {
   latSpread = maxLat - minLat;
   lonSpread = maxLon - minLon;
 
-  var mapWidth = CITY_SIZES[cityId][0] / 2500000;
-  var mapHeight = CITY_SIZES[cityId][1] / 2500000;
+  var mapWidth = CITY_DATA[cityId].mapSize[0] / 2500000;
+  var mapHeight = CITY_DATA[cityId].mapSize[1] / 2500000;
 
   var mapRatio = mapWidth / mapHeight;
 
@@ -117,7 +131,7 @@ function prepareMap() {
       .attr('width', canvasWidth)
       .attr('height', canvasHeight);    
 
-  var query = "SELECT * FROM neighborhoods WHERE city = '" + cityName + "'";
+  var query = CITY_DATA[cityId].query;
 
   queue()  
       .defer(d3.json, 'http://cfa.cartodb.com/api/v2/sql?q=' + 
@@ -469,12 +483,18 @@ function getCityName() {
   var cityMatch = location.href.match(/[\?\&]city=([^&]*)/);
 
   if (cityMatch && cityMatch[1]) {
-    if (SUPPORTED_CITIES.indexOf(cityMatch[1]) != -1) {
+    if (CITY_DATA[cityMatch[1]]) {
       cityId = cityMatch[1];
     }
   }      
 
   cityName = cityId.charAt(0).toUpperCase() + cityId.slice(1);
+}
+
+function updateFooter() {
+  document.querySelector('#data-source').href = CITY_DATA[cityId].dataUrl;
+  document.querySelector('#data-source').innerHTML = 
+      CITY_DATA[cityId].dataTitle;
 }
 
 function prepareLogo() {
@@ -488,6 +508,7 @@ function prepareLogo() {
 
 function main() {
   getCityName();
+  updateFooter();
 
   prepareLogo();
 
