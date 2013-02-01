@@ -34,19 +34,16 @@ var easyMode = false;
 var CITY_DATA = {
   'louisville': { 
     mapSize: [ 1507, 1196 ],
-    query: "SELECT * FROM neighborhoods WHERE city = 'Louisville'",
     dataUrl: 'http://www.zillow.com/howto/api/neighborhood-boundaries.htm',
     dataTitle: 'Zillow'
   },
   'lexington': { 
     mapSize: [ 1507, 1507 ],
-    query: "SELECT * FROM neighborhoods WHERE city = 'Lexington'",
     dataUrl: 'http://www.zillow.com/howto/api/neighborhood-boundaries.htm',
     dataTitle: 'Zillow'
   },
   'oakland': { 
     mapSize: [ 1507, 1796 ],
-    query: "SELECT * FROM cth_oakland",
     dataUrl: 'http://data.openoakland.org/dataset/zillow-neighborhoods',
     dataTitle: 'OpenOakland'
   },
@@ -136,7 +133,7 @@ function prepareMap() {
       .attr('width', canvasWidth)
       .attr('height', canvasHeight);    
 
-  var query = CITY_DATA[cityId].query;
+  var query = "SELECT * FROM neighborhoods WHERE city = '" + cityId + "'";
 
   queue()  
       .defer(d3.json, 'http://cfa.cartodb.com/api/v2/sql?q=' + 
