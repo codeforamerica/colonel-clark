@@ -33,16 +33,19 @@ var easyMode = false;
 // TODO unhardcode this
 var CITY_DATA = {
   'louisville': { 
+    cartoDbQueryWhereClause: "city = 'Louisville'",
     mapSize: [ 1507, 1196 ],
     dataUrl: 'http://www.zillow.com/howto/api/neighborhood-boundaries.htm',
     dataTitle: 'Zillow'
   },
   'lexington': { 
+    cartoDbQueryWhereClause: "city = 'Lexington'",
     mapSize: [ 1507, 1507 ],
     dataUrl: 'http://www.zillow.com/howto/api/neighborhood-boundaries.htm',
     dataTitle: 'Zillow'
   },
   'oakland': { 
+    cartoDbQueryWhereClause: "city = 'Oakland'",
     mapSize: [ 1507, 1796 ],
     dataUrl: 'http://data.openoakland.org/dataset/zillow-neighborhoods',
     dataTitle: 'OpenOakland'
@@ -133,7 +136,7 @@ function prepareMap() {
       .attr('width', canvasWidth)
       .attr('height', canvasHeight);    
 
-  var query = "SELECT * FROM neighborhoods WHERE city = '" + cityId + "'";
+  var query = "SELECT * FROM neighborhoods WHERE " + CITY_DATA[city].cartoDbQueryWhereClause;
 
   queue()  
       .defer(d3.json, 'http://cfa.cartodb.com/api/v2/sql?q=' + 
