@@ -16,6 +16,16 @@ app.put('/api/v1/subscription/:id/status', api.v1.subscription_status.put);
 app.del('/api/v1/subscription/:id', api.v1.subscription.del);
 app.del('/api/v1/user/:id/subscriptions', api.v1.user_subscriptions.del);
 
+// Click that 'Hood redirect
+app.get('/click-that-hood', function(req, res, next) {
+    var redirectUrl = 'http://click-that-hood.herokuapp.com';
+    if (req._parsedUrl.search) {
+        res.redirect(redirectUrl + req._parsedUrl.search);
+    } else {
+        res.redirect(redirectUrl);
+    }
+})
+
 // Serve all other URIs as static files from the "public" directory.
 app.use(express.static(__dirname + '/public'));
 
