@@ -1,0 +1,34 @@
+@tabletWidth: 1024px;
+@tabletHeight: 768px;
+@toolbarHeight: 20px;
+
+@screenWidth: @tabletWidth;
+@screenHeight: @tabletHeight - @toolbarHeight;
+
+html, 
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  overflow: hidden;
+
+  display: -webkit-box;
+  -webkit-box-align: center;
+  -webkit-box-pack: center;
+}
+#screen {
+  width: @screenWidth;
+  height: @screenHeight;
+  background: white;
+  position: relative;
+}
+#screen > section {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
