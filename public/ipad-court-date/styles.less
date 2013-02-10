@@ -5,6 +5,16 @@
 @screenWidth: @tabletWidth;
 @screenHeight: @tabletHeight - @toolbarHeight;
 
+@screenMoveMargin: 100px;
+
+@screenMoveTime: 500ms;
+
+@screenBackground: rgb(240, 240, 240);
+
+@borderRadius: 10px;
+
+@calendarBorderColor: rgb(200, 200, 200);
+
 html, 
 body {
   height: 100%;
@@ -22,8 +32,11 @@ body {
 #screen {
   width: @screenWidth;
   height: @screenHeight;
-  background: white;
+  background: black;
   position: relative;
+  border-radius: @borderRadius;
+
+  overflow: hidden;
 }
 #screen > section {
   position: absolute;
@@ -31,4 +44,91 @@ body {
   top: 0;
   right: 0;
   bottom: 0;
+
+  background: @screenBackground;
+
+  border-radius: @borderRadius;
+
+  -webkit-transition: -webkit-transform @screenMoveTime;
+}
+
+#screen > section[state='current'] {
+  -webkit-transform: translateX(0);
+}
+#screen > section[state='last'] {
+  pointer-events: none;
+  -webkit-transform: translateX(-@screenWidth - @screenMoveMargin);
+}
+#screen > section[state='next'] {
+  pointer-events: none;
+  -webkit-transform: translateX(@screenWidth + @screenMoveMargin);
+}
+
+header {
+  text-align: center;
+
+  font-family: Avenir-Roman;
+  font-size: 40px;
+  margin-top: 40px;
+}
+
+footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 120px;
+
+  text-align: right;
+
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+button {
+  font-family: Avenir-Roman;
+  font-size: 40px;
+
+  padding: 20px 60px;
+
+  border-radius: @borderRadius;
+
+  border: 0;
+  background: white;
+
+  box-shadow: 0 0 1px black;
+}
+button:active {
+  background: red;
+}
+
+.calendars {
+  width: 100%;
+  background: white;
+  margin-top: 50px;
+}
+
+.calendar table {
+  border-collapse: collapse;
+  padding: 0;
+  margin: 0;
+
+  font-family: Avenir-Book;
+  font-size: 30px;
+}
+.calendar td,
+.calendar th {
+  text-align: center;
+  width: 20px;
+  font-weight: normal;
+  padding: 5px 10px;
+  border: 1px solid @calendarBorderColor;
+  margin: 0;
+}
+
+.calendar th {
+  font-size: 20px;
+}
+.calendar td {
+
 }
